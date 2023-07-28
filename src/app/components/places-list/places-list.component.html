@@ -1,8 +1,9 @@
 <div class="place-list">
     <div *ngFor="let place of places" class="place-card">
         <h2>{{ place.name }}</h2>
-        <ul>
-            <li *ngFor="let tag of place.tags">{{ tag }}</li>
-        </ul>
+        <div class="tag-list">
+            <span *ngFor="let tag of place.tags" class="tag">{{ tag }}</span>
+        </div>
+        <a *ngIf="place.link" href="{{ place.link }}" target="_blank">Instagram</a>
     </div>
 </div>

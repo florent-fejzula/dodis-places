@@ -2,6 +2,7 @@ export interface Place {
     id: number;
     name: string;
     tags: string[];
+    link?: string;
 }
 
 /*
@@ -14,18 +15,19 @@ food, kebap, burger, fish, pasta, pizza
 const places: Place[] = [
     {
         id: 1,
-        name: 'Cozy Cafe',
-        tags: ['coffee', 'pastries', 'cosy']
+        name: 'Oud Coffee Co.',
+        tags: ['coffee', 'cocktails'],
+        link: 'https://www.instagram.com/oudcoffeeco/'
     },
     {
         id: 2,
         name: 'Pizza Palace',
-        tags: ['pizza', 'italian', 'family-friendly']
+        tags: ['pizza', 'italian']
     },
     {
         id: 3,
         name: 'Luxurious Bistro',
-        tags: ['luxury', 'fine-dining', 'cocktails']
+        tags: ['luxury', 'cocktails']
     }
 ];
 
