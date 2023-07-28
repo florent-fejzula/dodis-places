@@ -10,6 +10,8 @@ import places, { Place } from './models/places';
 export class AppComponent {
   allTags: string[] = availableTags;
   selectedTag = '';
+  selectedTags: string[] = [];
+
   places: Place[] = [];
   filteredPlaces: Place[] = [];
 
@@ -18,7 +20,20 @@ export class AppComponent {
   }
 
   onTagClicked(selectedTag: string) {
-    this.selectedTag = selectedTag;
-    this.filteredPlaces = this.places.filter((place) => place.tags.includes(selectedTag));
+    if (this.selectedTags.includes(selectedTag)) {
+      this.selectedTags = this.selectedTags.filter(selectedTag => selectedTag !== selectedTag);
+    } else {
+      this.selectedTags.push(selectedTag);
+    }
+    console.log(this.selectedTags);
+    
+    this.filteredPlaces = this.places.filter(place =>
+      this.selectedTags.every(selectedTag => place.tags.includes(selectedTag))
+    );
   }
+
+  isTagSelected(tag: string): boolean {
+    return this.selectedTags.includes(tag);
+  }
+  
 }

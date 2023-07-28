@@ -4,13 +4,6 @@ export interface Place {
     link?: string;
 }
 
-/*
-Available tags:
-luxury, coffee, specialty, work, croissant, breakfast, corba, bread,
-salad, juices, cocktails, dessert, iceCream, baklava, pancake,
-food, kebap, burger, fish, pasta, pizza, sandwich
-*/
-
 const places: Place[] = [
     {
         name: 'Oud Coffee Co.',
@@ -19,7 +12,7 @@ const places: Place[] = [
     },
     {
         name: 'Daily Food & Wine',
-        tags: ['breakfast', 'food', 'luxury']
+        tags: ['luxury', 'food', 'breakfast']
     },
     {
         name: 'Bristot',
@@ -27,11 +20,11 @@ const places: Place[] = [
     },
     {
         name: 'Matto Napoletano',
-        tags: ['pizza', 'luxury']
+        tags: ['luxury', 'food', 'pizza']
     },
     {
         name: 'The Dude',
-        tags: ['coffee', 'specialty']
+        tags: ['chill', 'coffee', 'specialty']
     },
     {
         name: 'Spizzicotto',
@@ -51,7 +44,7 @@ const places: Place[] = [
     },
     {
         name: 'Distrikt',
-        tags: ['luxury', 'salad', 'pizza']
+        tags: ['luxury', 'food', 'salad', 'pizza']
     },
     {
         name: 'Drip',
@@ -59,7 +52,7 @@ const places: Place[] = [
     },
     {
         name: 'ChocoHouse',
-        tags: ['coffee', 'juices', 'pancake', 'dessert']
+        tags: ['juices', 'pancake', 'dessert']
     },
     {
         name: 'Aloha',
@@ -67,11 +60,11 @@ const places: Place[] = [
     },
     {
         name: 'Oriental Bahce',
-        tags: ['coffee', 'dessert']
+        tags: ['chill', 'coffee', 'dessert']
     },
     {
         name: 'Balkan Tantuni',
-        tags: ['food']
+        tags: ['food', 'cigKofte']
     },
     {
         name: 'Metanoja',
@@ -79,7 +72,7 @@ const places: Place[] = [
     },
     {
         name: 'MILO Fine Dining',
-        tags: ['luxury', 'pasta']
+        tags: ['luxury', 'food', 'pasta']
     },
     {
         name: 'Dabov',
@@ -91,7 +84,7 @@ const places: Place[] = [
     },
     {
         name: 'La Terrazza',
-        tags: ['pasta']
+        tags: ['food', 'pasta']
     },
     {
         name: 'Zentral',
@@ -103,7 +96,7 @@ const places: Place[] = [
     },
     {
         name: 'Mikel',
-        tags: ['coffee', 'work']
+        tags: ['chill', 'coffee', 'work']
     },
     {
         name: 'Joy Karposh',
@@ -123,11 +116,11 @@ const places: Place[] = [
     },
     {
         name: 'Mati',
-        tags: ['food']
+        tags: ['food', 'lahmacun']
     },
     {
         name: 'Pcela',
-        tags: ['kebap']
+        tags: ['food', 'kebap']
     },
     {
         name: 'Sugar Cube Corner',
@@ -143,7 +136,7 @@ const places: Place[] = [
     },
     {
         name: 'Chair',
-        tags: ['food']
+        tags: ['food', 'simitPogaca']
     },
     {
         name: 'Sweet Look',
@@ -163,7 +156,7 @@ const places: Place[] = [
     },
     {
         name: 'Destan',
-        tags: ['kebap']
+        tags: ['food', 'kebap']
     },
     {
         name: 'Breadway',
@@ -175,15 +168,15 @@ const places: Place[] = [
     },
     {
         name: 'Gino',
-        tags: ['pizza']
+        tags: ['food', 'pizza']
     },
     {
         name: 'Kacamak',
-        tags: ['food']
+        tags: ['food', 'meats']
     },
     {
         name: 'Engin Cigkofte',
-        tags: ['food']
+        tags: ['food', 'cigKofte', 'lahmacun']
     },
     {
         name: 'Vero',
@@ -203,7 +196,7 @@ const places: Place[] = [
     },
     {
         name: 'L\'angolo Di Caffe',
-        tags: ['coffee', 'dessert']
+        tags: ['chill', 'coffee', 'dessert']
     },
     {
         name: 'Pastel',
@@ -215,11 +208,11 @@ const places: Place[] = [
     },
     {
         name: 'Four',
-        tags: ['luxury', 'coffee']
+        tags: ['luxury', 'chill', 'coffee']
     },
     {
         name: 'Bella Vista East Gate',
-        tags: ['coffee', 'pancake', 'dessert']
+        tags: ['pancake', 'dessert']
     },
     {
         name: 'Healthyish Debar Maalo',
@@ -227,15 +220,15 @@ const places: Place[] = [
     },
     {
         name: 'Garden',
-        tags: ['food']
+        tags: ['food', 'meats']
     },
     {
         name: 'Mr. Pizza',
-        tags: ['pizza']
+        tags: ['food', 'pizza']
     },
     {
         name: 'MOIA',
-        tags: ['coffee', 'dessert']
+        tags: ['chill', 'coffee', 'dessert']
     },
     {
         name: 'Healthyish Leptokarija',
@@ -243,7 +236,7 @@ const places: Place[] = [
     },
     {
         name: 'Cafe Ottoman',
-        tags: ['coffee', 'juices']
+        tags: ['chill', 'coffee', 'juices']
     },
     {
         name: 'Coffee Factory Center',
@@ -251,7 +244,7 @@ const places: Place[] = [
     },
     {
         name: 'Sarajeva Steakhouse',
-        tags: ['burger']
+        tags: ['food', 'burger']
     },
     {
         name: 'Cafe Sach',
@@ -259,15 +252,15 @@ const places: Place[] = [
     },
     {
         name: 'Destan East Gate',
-        tags: ['kebap']
+        tags: ['food', 'kebap']
     },
     {
         name: 'Levant',
-        tags: ['food']
+        tags: ['food', 'meats']
     },
     {
         name: 'SushiCo',
-        tags: ['luxury', 'food']
+        tags: ['luxury', 'food', 'sushi']
     },
     {
         name: 'Lokmades',
@@ -275,15 +268,15 @@ const places: Place[] = [
     },
     {
         name: 'Destan Bunjakovec',
-        tags: ['kebap']
+        tags: ['food', 'kebap']
     },
     {
         name: 'Saraevo',
-        tags: ['corba', 'kebap']
+        tags: ['food', 'corba', 'kebap']
     },
     {
         name: 'Teteks Carsija',
-        tags: ['burger']
+        tags: ['food', 'burger']
     },
     {
         name: 'Mulliri',
@@ -291,7 +284,7 @@ const places: Place[] = [
     },
     {
         name: 'Anatolia',
-        tags: ['food']
+        tags: ['food', 'lahmacun', 'icliKofte']
     },
     {
         name: 'Fish Restaurant',
@@ -303,15 +296,15 @@ const places: Place[] = [
     },
     {
         name: 'La Puerta',
-        tags: ['food']
+        tags: ['food', 'burrito']
     },
     {
         name: 'Miracoli',
-        tags: ['food']
+        tags: ['food', 'salad', 'meats']
     },
     {
         name: 'ChaCha',
-        tags: ['food', 'pasta']
+        tags: ['food', 'pasta', 'meats']
     }
 ];
 
