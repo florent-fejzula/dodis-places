@@ -1,5 +1,5 @@
 <div class="place-list">
-    <div *ngFor="let place of places" class="place-card">
+    <div *ngFor="let place of placesInput" class="place-card">
         <h2>{{ place.name }}</h2>
         <div class="tag-list">
             <span *ngFor="let tag of place.tags" class="tag">{{ tag }}</span>

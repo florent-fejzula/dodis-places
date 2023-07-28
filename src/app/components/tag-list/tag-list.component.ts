@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
   selector: 'app-tag-list',
@@ -8,5 +8,10 @@ import { Component, Input } from '@angular/core';
 export class TagListComponent {
 
   @Input() tags: string[] = [];
+  @Output() tagClicked: EventEmitter<string> = new EventEmitter<string>();
+
+  onTagClicked(selectedTag: string) {
+    this.tagClicked.emit(selectedTag);
+  }
 
 }

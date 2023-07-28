@@ -2,7 +2,7 @@ const availableTags: string[] = [
     'luxury', 'ambient', 'coffee', 'specialty', 'work', 'croissant', 'breakfast',
     'corba', 'bread', 'salad', 'juices', 'cocktails', 'dessert',
     'iceCream', 'baklava', 'pancake', 'food', 'kebap', 'burger',
-    'fish', 'pasta', 'pizza'
+    'fish', 'pasta', 'pizza', 'sandwich'
   ];
   
   export default availableTags;

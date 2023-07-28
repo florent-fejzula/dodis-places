@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import places, { Place } from 'src/app/models/places';
 
 @Component({
@@ -6,12 +6,12 @@ import places, { Place } from 'src/app/models/places';
   templateUrl: './places-list.component.html',
   styleUrls: ['./places-list.component.scss']
 })
-export class PlacesListComponent implements OnInit {
+export class PlacesListComponent {
 
-  places: Place[] = [];
+  @Input() placesInput: Place[] = [];
 
   ngOnInit(): void {
-    this.places = places;
+    this.placesInput = places;
   }
 
 }
