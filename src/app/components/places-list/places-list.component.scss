@@ -1,0 +1,26 @@
+.place-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+
+    .place-card {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        min-width: 200px;
+        max-width: 300px;
+
+        h2 {
+            margin-bottom: 10px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+
+            li {
+                margin-bottom: 5px;
+            }
+        }
+    }
+}

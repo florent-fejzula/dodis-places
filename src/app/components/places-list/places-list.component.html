@@ -1,0 +1,8 @@
+<div class="place-list">
+    <div *ngFor="let place of places" class="place-card">
+        <h2>{{ place.name }}</h2>
+        <ul>
+            <li *ngFor="let tag of place.tags">{{ tag }}</li>
+        </ul>
+    </div>
+</div>
