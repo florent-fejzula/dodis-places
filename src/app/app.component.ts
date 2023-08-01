@@ -25,7 +25,6 @@ export class AppComponent {
     } else {
       this.selectedTags.push(selectedTag);
     }
-    console.log(this.selectedTags);
     
     this.filteredPlaces = this.places.filter(place =>
       this.selectedTags.every(selectedTag => place.tags.includes(selectedTag))

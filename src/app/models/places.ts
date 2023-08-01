@@ -12,7 +12,7 @@ const places: Place[] = [
     },
     {
         name: 'Daily Food & Wine',
-        tags: ['luxury', 'food', 'breakfast']
+        tags: ['luxury', 'restaurant', 'food', 'breakfast', 'juices', 'dessert']
     },
     {
         name: 'Bristot',
@@ -44,7 +44,7 @@ const places: Place[] = [
     },
     {
         name: 'Distrikt',
-        tags: ['luxury', 'food', 'salad', 'pizza']
+        tags: ['luxury', 'restaurant', 'food', 'salad', 'pizza']
     },
     {
         name: 'Drip',
@@ -72,7 +72,7 @@ const places: Place[] = [
     },
     {
         name: 'MILO Fine Dining',
-        tags: ['luxury', 'food', 'pasta']
+        tags: ['luxury', 'restaurant', 'food', 'pasta']
     },
     {
         name: 'Dabov',
@@ -84,7 +84,7 @@ const places: Place[] = [
     },
     {
         name: 'La Terrazza',
-        tags: ['food', 'pasta']
+        tags: ['restaurant', 'food', 'pasta']
     },
     {
         name: 'Zentral',
@@ -132,7 +132,7 @@ const places: Place[] = [
     },
     {
         name: 'Oselot',
-        tags: ['dessert']
+        tags: ['restaurant', 'dessert']
     },
     {
         name: 'Chair',
@@ -168,11 +168,11 @@ const places: Place[] = [
     },
     {
         name: 'Gino',
-        tags: ['food', 'pizza']
+        tags: ['restaurant', 'food', 'pizza']
     },
     {
         name: 'Kacamak',
-        tags: ['food', 'meats']
+        tags: ['restaurant', 'food', 'meats']
     },
     {
         name: 'Engin Cigkofte',
@@ -208,11 +208,11 @@ const places: Place[] = [
     },
     {
         name: 'Four',
-        tags: ['luxury', 'chill', 'coffee']
+        tags: ['luxury', 'chill', 'restaurant', 'coffee']
     },
     {
         name: 'Bella Vista East Gate',
-        tags: ['pancake', 'dessert']
+        tags: ['restaurant', 'pancake', 'dessert']
     },
     {
         name: 'Healthyish Debar Maalo',
@@ -220,7 +220,7 @@ const places: Place[] = [
     },
     {
         name: 'Garden',
-        tags: ['food', 'meats']
+        tags: ['restaurant', 'food', 'meats']
     },
     {
         name: 'Mr. Pizza',
@@ -260,7 +260,7 @@ const places: Place[] = [
     },
     {
         name: 'SushiCo',
-        tags: ['luxury', 'food', 'sushi']
+        tags: ['luxury', 'restaurant', 'food', 'sushi']
     },
     {
         name: 'Lokmades',
@@ -288,23 +288,19 @@ const places: Place[] = [
     },
     {
         name: 'Fish Restaurant',
-        tags: ['food', 'fish']
+        tags: ['restaurant', 'food', 'fish']
     },
     {
         name: 'Caffe Izzi',
         tags: ['coffee']
     },
     {
-        name: 'La Puerta',
-        tags: ['food', 'burrito']
-    },
-    {
         name: 'Miracoli',
-        tags: ['food', 'salad', 'meats']
+        tags: ['restaurant', 'food', 'salad', 'meats']
     },
     {
         name: 'ChaCha',
-        tags: ['food', 'pasta', 'meats']
+        tags: ['restaurant', 'food', 'pasta', 'meats']
     }
 ];
 

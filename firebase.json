@@ -1,0 +1,10 @@
+{
+  "hosting": {
+    "public": "dist/dodi-places",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}
