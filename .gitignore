@@ -36,6 +36,7 @@ yarn-error.log
 /libpeerconnection.log
 testem.log
 /typings
+/electronApp-win32-x64
 
 # System files
 .DS_Store
