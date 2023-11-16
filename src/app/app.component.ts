@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import availableTags from './models/tags';
+import { locationTags, vibeTags, stuffTags, availableTags } from './models/tags';
 import places, { Place } from './models/places';
 
 @Component({
@@ -9,6 +9,9 @@ import places, { Place } from './models/places';
 })
 export class AppComponent {
   allTags: string[] = availableTags;
+  locationTags: string[] = locationTags;
+  vibeTags: string[] = vibeTags;
+  stuffTags: string[] = stuffTags;
   selectedTag = '';
   selectedTags: string[] = [];
 

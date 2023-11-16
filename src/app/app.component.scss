@@ -1,42 +1,61 @@
-
 .container {
   border: 1px solid red;
-    width: 1060px;
-    margin: 0 auto;
-    padding: 20px;
+  width: 1060px;
+  margin: 0 auto;
+  padding: 20px;
 
-    h1 {
-        text-align: center;
-        margin-bottom: 20px;
-    }
+  h1 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
 
-    h2 {
-      span {
-        color: #007bff;
-      }
+  h2 {
+    span {
+      color: #007bff;
     }
+  }
 }
 
 .tag-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    padding-bottom: 20px;
-  
-    .tag {
-      background-color: #f2f2f2;
-      border: 2px solid #f2f2f2;
-      padding: 6px 12px;
-      border-radius: 20px;
-      cursor: pointer;
-  
-      &:hover {
-        border: 2px solid #007bff;
-      }
-      
-      &.active {
-        background-color: #007bff;
-        color: #ffffff;
-      }
-    }
+  padding-bottom: 20px;
+}
+
+.tag {
+  background-color: #f2f2f2;
+  border: 2px solid #f2f2f2;
+  padding: 6px 12px;
+  margin: 4px 2px;
+  border-radius: 20px;
+  cursor: pointer;
+
+  &:hover {
+    border: 2px solid #007bff;
   }
+
+  &.active {
+    background-color: #007bff;
+    color: #ffffff;
+  }
+}
+
+.locationTags,
+.vibeTags,
+.stuffTags {
+  display: flex;
+  margin: 8px 0;
+  align-items: baseline;
+}
+
+.label {
+  width: 78px;
+  text-align: right;
+  font-weight: bold;
+  font-size: 18px;
+  margin-right: 8px;
+}
+
+.tagContainer {
+  flex-wrap: wrap;
+  display: flex;
+  max-width: 90%;
+}

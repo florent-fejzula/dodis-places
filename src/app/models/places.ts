@@ -7,300 +7,388 @@ export interface Place {
 const places: Place[] = [
     {
         name: 'Oud Coffee Co.',
-        tags: ['coffee', 'cocktails'],
+        tags: ['carshi', 'coffee', 'specialty', 'cocktails'],
         link: 'https://www.instagram.com/oudcoffeeco/'
     },
     {
         name: 'Daily Food & Wine',
-        tags: ['luxury', 'restaurant', 'food', 'breakfast', 'juices', 'dessert']
+        tags: ['karposh', 'luxury', 'restaurant', 'food', 'breakfast', 'juices', 'dessert']
     },
     {
         name: 'Bristot',
-        tags: ['coffee']
+        tags: ['karposh', 'coffee']
     },
     {
         name: 'Matto Napoletano',
-        tags: ['luxury', 'food', 'pizza']
+        tags: ['karposh', 'luxury', 'food', 'pizza']
     },
     {
         name: 'The Dude',
-        tags: ['chill', 'coffee', 'specialty']
+        tags: ['karposh', 'chill', 'coffee', 'specialty']
     },
     {
         name: 'Spizzicotto',
-        tags: ['breakfast', 'sandwich']
+        tags: ['aerodrom', 'breakfast', 'sandwich']
     },
     {
         name: 'Teeny Tajni',
-        tags: ['breakfast', 'juices']
+        tags: ['karposh', 'breakfast', 'juices']
     },
     {
         name: 'Lipa',
-        tags: ['coffee', 'croissant']
+        tags: ['karposh', 'coffee', 'croissant']
     },
     {
         name: 'Mapo City',
-        tags: ['coffee']
+        tags: ['aerodrom', 'coffee']
     },
     {
         name: 'Distrikt',
-        tags: ['luxury', 'restaurant', 'food', 'salad', 'pizza']
+        tags: ['centar', 'luxury', 'restaurant', 'food', 'salad', 'pizza']
     },
     {
         name: 'Drip',
-        tags: ['coffee', 'specialty']
+        tags: ['karposh', 'coffee', 'specialty']
     },
     {
         name: 'ChocoHouse',
-        tags: ['juices', 'pancake', 'dessert']
+        tags: ['centar', 'juices', 'pancake', 'dessert']
     },
     {
         name: 'Aloha',
-        tags: ['cocktails']
+        tags: ['karposh', 'cocktails']
     },
     {
         name: 'Oriental Bahce',
-        tags: ['chill', 'coffee', 'dessert']
+        tags: ['carshi', 'chill', 'coffee', 'dessert']
     },
     {
         name: 'Balkan Tantuni',
-        tags: ['food', 'cigKofte']
+        tags: ['cair', 'food', 'cigKofte', 'burger']
     },
     {
         name: 'Metanoja',
-        tags: ['coffee', 'work']
+        tags: ['centar', 'coffee', 'work']
     },
     {
         name: 'MILO Fine Dining',
-        tags: ['luxury', 'restaurant', 'food', 'pasta']
+        tags: ['karposh', 'luxury', 'restaurant', 'food', 'pasta']
     },
     {
         name: 'Dabov',
-        tags: ['coffee', 'specialty']
+        tags: ['karposh', 'coffee', 'specialty']
     },
     {
         name: 'Eskimo',
-        tags: ['iceCream']
+        tags: ['centar', 'iceCream']
     },
     {
         name: 'La Terrazza',
-        tags: ['restaurant', 'food', 'pasta']
+        tags: ['centar', 'restaurant', 'food', 'pasta']
     },
     {
         name: 'Zentral',
-        tags: ['coffee', 'work']
+        tags: ['centar', 'coffee', 'work']
     },
     {
         name: 'Joy Center',
-        tags: ['coffee', 'croissant']
+        tags: ['centar', 'coffee', 'croissant']
     },
     {
         name: 'Mikel',
-        tags: ['chill', 'coffee', 'work']
+        tags: ['karposh', 'chill', 'coffee', 'work']
     },
     {
         name: 'Joy Karposh',
-        tags: ['coffee', 'croissant', 'work']
+        tags: ['karposh', 'coffee', 'croissant', 'work']
     },
     {
         name: 'Stela',
-        tags: ['dessert']
+        tags: ['aerodrom', 'dessert']
     },
     {
         name: 'Cedeno Medeno Ledeno',
-        tags: ['breakfast', 'juices']
+        tags: ['aerodrom', 'breakfast', 'juices']
     },
     {
         name: 'Angela Merkel',
-        tags: ['baklava']
+        tags: ['carshi', 'baklava']
     },
     {
         name: 'Mati',
-        tags: ['food', 'lahmacun']
+        tags: ['carshi', 'food', 'lahmacun']
     },
     {
         name: 'Pcela',
-        tags: ['food', 'kebap']
+        tags: ['cair', 'food', 'kebap']
     },
     {
         name: 'Sugar Cube Corner',
-        tags: ['coffee', 'pancake']
+        tags: ['aerodrom', 'coffee', 'pancake']
     },
     {
         name: 'Joy Kapistec',
-        tags: ['coffee', 'croissant', 'work', 'bread']
+        tags: ['karposh', 'coffee', 'croissant', 'work', 'bread']
     },
     {
         name: 'Oselot',
-        tags: ['restaurant', 'dessert']
+        tags: ['karposh', 'restaurant', 'dessert']
     },
     {
-        name: 'Chair',
-        tags: ['food', 'simitPogaca']
+        name: 'Furna Cair',
+        tags: ['cair', 'food', 'simitPogaca']
     },
     {
         name: 'Sweet Look',
-        tags: ['iceCream']
+        tags: ['centar', 'iceCream']
     },
     {
         name: 'Mon Frere',
-        tags: ['coffee', 'cocktails']
+        tags: ['carshi', 'coffee', 'cocktails']
     },
     {
         name: 'Teff Bakery',
-        tags: ['breakfast', 'croissant']
+        tags: ['carshi', 'breakfast', 'croissant']
     },
     {
         name: 'World of Coffee',
-        tags: ['coffee', 'specialty']
+        tags: ['aerodrom', 'coffee', 'specialty']
     },
     {
         name: 'Destan',
-        tags: ['food', 'kebap']
-    },
-    {
-        name: 'Breadway',
-        tags: ['coffee', 'breakfast']
+        tags: ['carshi', 'food', 'kebap']
     },
     {
         name: 'Silbo',
-        tags: ['croissant', 'bread']
+        tags: ['karposh', 'croissant', 'bread']
     },
     {
         name: 'Gino',
-        tags: ['restaurant', 'food', 'pizza']
+        tags: ['centar', 'restaurant', 'food', 'pizza', 'dessert', 'fullCake']
     },
     {
         name: 'Kacamak',
-        tags: ['restaurant', 'food', 'meats']
+        tags: ['carshi', 'restaurant', 'food', 'meats']
     },
     {
         name: 'Engin Cigkofte',
-        tags: ['food', 'cigKofte', 'lahmacun']
+        tags: ['carshi', 'food', 'corba', 'cigKofte', 'lahmacun', 'burger']
     },
     {
-        name: 'Vero',
-        tags: ['croissant', 'bread']
+        name: 'Vero Cair',
+        tags: ['cair', 'croissant', 'bread']
+    },
+    {
+        name: 'Vero Taftalidze',
+        tags: ['karposh', 'croissant', 'bread']
     },
     {
         name: 'Coffee Factory Debar Maalo',
-        tags: ['coffee', 'dessert']
+        tags: ['karposh', 'coffee', 'dessert']
     },
     {
         name: 'Balat',
-        tags: ['coffee', 'baklava', 'cocktails']
+        tags: ['carshi', 'coffee', 'cocktails']
     },
     {
         name: 'Ristretto',
-        tags: ['coffee', 'specialty']
+        tags: ['karposh', 'coffee', 'specialty']
     },
     {
         name: 'L\'angolo Di Caffe',
-        tags: ['chill', 'coffee', 'dessert']
+        tags: ['karposh', 'chill', 'coffee', 'dessert']
     },
     {
         name: 'Pastel',
-        tags: ['croissant']
+        tags: ['karposh', 'croissant']
     },
     {
         name: 'Bottega del Gusto',
-        tags: ['pasta']
+        tags: ['centar', 'pasta']
     },
     {
         name: 'Four',
-        tags: ['luxury', 'chill', 'restaurant', 'coffee']
+        tags: ['karposh', 'luxury', 'chill', 'restaurant', 'coffee']
     },
     {
         name: 'Bella Vista East Gate',
-        tags: ['restaurant', 'pancake', 'dessert']
+        tags: ['aerodrom', 'restaurant', 'pancake', 'coffee']
     },
     {
         name: 'Healthyish Debar Maalo',
-        tags: ['breakfast', 'juices']
+        tags: ['karposh', 'breakfast', 'juices']
     },
     {
         name: 'Garden',
-        tags: ['restaurant', 'food', 'meats']
+        tags: ['karposh', 'restaurant', 'food', 'meats']
     },
     {
         name: 'Mr. Pizza',
-        tags: ['food', 'pizza']
+        tags: ['karposh', 'food', 'pizza']
     },
     {
         name: 'MOIA',
-        tags: ['chill', 'coffee', 'dessert']
+        tags: ['karposh', 'chill', 'coffee', 'dessert']
     },
     {
         name: 'Healthyish Leptokarija',
-        tags: ['breakfast', 'juices']
+        tags: ['karposh', 'breakfast', 'juices']
     },
     {
         name: 'Cafe Ottoman',
-        tags: ['chill', 'coffee', 'juices']
+        tags: ['carshi', 'chill', 'coffee', 'juices']
     },
     {
         name: 'Coffee Factory Center',
-        tags: ['coffee', 'dessert']
+        tags: ['centar', 'coffee', 'dessert']
     },
     {
         name: 'Sarajeva Steakhouse',
-        tags: ['food', 'burger']
+        tags: ['aerodrom', 'food', 'burger']
     },
     {
         name: 'Cafe Sach',
-        tags: ['coffee']
+        tags: ['aerodrom', 'coffee']
     },
     {
         name: 'Destan East Gate',
-        tags: ['food', 'kebap']
+        tags: ['aerodrom', 'food', 'kebap']
     },
     {
         name: 'Levant',
-        tags: ['food', 'meats']
+        tags: ['aerodrom', 'food', 'meats']
     },
     {
         name: 'SushiCo',
-        tags: ['luxury', 'restaurant', 'food', 'sushi']
+        tags: ['karposh', 'luxury', 'restaurant', 'food', 'sushi']
     },
     {
-        name: 'Lokmades',
-        tags: ['dessert']
+        name: 'Lukumades',
+        tags: ['centar', 'dessert', 'iceCream']
     },
     {
         name: 'Destan Bunjakovec',
-        tags: ['food', 'kebap']
+        tags: ['karposh', 'food', 'kebap']
     },
     {
         name: 'Saraevo',
-        tags: ['food', 'corba', 'kebap']
+        tags: ['carshi', 'food', 'corba', 'kebap']
     },
     {
         name: 'Teteks Carsija',
-        tags: ['food', 'burger']
+        tags: ['carshi', 'food', 'burger']
     },
     {
         name: 'Mulliri',
-        tags: ['coffee', 'dessert']
+        tags: ['carshi', 'coffee', 'dessert']
     },
     {
         name: 'Anatolia',
-        tags: ['food', 'lahmacun', 'icliKofte']
+        tags: ['centar', 'food', 'lahmacun', 'icliKofte']
     },
     {
         name: 'Fish Restaurant',
-        tags: ['restaurant', 'food', 'fish']
+        tags: ['karposh', 'restaurant', 'food', 'fish']
     },
     {
         name: 'Caffe Izzi',
-        tags: ['coffee']
+        tags: ['karposh', 'coffee']
     },
     {
         name: 'Miracoli',
-        tags: ['restaurant', 'food', 'salad', 'meats']
+        tags: ['karposh', 'restaurant', 'food', 'salad', 'meats']
     },
     {
         name: 'ChaCha',
-        tags: ['restaurant', 'food', 'pasta', 'meats']
+        tags: ['cair', 'restaurant', 'food', 'pasta', 'meats']
+    },
+    {
+        name: 'Routine',
+        tags: ['cair', 'restaurant', 'coffee', 'dessert']
+    },
+    {
+        name: '4us',
+        tags: ['cair', 'food', 'burger']
+    },
+    {
+        name: 'Delice',
+        tags: ['carshi', 'coffee', 'croissant', 'dessert', 'fullCake']
+    },
+    {
+        name: 'Milky',
+        tags: ['karposh', 'coffee', 'dessert', 'pancake']
+    },
+    {
+        name: 'Arabika',
+        tags: ['cair', 'food', 'breakfast', 'coffee']
+    },
+    {
+        name: 'Lusso',
+        tags: ['karposh', 'coffee', 'specialty']
+    },
+    {
+        name: 'Bravo',
+        tags: ['cair', 'food', 'lahmacun', 'burger', 'dessert']
+    },
+    {
+        name: 'Meydan',
+        tags: ['cair', 'food', 'restaurant', 'dessert', 'baklava']
+    },
+    {
+        name: 'Selo',
+        tags: ['cair', 'food', 'cigKofte', 'burger']
+    },
+    {
+        name: 'Scoop Artisan',
+        tags: ['karposh', 'iceCream']
+    },
+    {
+        name: 'Slatkogram',
+        tags: ['karposh', 'dessert']
+    },
+    {
+        name: 'Burger Zone',
+        tags: ['cair', 'food', 'burger']
+    },
+    {
+        name: 'Teteks Cair',
+        tags: ['cair', 'food', 'burger']
+    },
+    {
+        name: 'NoName',
+        tags: ['cair', 'food', 'pizza']
+    },
+    {
+        name: 'Malaga',
+        tags: ['centar', 'iceCream']
+    },
+    {
+        name: 'Viva Fresh',
+        tags: ['cair', 'croissant']
+    },
+    {
+        name: 'Mola Cafe',
+        tags: ['carshi', 'coffee', 'juices']
+    },
+    {
+        name: 'Ramce',
+        tags: ['cair', 'food', 'breakfast', 'simitPogaca']
+    },
+    {
+        name: 'MyWay Cafe',
+        tags: ['carshi', 'coffee']
+    },
+    {
+        name: 'Balkan Corner',
+        tags: ['carshi', 'coffee', 'specialty']
+    },
+    {
+        name: 'Miam Bakery & Cafe',
+        tags: ['centar', 'breakfast', 'croissant', 'coffee']
+    },
+    {
+        name: 'Cafe Paname',
+        tags: ['karposh', 'chill', 'coffee', 'croissant', 'dessert']
     }
 ];
 

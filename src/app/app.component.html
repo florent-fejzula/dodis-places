@@ -1,11 +1,48 @@
 <div class="container">
   <h1>Dodi's Places</h1>
   <div class="tag-list">
-    <span *ngFor="let tag of allTags" class="tag" (click)="onTagClicked(tag)"
-      [ngClass]="{ 'active': isTagSelected(tag) }">
-      {{ tag }}
-    </span>
+    <div class="locationTags">
+      <div class="label">Location:</div>
+      <div class="tagContainer">
+        <div
+          *ngFor="let tag of locationTags"
+          class="tag"
+          (click)="onTagClicked(tag)"
+          [ngClass]="{ active: isTagSelected(tag) }"
+        >
+          {{ tag }}
+        </div>
+      </div>
+    </div>
+    <div class="vibeTags">
+      <div class="label">Vibe:</div>
+      <div class="tagContainer">
+        <div
+          *ngFor="let tag of vibeTags"
+          class="tag"
+          (click)="onTagClicked(tag)"
+          [ngClass]="{ active: isTagSelected(tag) }"
+        >
+          {{ tag }}
+        </div>
+      </div>
+    </div>
+    <div class="stuffTags">
+      <div class="label">Stuff:</div>
+      <div class="tagContainer">
+        <div
+          *ngFor="let tag of stuffTags"
+          class="tag"
+          (click)="onTagClicked(tag)"
+          [ngClass]="{ active: isTagSelected(tag) }"
+        >
+          {{ tag }}
+        </div>
+      </div>
+    </div>
   </div>
-  <h2 class="placesWithTag">Places with the tag: <span>{{ selectedTags.join(', ') }}</span></h2>
+  <h2 class="placesWithTag">
+    Places with the tag: <span>{{ selectedTags.join(", ") }}</span>
+  </h2>
   <app-places-list [placesInput]="filteredPlaces"></app-places-list>
 </div>
