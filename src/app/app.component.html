@@ -41,8 +41,16 @@
       </div>
     </div>
   </div>
-  <h2 class="placesWithTag">
+  <!-- <h2 class="placesWithTag">
     Places with the tag: <span>{{ selectedTags.join(", ") }}</span>
-  </h2>
+  </h2> -->
+  <h2>These places have:</h2>
+  <div class="tag-list">
+    <div class="tagContainer">
+      <div *ngFor="let tag of filteredStuffTags" class="tag" (click)="onStuffTagClicked(tag)" [ngClass]="{ active: isStuffTagSelected(tag) }">
+        {{ tag }}
+      </div>
+    </div>
+  </div>
   <app-places-list [placesInput]="filteredPlaces"></app-places-list>
 </div>

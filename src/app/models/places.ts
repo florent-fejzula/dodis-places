@@ -27,7 +27,7 @@ const places: Place[] = [
         tags: ['karposh', 'chill', 'coffee', 'specialty']
     },
     {
-        name: 'Spizzicotto',
+        name: 'EG Spizzicotto',
         tags: ['aerodrom', 'breakfast', 'sandwich']
     },
     {
@@ -39,7 +39,7 @@ const places: Place[] = [
         tags: ['karposh', 'coffee', 'croissant']
     },
     {
-        name: 'Mapo City',
+        name: 'EG Mapo City',
         tags: ['aerodrom', 'coffee']
     },
     {
@@ -87,10 +87,6 @@ const places: Place[] = [
         tags: ['centar', 'restaurant', 'food', 'pasta']
     },
     {
-        name: 'Zentral',
-        tags: ['centar', 'coffee', 'work']
-    },
-    {
         name: 'Joy Center',
         tags: ['centar', 'coffee', 'croissant']
     },
@@ -116,7 +112,7 @@ const places: Place[] = [
     },
     {
         name: 'Mati',
-        tags: ['carshi', 'food', 'lahmacun']
+        tags: ['carshi', 'food', 'lahmacun', 'pizza']
     },
     {
         name: 'Pcela',
@@ -148,7 +144,7 @@ const places: Place[] = [
     },
     {
         name: 'Teff Bakery',
-        tags: ['carshi', 'breakfast', 'croissant']
+        tags: ['carshi', 'breakfast', 'croissant', 'burek']
     },
     {
         name: 'World of Coffee',
@@ -188,7 +184,7 @@ const places: Place[] = [
     },
     {
         name: 'Balat',
-        tags: ['carshi', 'coffee', 'cocktails']
+        tags: ['carshi', 'chill', 'coffee', 'cocktails']
     },
     {
         name: 'Ristretto',
@@ -211,7 +207,7 @@ const places: Place[] = [
         tags: ['karposh', 'luxury', 'chill', 'restaurant', 'coffee']
     },
     {
-        name: 'Bella Vista East Gate',
+        name: 'EG Bella Vista',
         tags: ['aerodrom', 'restaurant', 'pancake', 'coffee']
     },
     {
@@ -220,11 +216,7 @@ const places: Place[] = [
     },
     {
         name: 'Garden',
-        tags: ['karposh', 'restaurant', 'food', 'meats']
-    },
-    {
-        name: 'Mr. Pizza',
-        tags: ['karposh', 'food', 'pizza']
+        tags: ['gjorche-saraj', 'restaurant', 'food', 'meats']
     },
     {
         name: 'MOIA',
@@ -243,19 +235,19 @@ const places: Place[] = [
         tags: ['centar', 'coffee', 'dessert']
     },
     {
-        name: 'Sarajeva Steakhouse',
+        name: 'EG Sarajeva Steakhouse',
         tags: ['aerodrom', 'food', 'burger']
     },
     {
-        name: 'Cafe Sach',
+        name: 'EG Cafe Sach',
         tags: ['aerodrom', 'coffee']
     },
     {
-        name: 'Destan East Gate',
+        name: 'EG Destan',
         tags: ['aerodrom', 'food', 'kebap']
     },
     {
-        name: 'Levant',
+        name: 'EG Levant',
         tags: ['aerodrom', 'food', 'meats']
     },
     {
@@ -264,7 +256,7 @@ const places: Place[] = [
     },
     {
         name: 'Lukumades',
-        tags: ['centar', 'dessert', 'iceCream']
+        tags: ['centar', 'coffee', 'dessert', 'iceCream']
     },
     {
         name: 'Destan Bunjakovec',
@@ -291,12 +283,8 @@ const places: Place[] = [
         tags: ['karposh', 'restaurant', 'food', 'fish']
     },
     {
-        name: 'Caffe Izzi',
-        tags: ['karposh', 'coffee']
-    },
-    {
         name: 'Miracoli',
-        tags: ['karposh', 'restaurant', 'food', 'salad', 'meats']
+        tags: ['gjorche-saraj', 'restaurant', 'food', 'salad', 'meats']
     },
     {
         name: 'ChaCha',
@@ -312,7 +300,7 @@ const places: Place[] = [
     },
     {
         name: 'Delice',
-        tags: ['carshi', 'coffee', 'croissant', 'dessert', 'fullCake']
+        tags: ['carshi', 'coffee', 'dessert', 'fullCake']
     },
     {
         name: 'Milky',
@@ -336,7 +324,7 @@ const places: Place[] = [
     },
     {
         name: 'Selo',
-        tags: ['cair', 'food', 'cigKofte', 'burger']
+        tags: ['cair', 'food', 'cigKofte', 'meats', 'doner']
     },
     {
         name: 'Scoop Artisan',
@@ -363,20 +351,12 @@ const places: Place[] = [
         tags: ['centar', 'iceCream']
     },
     {
-        name: 'Viva Fresh',
-        tags: ['cair', 'croissant']
-    },
-    {
         name: 'Mola Cafe',
         tags: ['carshi', 'coffee', 'juices']
     },
     {
         name: 'Ramce',
-        tags: ['cair', 'food', 'breakfast', 'simitPogaca']
-    },
-    {
-        name: 'MyWay Cafe',
-        tags: ['carshi', 'coffee']
+        tags: ['cair', 'food', 'breakfast', 'simitPogaca', 'burek']
     },
     {
         name: 'Balkan Corner',
@@ -384,11 +364,111 @@ const places: Place[] = [
     },
     {
         name: 'Miam Bakery & Cafe',
-        tags: ['centar', 'breakfast', 'croissant', 'coffee']
+        tags: ['centar', 'work', 'breakfast', 'croissant', 'coffee']
     },
     {
         name: 'Cafe Paname',
         tags: ['karposh', 'chill', 'coffee', 'croissant', 'dessert']
+    },
+    {
+        name: 'M House',
+        tags: ['centar', 'coffee', 'croissant', 'juices', 'dessert', 'bread', 'sandwich']
+    },
+    {
+        name: 'Sheherzada',
+        tags: ['centar', 'dessert']
+    },
+    {
+        name: 'Bratstvo',
+        tags: ['carshi', 'food', 'pizza']
+    },
+    {
+        name: 'Gallery 7',
+        tags: ['carshi', 'food', 'lahmacun']
+    },
+    {
+        name: 'Dose',
+        tags: ['centar', 'food', 'breakfast', 'sandwich']
+    },
+    {
+        name: 'Saman',
+        tags: ['karposh', 'coffee', 'chill']
+    },
+    {
+        name: 'K8',
+        tags: ['carshi', 'pancake']
+    },
+    {
+        name: 'Start',
+        tags: ['centar', 'pancake']
+    },
+    {
+        name: 'Noas Rooftop',
+        tags: ['cair', 'restaurant', 'luxury', 'food', 'corba', 'salad', 'fish', 'meats', 'dessert']
+    },
+    {
+        name: 'Abi Doner',
+        tags: ['carshi', 'food', 'doner']
+    },
+    {
+        name: 'Carshija Steakhouse',
+        tags: ['carshi', 'food', 'meats']
+    },
+    {
+        name: 'Destan Park',
+        tags: ['karposh', 'food', 'kebap']
+    },
+    {
+        name: 'Su Roastery',
+        tags: ['centar', 'restaurant', 'food', 'meats', 'coffee', 'specialty', 'pancake']
+    },
+    {
+        name: 'The Table',
+        tags: ['centar', 'food', 'breakfast', 'burek', 'baklava']
+    },
+    {
+        name: 'Bereket Bakery',
+        tags: ['cair', 'breakfast', 'burek']
+    },
+    {
+        name: 'Aksa',
+        tags: ['cair', 'breakfast', 'burek']
+    },
+    {
+        name: 'Palma',
+        tags: ['aerodrom', 'iceCream', 'dessert']
+    },
+    {
+        name: 'Melty',
+        tags: ['aerodrom', 'chill', 'coffee', 'dessert']
+    },
+    {
+        name: 'Cioccolati Italiani',
+        tags: ['aerodrom', 'iceCream', 'coffee', 'dessert']
+    },
+    {
+        name: 'Botanika',
+        tags: ['karposh', 'restaurant', 'salad']
+    },
+    {
+        name: 'Arrosto',
+        tags: ['aerodrom', 'coffee', 'specialty']
+    },
+    {
+        name: 'Korab',
+        tags: ['gjorche-saraj', 'restaurant', 'food', 'meats']
+    },
+    {
+        name: 'Treska',
+        tags: ['gjorche-saraj', 'restaurant', 'food', 'chill']
+    },
+    {
+        name: 'SushiCo Zen',
+        tags: ['centar', 'restaurant', 'food', 'sushi']
+    },
+    {
+        name: 'Fontana',
+        tags: ['gjorche-saraj', 'restaurant', 'food', 'meats']
     }
 ];
 

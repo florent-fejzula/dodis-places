@@ -4,6 +4,7 @@ export const locationTags: string[] = [
   'centar',
   'karposh',
   'aerodrom',
+  'gjorche-saraj'
 ];
 export const vibeTags: string[] = [
   'luxury',
@@ -17,6 +18,7 @@ export const stuffTags: string[] = [
   'bread',
   'breakfast',
   'simitPogaca',
+  'burek',
   'sandwich',
   'corba',
   'salad',
@@ -30,6 +32,7 @@ export const stuffTags: string[] = [
   'burger',
   'kebap',
   'meats',
+  'doner',
   'croissant',
   'pancake',
   'dessert',
