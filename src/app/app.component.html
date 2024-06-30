@@ -42,7 +42,7 @@
     </div>
   </div>
   <button (click)="clearSelectedTags()" class="clear-button">Clear</button>
-  <h2 class="thesePlacesHave">These places have:</h2>
+  <h2 class="thesePlacesHave" *ngIf="filteredStuffTags && filteredStuffTags.length > 0">Selected places have:</h2>
   <div class="tag-list">
     <div class="tagContainer">
       <div *ngFor="let tag of filteredStuffTags" class="tag" (click)="onStuffTagClicked(tag)" [ngClass]="{ active: isStuffTagSelected(tag) }">
