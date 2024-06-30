@@ -444,7 +444,7 @@ const places: Place[] = [
     },
     {
         name: 'Cioccolati Italiani',
-        tags: ['aerodrom', 'iceCream', 'coffee', 'dessert']
+        tags: ['aerodrom', 'iceCream', 'coffee', 'dessert', 'croissant']
     },
     {
         name: 'Botanika',
@@ -469,6 +469,14 @@ const places: Place[] = [
     {
         name: 'Fontana',
         tags: ['gjorche-saraj', 'restaurant', 'food', 'meats']
+    },
+    {
+        name: 'Amigos Zeleznicka',
+        tags: ['centar', 'restaurant', 'food', 'pizza', 'dessert']
+    },
+    {
+        name: 'Brick Bar',
+        tags: ['centar', 'restaurant', 'chill', 'pancake', 'coffee', 'cocktails']
     }
 ];
 
