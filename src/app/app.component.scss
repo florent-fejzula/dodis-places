@@ -1,8 +1,7 @@
 .container {
-  border: 1px solid red;
-  width: 1060px;
+  width: calc(100% - 40px); /* Adjusted width to account for padding */
   margin: 0 auto;
-  padding: 20px;
+  box-sizing: border-box; /* Include padding and border in the element's total width */
 
   h1 {
     text-align: center;
@@ -13,6 +12,13 @@
     span {
       color: #007bff;
     }
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    border: 1px solid red;
+    padding: 20px;
   }
 }
 
@@ -47,6 +53,7 @@
 }
 
 .label {
+  color: #000dc6;
   width: 78px;
   text-align: right;
   font-weight: bold;
@@ -65,7 +72,7 @@
   color: white;
   border: none;
   padding: 10px 20px;
-  border-radius: 5px;
+  border-radius: 25px;
   cursor: pointer;
   margin: 10px 0;
   transition: background-color 0.3s ease;
@@ -76,5 +83,57 @@
 
   &:active {
     background-color: #b71c1c;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Styles for smaller screens */
+  .container {
+    width: 100%;
+    padding: 2px;
+    font-size: 14px;
+  }
+
+  .label {
+    font-size: 17px;
+    // width: 100%; first version
+    margin-right: 0; // remove this for first version 
+    text-align: center;
+  }
+
+  .tag {
+    font-size: 12px;
+    padding: 4px 10px;
+    margin: 2px;
+  }
+
+  .tagContainer {
+    max-width: 94%;
+    justify-content: center;
+  }
+
+  .locationTags,
+  .vibeTags,
+  .stuffTags {
+    // display: block; first version
+    margin: 0 0 6px;
+  }
+
+  .clear-button {
+    font-size: 12px;
+    margin: 0 0 4px;
+  }
+
+  .tag-list {
+    padding-bottom: 0;
+  }
+
+  .colon {
+    display: none;
+  }
+
+  .thesePlacesHave {
+    margin: 6px 0;
+    font-size: 18px;
   }
 }

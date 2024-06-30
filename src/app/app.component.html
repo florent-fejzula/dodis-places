@@ -2,7 +2,7 @@
   <h1>Dodi's Places</h1>
   <div class="tag-list">
     <div class="locationTags">
-      <div class="label">Location:</div>
+      <div class="label">Location<span class="colon">:</span></div>
       <div class="tagContainer">
         <div
           *ngFor="let tag of locationTags"
@@ -15,7 +15,7 @@
       </div>
     </div>
     <div class="vibeTags">
-      <div class="label">Vibe:</div>
+      <div class="label">Vibe<span class="colon">:</span></div>
       <div class="tagContainer">
         <div
           *ngFor="let tag of vibeTags"
@@ -28,7 +28,7 @@
       </div>
     </div>
     <div class="stuffTags">
-      <div class="label">Stuff:</div>
+      <div class="label">Stuff<span class="colon">:</span></div>
       <div class="tagContainer">
         <div
           *ngFor="let tag of stuffTags"
@@ -42,10 +42,7 @@
     </div>
   </div>
   <button (click)="clearSelectedTags()" class="clear-button">Clear</button>
-  <!-- <h2 class="placesWithTag">
-    Places with the tag: <span>{{ selectedTags.join(", ") }}</span>
-  </h2> -->
-  <h2>These places have:</h2>
+  <h2 class="thesePlacesHave">These places have:</h2>
   <div class="tag-list">
     <div class="tagContainer">
       <div *ngFor="let tag of filteredStuffTags" class="tag" (click)="onStuffTagClicked(tag)" [ngClass]="{ active: isStuffTagSelected(tag) }">

@@ -22,7 +22,6 @@ export class AppComponent {
   ngOnInit(): void {
     this.places = places;
     this.filteredPlaces = this.places;
-    this.updateFilteredStuffTags();
   }
 
   // Handle tag click for location and vibe tags
@@ -87,6 +86,6 @@ export class AppComponent {
     this.selectedTags = [];
     this.selectedStuffTags = []; // Clear the selected stuff tags
     this.filteredPlaces = this.places;
-    this.updateFilteredStuffTags();
+    this.filteredStuffTags = [];
   }
 }

@@ -1,53 +1,80 @@
 .place-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-  
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+
+  .place-card {
+    padding: 0px 8px 10px;
+    border: 1px solid black;
+    border-radius: 8px;
+    width: 232px;
+    height: 166px;
+
+    h2 {
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+
+      .tag {
+        background-color: #f2f2f2;
+        padding: 6px 12px;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: border-color 0.2s ease-in-out;
+        border: none; /* Moved from .place-card .tag-list .tag */
+
+        &.highlighted {
+          border: 2px solid #ffdc1f;
+        }
+      }
+    }
+
+    a {
+      display: inline-block;
+      margin-top: 10px;
+      color: #007bff;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+
+      &:visited {
+        color: #009be3;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .place-list {
+    gap: 10px;
+    margin-top: 10px;
+    justify-content: center;
+
     .place-card {
-      padding: 0px 8px 10px;
-      border: 1px solid black;
-      border-radius: 8px;
-      width: 232px;
-      height: 166px;
-  
+      width: 134px;
+      height: 120px;
+      padding: 0px 4px 4px;
+
       h2 {
-        margin-bottom: 10px;
-        text-align: center;
+        font-size: 16px;
+        margin: 6px 0;
       }
-  
+
       .tag-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-  
+        gap: 2px;
+
         .tag {
-          background-color: #f2f2f2;
-          padding: 6px 12px;
-          border-radius: 20px;
-          cursor: pointer;
-          transition: border-color 0.2s ease-in-out;
-          border: none; /* Moved from .place-card .tag-list .tag */
-  
-          &.highlighted {
-            border: 2px solid #ffdc1f;
-          }
-        }
-      }
-  
-      a {
-        display: inline-block;
-        margin-top: 10px;
-        color: #007bff;
-        text-decoration: none;
-  
-        &:hover {
-          text-decoration: underline;
-        }
-  
-        &:visited {
-          color: #009be3;
+            padding: 4px 8px;
+            font-size: 12px;
         }
       }
     }
   }
-  
+}
