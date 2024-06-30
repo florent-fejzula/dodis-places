@@ -21,8 +21,11 @@ export class AppComponent {
 
   ngOnInit(): void {
     this.places = places;
+    this.filteredPlaces = this.places;
+    this.updateFilteredStuffTags();
   }
 
+  // Handle tag click for location and vibe tags
   onTagClicked(selectedTag: string) {
     if (this.selectedTags.includes(selectedTag)) {
       this.selectedTags = this.selectedTags.filter(tag => tag !== selectedTag);
@@ -33,6 +36,7 @@ export class AppComponent {
     this.applyFilters();
   }
 
+  // Handle tag click for stuff tags
   onStuffTagClicked(stuffTag: string) {
     if (this.selectedStuffTags.includes(stuffTag)) {
       this.selectedStuffTags = this.selectedStuffTags.filter(tag => tag !== stuffTag);
@@ -43,14 +47,17 @@ export class AppComponent {
     this.applyFilters();
   }
 
+  // Check if a location or vibe tag is selected
   isTagSelected(tag: string): boolean {
     return this.selectedTags.includes(tag);
   }
 
+  // Check if a stuff tag is selected
   isStuffTagSelected(tag: string): boolean {
     return this.selectedStuffTags.includes(tag);
   }
 
+  // Apply filters to the places based on selected tags
   applyFilters() {
     this.filteredPlaces = this.places.filter(place =>
       this.selectedTags.every(tag => place.tags.includes(tag)) &&
@@ -60,6 +67,7 @@ export class AppComponent {
     this.updateFilteredStuffTags();
   }
 
+  // Update the list of filtered stuff tags based on the filtered places
   updateFilteredStuffTags() {
     const usedStuffTags = new Set<string>();
 
@@ -72,5 +80,13 @@ export class AppComponent {
     });
 
     this.filteredStuffTags = Array.from(usedStuffTags);
+  }
+
+  // Clear all selected tags and reset the filters
+  clearSelectedTags() {
+    this.selectedTags = [];
+    this.selectedStuffTags = []; // Clear the selected stuff tags
+    this.filteredPlaces = this.places;
+    this.updateFilteredStuffTags();
   }
 }

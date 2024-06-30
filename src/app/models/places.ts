@@ -1,14 +1,16 @@
 export interface Place {
     name: string;
     tags: string[];
-    link?: string;
+    location?: string;
+    highlightedTags?: string[];
 }
 
 const places: Place[] = [
     {
         name: 'Oud Coffee Co.',
         tags: ['carshi', 'coffee', 'specialty', 'cocktails'],
-        link: 'https://www.instagram.com/oudcoffeeco/'
+        location: 'https://maps.app.goo.gl/uaLfNDi4RRuiKASf8',
+        highlightedTags: ['cocktails']
     },
     {
         name: 'Daily Food & Wine',
@@ -20,11 +22,13 @@ const places: Place[] = [
     },
     {
         name: 'Matto Napoletano',
-        tags: ['karposh', 'luxury', 'food', 'pizza']
+        tags: ['karposh', 'luxury', 'food', 'pizza'],
+        highlightedTags: ['pizza']
     },
     {
         name: 'The Dude',
-        tags: ['karposh', 'chill', 'coffee', 'specialty']
+        tags: ['karposh', 'chill', 'coffee', 'specialty'],
+        highlightedTags: ['specialty']
     },
     {
         name: 'EG Spizzicotto',
@@ -32,7 +36,8 @@ const places: Place[] = [
     },
     {
         name: 'Teeny Tajni',
-        tags: ['karposh', 'breakfast', 'juices']
+        tags: ['karposh', 'breakfast', 'juices'],
+        highlightedTags: ['breakfast']
     },
     {
         name: 'Lipa',
@@ -72,11 +77,13 @@ const places: Place[] = [
     },
     {
         name: 'MILO Fine Dining',
-        tags: ['karposh', 'luxury', 'restaurant', 'food', 'pasta']
+        tags: ['karposh', 'luxury', 'restaurant', 'food', 'pasta'],
+        highlightedTags: ['pasta']
     },
     {
         name: 'Dabov',
-        tags: ['karposh', 'coffee', 'specialty']
+        tags: ['karposh', 'coffee', 'specialty'],
+        highlightedTags: ['specialty']
     },
     {
         name: 'Eskimo',
@@ -144,7 +151,8 @@ const places: Place[] = [
     },
     {
         name: 'Teff Bakery',
-        tags: ['carshi', 'breakfast', 'croissant', 'burek']
+        tags: ['carshi', 'breakfast', 'croissant', 'burek'],
+        highlightedTags: ['burek']
     },
     {
         name: 'World of Coffee',
@@ -152,7 +160,8 @@ const places: Place[] = [
     },
     {
         name: 'Destan',
-        tags: ['carshi', 'food', 'kebap']
+        tags: ['carshi', 'food', 'kebap'],
+        highlightedTags: ['kebap']
     },
     {
         name: 'Silbo',
@@ -160,7 +169,8 @@ const places: Place[] = [
     },
     {
         name: 'Gino',
-        tags: ['centar', 'restaurant', 'food', 'pizza', 'dessert', 'fullCake']
+        tags: ['centar', 'restaurant', 'food', 'pizza', 'dessert', 'fullCake'],
+        highlightedTags: ['pizza']
     },
     {
         name: 'Kacamak',
@@ -182,10 +192,10 @@ const places: Place[] = [
         name: 'Coffee Factory Debar Maalo',
         tags: ['karposh', 'coffee', 'dessert']
     },
-    {
-        name: 'Balat',
-        tags: ['carshi', 'chill', 'coffee', 'cocktails']
-    },
+    // {
+    //     name: 'Balat',
+    //     tags: ['carshi', 'chill', 'coffee', 'cocktails']
+    // },
     {
         name: 'Ristretto',
         tags: ['karposh', 'coffee', 'specialty']
@@ -208,7 +218,8 @@ const places: Place[] = [
     },
     {
         name: 'EG Bella Vista',
-        tags: ['aerodrom', 'restaurant', 'pancake', 'coffee']
+        tags: ['aerodrom', 'restaurant', 'pancake', 'coffee'],
+        highlightedTags: ['pancake']
     },
     {
         name: 'Healthyish Debar Maalo',
@@ -252,11 +263,13 @@ const places: Place[] = [
     },
     {
         name: 'SushiCo',
-        tags: ['karposh', 'luxury', 'restaurant', 'food', 'sushi']
+        tags: ['karposh', 'luxury', 'restaurant', 'food', 'sushi'],
+        highlightedTags: ['sushi']
     },
     {
         name: 'Lukumades',
-        tags: ['centar', 'coffee', 'dessert', 'iceCream']
+        tags: ['centar', 'coffee', 'dessert', 'iceCream'],
+        highlightedTags: ['dessert']
     },
     {
         name: 'Destan Bunjakovec',
@@ -264,11 +277,13 @@ const places: Place[] = [
     },
     {
         name: 'Saraevo',
-        tags: ['carshi', 'food', 'corba', 'kebap']
+        tags: ['carshi', 'food', 'corba', 'kebap'],
+        highlightedTags: ['corba']
     },
     {
         name: 'Teteks Carsija',
-        tags: ['carshi', 'food', 'burger']
+        tags: ['carshi', 'food', 'burger'],
+        highlightedTags: ['burger']
     },
     {
         name: 'Mulliri',
@@ -280,15 +295,18 @@ const places: Place[] = [
     },
     {
         name: 'Fish Restaurant',
-        tags: ['karposh', 'restaurant', 'food', 'fish']
+        tags: ['karposh', 'restaurant', 'food', 'fish'],
+        highlightedTags: ['fish']
     },
     {
         name: 'Miracoli',
-        tags: ['gjorche-saraj', 'restaurant', 'food', 'salad', 'meats']
+        tags: ['gjorche-saraj', 'restaurant', 'food', 'salad', 'meats', 'fish'],
+        highlightedTags: ['salad', 'fish']
     },
     {
         name: 'ChaCha',
-        tags: ['cair', 'restaurant', 'food', 'pasta', 'meats']
+        tags: ['cair', 'restaurant', 'food', 'pasta', 'meats'],
+        highlightedTags: ['pasta', 'meats']
     },
     {
         name: 'Routine',
@@ -300,11 +318,13 @@ const places: Place[] = [
     },
     {
         name: 'Delice',
-        tags: ['carshi', 'coffee', 'dessert', 'fullCake']
+        tags: ['carshi', 'coffee', 'dessert', 'fullCake'],
+        highlightedTags: ['dessert']
     },
     {
         name: 'Milky',
-        tags: ['karposh', 'coffee', 'dessert', 'pancake']
+        tags: ['karposh', 'coffee', 'dessert', 'pancake'],
+        highlightedTags: ['pancake']
     },
     {
         name: 'Arabika',
@@ -316,7 +336,8 @@ const places: Place[] = [
     },
     {
         name: 'Bravo',
-        tags: ['cair', 'food', 'lahmacun', 'burger', 'dessert']
+        tags: ['cair', 'food', 'lahmacun', 'burger', 'dessert'],
+        highlightedTags: ['burger']
     },
     {
         name: 'Meydan',
@@ -324,7 +345,8 @@ const places: Place[] = [
     },
     {
         name: 'Selo',
-        tags: ['cair', 'food', 'cigKofte', 'meats', 'doner']
+        tags: ['cair', 'food', 'cigKofte', 'meats', 'doner'],
+        highlightedTags: ['cigKofte']
     },
     {
         name: 'Scoop Artisan',
@@ -344,7 +366,8 @@ const places: Place[] = [
     },
     {
         name: 'NoName',
-        tags: ['cair', 'food', 'pizza']
+        tags: ['cair', 'food', 'pizza'],
+        highlightedTags: ['pizza']
     },
     {
         name: 'Malaga',
@@ -356,7 +379,8 @@ const places: Place[] = [
     },
     {
         name: 'Ramce',
-        tags: ['cair', 'food', 'breakfast', 'simitPogaca', 'burek']
+        tags: ['cair', 'food', 'breakfast', 'simitPogaca', 'burek'],
+        highlightedTags: ['simitPogaca', 'burek']
     },
     {
         name: 'Balkan Corner',
@@ -372,7 +396,8 @@ const places: Place[] = [
     },
     {
         name: 'M House',
-        tags: ['centar', 'coffee', 'croissant', 'juices', 'dessert', 'bread', 'sandwich']
+        tags: ['centar', 'coffee', 'croissant', 'juices', 'dessert', 'bread', 'sandwich'],
+        highlightedTags: ['croissant', 'sandwich', 'juices', 'bread']
     },
     {
         name: 'Sheherzada',
@@ -384,7 +409,8 @@ const places: Place[] = [
     },
     {
         name: 'Gallery 7',
-        tags: ['carshi', 'food', 'lahmacun']
+        tags: ['carshi', 'food', 'lahmacun'],
+        highlightedTags: ['lahmacun']
     },
     {
         name: 'Dose',
@@ -408,11 +434,13 @@ const places: Place[] = [
     },
     {
         name: 'Abi Doner',
-        tags: ['carshi', 'food', 'doner']
+        tags: ['carshi', 'food', 'doner'],
+        highlightedTags: ['doner']
     },
     {
         name: 'Carshija Steakhouse',
-        tags: ['carshi', 'food', 'meats']
+        tags: ['carshi', 'food', 'meats'],
+        highlightedTags: ['meats']
     },
     {
         name: 'Destan Park',
@@ -420,7 +448,8 @@ const places: Place[] = [
     },
     {
         name: 'Su Roastery',
-        tags: ['centar', 'restaurant', 'food', 'meats', 'coffee', 'specialty', 'pancake']
+        tags: ['centar', 'restaurant', 'food', 'meats', 'coffee', 'specialty', 'pancake'],
+        highlightedTags: ['pancake', 'specialty']
     },
     {
         name: 'The Table',
@@ -444,7 +473,8 @@ const places: Place[] = [
     },
     {
         name: 'Cioccolati Italiani',
-        tags: ['aerodrom', 'iceCream', 'coffee', 'dessert', 'croissant']
+        tags: ['aerodrom', 'iceCream', 'coffee', 'dessert', 'croissant'],
+        highlightedTags: ['iceCream']
     },
     {
         name: 'Botanika',
@@ -464,7 +494,8 @@ const places: Place[] = [
     },
     {
         name: 'SushiCo Zen',
-        tags: ['centar', 'restaurant', 'food', 'sushi']
+        tags: ['centar', 'restaurant', 'food', 'sushi'],
+        highlightedTags: ['sushi']
     },
     {
         name: 'Fontana',
@@ -472,7 +503,8 @@ const places: Place[] = [
     },
     {
         name: 'Amigos Zeleznicka',
-        tags: ['centar', 'restaurant', 'food', 'pizza', 'dessert']
+        tags: ['centar', 'restaurant', 'food', 'pizza', 'dessert'],
+        highlightedTags: ['pizza', 'dessert']
     },
     {
         name: 'Brick Bar',

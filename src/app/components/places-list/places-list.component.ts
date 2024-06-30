@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { locationTags } from 'src/app/models/tags';
 import places, { Place } from 'src/app/models/places';
 
 @Component({
@@ -14,4 +15,7 @@ export class PlacesListComponent {
     this.placesInput = places;
   }
 
+  filterLocationTags(tags: string[]): string[] {
+    return tags.filter(tag => !locationTags.includes(tag));
+  }
 }
