@@ -192,10 +192,10 @@ const places: Place[] = [
         name: 'Coffee Factory Debar Maalo',
         tags: ['karposh', 'coffee', 'dessert']
     },
-    // {
-    //     name: 'Balat',
-    //     tags: ['carshi', 'chill', 'coffee', 'cocktails']
-    // },
+    {
+       name: 'Face 2 Face',
+       tags: ['carshi', 'chill', 'coffee', 'cocktails']
+    },
     {
         name: 'Ristretto',
         tags: ['karposh', 'coffee', 'specialty']
@@ -509,6 +509,15 @@ const places: Place[] = [
     {
         name: 'Brick Bar',
         tags: ['centar', 'restaurant', 'chill', 'pancake', 'coffee', 'cocktails']
+    },
+    {
+        name: 'Nomad Hospital',
+        tags: ['centar', 'coffee', 'juices']
+    },
+    {
+        name: 'Nero',
+        tags: ['karposh', 'iceCream'],
+        highlightedTags: ['iceCream']
     }
 ];
 

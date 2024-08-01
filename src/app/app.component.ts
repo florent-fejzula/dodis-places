@@ -1,11 +1,16 @@
 import { Component } from '@angular/core';
-import { locationTags, vibeTags, stuffTags, availableTags } from './models/tags';
+import {
+  locationTags,
+  vibeTags,
+  stuffTags,
+  availableTags,
+} from './models/tags';
 import places, { Place } from './models/places';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
   allTags: string[] = availableTags;
@@ -27,7 +32,9 @@ export class AppComponent {
   // Handle tag click for location and vibe tags
   onTagClicked(selectedTag: string) {
     if (this.selectedTags.includes(selectedTag)) {
-      this.selectedTags = this.selectedTags.filter(tag => tag !== selectedTag);
+      this.selectedTags = this.selectedTags.filter(
+        (tag) => tag !== selectedTag
+      );
     } else {
       this.selectedTags.push(selectedTag);
     }
@@ -38,7 +45,9 @@ export class AppComponent {
   // Handle tag click for stuff tags
   onStuffTagClicked(stuffTag: string) {
     if (this.selectedStuffTags.includes(stuffTag)) {
-      this.selectedStuffTags = this.selectedStuffTags.filter(tag => tag !== stuffTag);
+      this.selectedStuffTags = this.selectedStuffTags.filter(
+        (tag) => tag !== stuffTag
+      );
     } else {
       this.selectedStuffTags.push(stuffTag);
     }
@@ -58,9 +67,10 @@ export class AppComponent {
 
   // Apply filters to the places based on selected tags
   applyFilters() {
-    this.filteredPlaces = this.places.filter(place =>
-      this.selectedTags.every(tag => place.tags.includes(tag)) &&
-      this.selectedStuffTags.every(tag => place.tags.includes(tag))
+    this.filteredPlaces = this.places.filter(
+      (place) =>
+        this.selectedTags.every((tag) => place.tags.includes(tag)) &&
+        this.selectedStuffTags.every((tag) => place.tags.includes(tag))
     );
 
     this.updateFilteredStuffTags();
@@ -70,8 +80,8 @@ export class AppComponent {
   updateFilteredStuffTags() {
     const usedStuffTags = new Set<string>();
 
-    this.filteredPlaces.forEach(place => {
-      place.tags.forEach(tag => {
+    this.filteredPlaces.forEach((place) => {
+      place.tags.forEach((tag) => {
         if (stuffTags.includes(tag)) {
           usedStuffTags.add(tag);
         }
