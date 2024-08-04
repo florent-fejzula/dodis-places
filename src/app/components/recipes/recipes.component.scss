@@ -1,0 +1,212 @@
+/* src/app/components/recipes/recipes.component.scss */
+
+.recipes-layout {
+  display: flex;
+}
+
+.sidebar {
+  width: 20%;
+  padding: 20px;
+  border-right: 1px solid #ddd;
+  background-color: #388659; /* Sea Green */
+  color: white;
+  height: 600px;
+}
+
+.menu-header {
+  font-size: 1.5em;
+  margin-bottom: 20px;
+  color: #bcd979;
+  text-align: center;
+  cursor: pointer;
+}
+
+.sidebar ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.sidebar li {
+  padding: 10px;
+  cursor: pointer;
+  color: white;
+  transition: background-color 0.3s ease;
+  font-size: 1.4em;
+}
+
+.sidebar li:hover {
+  background-color: #52aa5e; /* Pigment Green */
+}
+
+.sidebar li.active {
+  background-color: #52aa5e; /* Zomp */
+}
+
+.recipes-container {
+  width: 80%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 20px;
+}
+
+.recipe-card {
+  width: 20%;
+  height: 260px;
+  margin: 6px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  text-align: center;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  cursor: pointer;
+}
+
+.recipe-card:hover {
+  transform: translateY(-5px);
+}
+
+.recipe-card h2 {
+  color: #3aaed8; /* Process Cyan */
+  margin: 0;
+  font-size: 1.4em;
+  height: 3em; /* Enough space for two lines */
+  display: flex;
+  align-items: center; /* Center text vertically */
+  justify-content: center; /* Center text horizontally */
+  text-align: center; /* Center text horizontally */
+  overflow: hidden;
+}
+
+.recipe-card img {
+  width: 90%;
+  height: 170px; /* Set the desired height */
+  object-fit: cover; /* This will crop the image to fit the specified size */
+  border-radius: 4px;
+}
+
+button {
+  background-color: #2bd9fe; /* Vivid Sky Blue */
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+button:hover {
+  background-color: #3aaed8; /* Process Cyan */
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  width: 97%;
+  margin: auto;
+  font-size: 1.4em;
+  background-color: #eff6fb;
+  color: #00508d;
+  text-align: center;
+  padding: 10px;
+  border: 2px solid #3aaed8;
+  font-weight: bold;
+}
+
+.footer span {
+  margin-right: 20px;
+}
+
+.footer button {
+  background-color: #d8315b;
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.footer button:hover {
+  background-color: #ce2751;
+}
+
+@media (max-width: 430px) {
+  .recipes-layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    position: static;
+    width: 95%;
+    padding: 10px;
+    height: 110px;
+    border-bottom: none;
+    border-right: 1px solid #ddd;
+
+    .menu-header {
+      margin-bottom: 0;
+    }
+
+    ul {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+
+      li {
+        padding: 7px;
+        font-size: 1.1em;
+        border-radius: 10px;
+        color: #ece9dd;
+      }
+    }
+  }
+
+  .recipes-container {
+    width: 94%;
+    padding: 10px;
+  }
+
+  .recipe-card {
+    width: 84%;
+    height: 240px;
+    border-radius: 18px;
+    padding: 0px 10px 14px;
+
+    h2 {
+      color: #ce2751;
+    }
+
+    img {
+      border-radius: 14px;
+    }
+  }
+
+  .footer {
+    width: 88%;
+
+    button {
+      position: absolute;
+      top: 1px;
+      right: 1px;
+      margin: 0;
+      padding: 0;
+    }
+    button::after {
+      content: "X";
+      padding: 3px;
+    }
+    button span {
+      display: none;
+    }
+  }
+}

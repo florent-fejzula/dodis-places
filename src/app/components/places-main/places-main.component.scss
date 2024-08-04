@@ -1,0 +1,140 @@
+.container {
+    width: calc(100% - 40px); /* Adjusted width to account for padding */
+    margin: 0 auto;
+    box-sizing: border-box; /* Include padding and border in the element's total width */
+  
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+  
+    h2 {
+      span {
+        color: #007bff;
+      }
+    }
+  }
+  
+  @media (min-width: 768px) {
+    .container {
+      border: 1px solid red;
+      padding: 20px;
+    }
+  }
+  
+  .tag-list {
+    padding-bottom: 20px;
+  }
+  
+  .tag {
+    background-color: #f2f2f2;
+    border: 2px solid #f2f2f2;
+    padding: 6px 12px;
+    margin: 4px 2px;
+    border-radius: 20px;
+    cursor: pointer;
+  
+    &:hover {
+      border: 2px solid #007bff;
+    }
+  
+    &.active {
+      background-color: #007bff;
+      color: #ffffff;
+    }
+  }
+  
+  .locationTags,
+  .vibeTags,
+  .stuffTags {
+    display: flex;
+    margin: 8px 0;
+    align-items: baseline;
+  }
+  
+  .label {
+    color: #000dc6;
+    width: 78px;
+    text-align: right;
+    font-weight: bold;
+    font-size: 18px;
+    margin-right: 8px;
+  }
+  
+  .tagContainer {
+    flex-wrap: wrap;
+    display: flex;
+    max-width: 90%;
+  }
+  
+  .clear-button {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    margin: 10px 0;
+    transition: background-color 0.3s ease;
+  
+    &:hover {
+      background-color: #d32f2f;
+    }
+  
+    &:active {
+      background-color: #b71c1c;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    /* Styles for smaller screens */
+    .container {
+      width: 100%;
+      padding: 2px;
+      font-size: 14px;
+    }
+  
+    .label {
+      font-size: 17px;
+      // width: 100%; first version
+      margin-right: 8px; // remove this for first version
+      text-align: center;
+    }
+  
+    .tag {
+      font-size: 12px;
+      padding: 4px 10px;
+      margin: 2px;
+    }
+  
+    .tagContainer {
+      max-width: 94%;
+      justify-content: center;
+    }
+  
+    .locationTags,
+    .vibeTags,
+    .stuffTags {
+      // display: block; first version
+      margin: 0 0 6px;
+    }
+  
+    .clear-button {
+      font-size: 12px;
+      margin: 0 0 4px;
+    }
+  
+    .tag-list {
+      padding-bottom: 0;
+    }
+  
+    .colon {
+      display: none;
+    }
+  
+    .thesePlacesHave {
+      margin: 6px 0;
+      font-size: 18px;
+    }
+  }
+  

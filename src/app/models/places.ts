@@ -518,6 +518,10 @@ const places: Place[] = [
         name: 'Nero',
         tags: ['karposh', 'iceCream'],
         highlightedTags: ['iceCream']
+    },
+    {
+        name: 'Pelister',
+        tags: ['centar', 'restaurant', 'pasta']
     }
 ];
 
