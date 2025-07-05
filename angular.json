@@ -72,10 +72,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "Dodi-Places:build:production"
+              "buildTarget": "Dodi-Places:build:production"
             },
             "development": {
-              "browserTarget": "Dodi-Places:build:development"
+              "buildTarget": "Dodi-Places:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -83,7 +83,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "Dodi-Places:build"
+            "buildTarget": "Dodi-Places:build"
           }
         },
         "test": {
