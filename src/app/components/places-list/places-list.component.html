@@ -1,16 +1,21 @@
 <div class="place-list">
-  <div *ngFor="let place of placesInput" class="place-card">
-    <h2>{{ place.name }}</h2>
-    <div class="tag-list">
-      <span
-        *ngFor="let tag of filterLocationTags(place.tags)"
-        class="tag"
-        [ngClass]="{ highlighted: place.highlightedTags?.includes(tag) }"
-        >{{ tag }}</span
-      >
+  @for (place of placesInput; track place) {
+    <div class="place-card">
+      <h2>{{ place.name }}</h2>
+      <div class="tag-list">
+        @for (tag of filterLocationTags(place.tags); track tag) {
+          <span
+            class="tag"
+            [ngClass]="{ highlighted: place.highlightedTags?.includes(tag) }"
+            >{{ tag }}</span
+            >
+          }
+        </div>
+        @if (place.location) {
+          <a href="{{ place.location }}" target="_blank"
+            >Location</a
+            >
+          }
+        </div>
+      }
     </div>
-    <a *ngIf="place.location" href="{{ place.location }}" target="_blank"
-      >Location</a
-    >
-  </div>
-</div>

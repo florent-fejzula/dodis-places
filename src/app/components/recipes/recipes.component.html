@@ -5,66 +5,69 @@
       <li
         (click)="selectCategory('Breakfast')"
         [ngClass]="{ active: selectedCategory === 'Breakfast' }"
-      >
+        >
         Breakfast
       </li>
       <li
         (click)="selectCategory('Appetizers')"
         [ngClass]="{ active: selectedCategory === 'Appetizers' }"
-      >
+        >
         Appetizers
       </li>
       <li
         (click)="selectCategory('Salads')"
         [ngClass]="{ active: selectedCategory === 'Salads' }"
-      >
+        >
         Salads
       </li>
       <li
         (click)="selectCategory('Sides')"
         [ngClass]="{ active: selectedCategory === 'Sides' }"
-      >
+        >
         Sides
       </li>
       <li
         (click)="selectCategory('Pastas')"
         [ngClass]="{ active: selectedCategory === 'Pastas' }"
-      >
+        >
         Pastas
       </li>
       <li
         (click)="selectCategory('Mains')"
         [ngClass]="{ active: selectedCategory === 'Mains' }"
-      >
+        >
         Mains
       </li>
       <li
         (click)="selectCategory('Snacks')"
         [ngClass]="{ active: selectedCategory === 'Snacks' }"
-      >
+        >
         Snacks
       </li>
       <li
         (click)="selectCategory('Desserts')"
         [ngClass]="{ active: selectedCategory === 'Desserts' }"
-      >
+        >
         Desserts
       </li>
     </ul>
   </div>
   <div class="recipes-container">
-    <div
-      class="recipe-card"
-      *ngFor="let recipe of filteredRecipes"
-      (click)="selectRecipe(recipe.name)"
-    >
-      <h2>{{ recipe.name }}</h2>
-      <img [src]="recipe.image" alt="{{ recipe.name }}" />
-    </div>
+    @for (recipe of filteredRecipes; track recipe) {
+      <div
+        class="recipe-card"
+        (click)="selectRecipe(recipe.name)"
+        >
+        <h2>{{ recipe.name }}</h2>
+        <img [src]="recipe.image" alt="{{ recipe.name }}" />
+      </div>
+    }
   </div>
 </div>
 
-<div class="footer" *ngIf="selectedRecipes.length > 0">
-  <span>{{ selectedRecipes.join(", ") }}</span>
-  <button (click)="clearSelection()"><span>Clear</span></button>
-</div>
+@if (selectedRecipes.length > 0) {
+  <div class="footer">
+    <span>{{ selectedRecipes.join(", ") }}</span>
+    <button (click)="clearSelection()"><span>Clear</span></button>
+  </div>
+}

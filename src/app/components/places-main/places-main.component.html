@@ -1,54 +1,61 @@
 <div class="container">
-    <h1>Dodi's Places</h1>
-    <div class="tag-list">
-      <div class="locationTags">
-        <div class="label">Location<span class="colon">:</span></div>
-        <div class="tagContainer">
+  <h1>Dodi's Places</h1>
+  <div class="tag-list">
+    <div class="locationTags">
+      <div class="label">Location<span class="colon">:</span></div>
+      <div class="tagContainer">
+        @for (tag of locationTags; track tag) {
           <div
-            *ngFor="let tag of locationTags"
             class="tag"
             (click)="onTagClicked(tag)"
             [ngClass]="{ active: isTagSelected(tag) }"
-          >
+            >
             {{ tag }}
           </div>
-        </div>
-      </div>
-      <div class="vibeTags">
-        <div class="label">Vibe<span class="colon">:</span></div>
-        <div class="tagContainer">
-          <div
-            *ngFor="let tag of vibeTags"
-            class="tag"
-            (click)="onTagClicked(tag)"
-            [ngClass]="{ active: isTagSelected(tag) }"
-          >
-            {{ tag }}
-          </div>
-        </div>
-      </div>
-      <div class="stuffTags">
-        <div class="label">Stuff<span class="colon">:</span></div>
-        <div class="tagContainer">
-          <div
-            *ngFor="let tag of stuffTags"
-            class="tag"
-            (click)="onTagClicked(tag)"
-            [ngClass]="{ active: isTagSelected(tag) }"
-          >
-            {{ tag }}
-          </div>
-        </div>
+        }
       </div>
     </div>
-    <button (click)="clearSelectedTags()" class="clear-button">Clear</button>
-    <h2 class="thesePlacesHave" *ngIf="filteredStuffTags && filteredStuffTags.length > 0">Selected places have:</h2>
-    <div class="tag-list">
+    <div class="vibeTags">
+      <div class="label">Vibe<span class="colon">:</span></div>
       <div class="tagContainer">
-        <div *ngFor="let tag of filteredStuffTags" class="tag" (click)="onStuffTagClicked(tag)" [ngClass]="{ active: isStuffTagSelected(tag) }">
+        @for (tag of vibeTags; track tag) {
+          <div
+            class="tag"
+            (click)="onTagClicked(tag)"
+            [ngClass]="{ active: isTagSelected(tag) }"
+            >
+            {{ tag }}
+          </div>
+        }
+      </div>
+    </div>
+    <div class="stuffTags">
+      <div class="label">Stuff<span class="colon">:</span></div>
+      <div class="tagContainer">
+        @for (tag of stuffTags; track tag) {
+          <div
+            class="tag"
+            (click)="onTagClicked(tag)"
+            [ngClass]="{ active: isTagSelected(tag) }"
+            >
+            {{ tag }}
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+  <button (click)="clearSelectedTags()" class="clear-button">Clear</button>
+  @if (filteredStuffTags && filteredStuffTags.length > 0) {
+    <h2 class="thesePlacesHave">Selected places have:</h2>
+  }
+  <div class="tag-list">
+    <div class="tagContainer">
+      @for (tag of filteredStuffTags; track tag) {
+        <div class="tag" (click)="onStuffTagClicked(tag)" [ngClass]="{ active: isStuffTagSelected(tag) }">
           {{ tag }}
         </div>
-      </div>
+      }
     </div>
-    <app-places-list [placesInput]="filteredPlaces"></app-places-list>
   </div>
+  <app-places-list [placesInput]="filteredPlaces"></app-places-list>
+</div>
