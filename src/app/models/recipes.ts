@@ -6,6 +6,18 @@ export interface Recipe {
 
 const recipes: Recipe[] = [
   {
+    name: 'Fig & Cheese Sandwich',
+    image:
+      'assets/fig.jfif',
+    category: 'Breakfast',
+  },
+  {
+    name: 'Tomato & Cheese Sandwich',
+    image:
+      'assets/tomato.jfif',
+    category: 'Breakfast',
+  },
+  {
     name: 'Buttered Bread',
     image:
       'https://t3.ftcdn.net/jpg/07/00/27/12/240_F_700271266_T4GY60vLNHkykE3etgwxPrAOc7XOXvKI.jpg',

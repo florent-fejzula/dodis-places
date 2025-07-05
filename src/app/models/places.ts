@@ -56,10 +56,6 @@ const places: Place[] = [
         tags: ['karposh', 'coffee', 'specialty']
     },
     {
-        name: 'ChocoHouse',
-        tags: ['centar', 'juices', 'pancake', 'dessert']
-    },
-    {
         name: 'Aloha',
         tags: ['karposh', 'cocktails']
     },
@@ -88,10 +84,6 @@ const places: Place[] = [
     {
         name: 'Eskimo',
         tags: ['centar', 'iceCream']
-    },
-    {
-        name: 'La Terrazza',
-        tags: ['centar', 'restaurant', 'food', 'pasta']
     },
     {
         name: 'Joy Center',
@@ -265,11 +257,6 @@ const places: Place[] = [
         name: 'SushiCo',
         tags: ['karposh', 'luxury', 'restaurant', 'food', 'sushi'],
         highlightedTags: ['sushi']
-    },
-    {
-        name: 'Lukumades',
-        tags: ['centar', 'coffee', 'dessert', 'iceCream'],
-        highlightedTags: ['dessert']
     },
     {
         name: 'Destan Bunjakovec',
@@ -452,10 +439,6 @@ const places: Place[] = [
         highlightedTags: ['pancake', 'specialty']
     },
     {
-        name: 'The Table',
-        tags: ['centar', 'food', 'breakfast', 'burek', 'baklava']
-    },
-    {
         name: 'Bereket Bakery',
         tags: ['cair', 'breakfast', 'burek']
     },
@@ -494,7 +477,7 @@ const places: Place[] = [
     },
     {
         name: 'SushiCo Zen',
-        tags: ['centar', 'restaurant', 'food', 'sushi'],
+        tags: ['centar', 'restaurant', 'luxury', 'food', 'sushi'],
         highlightedTags: ['sushi']
     },
     {
@@ -521,7 +504,11 @@ const places: Place[] = [
     },
     {
         name: 'Pelister',
-        tags: ['centar', 'restaurant', 'pasta']
+        tags: ['centar', 'restaurant', 'pasta', 'pizza']
+    },
+    {
+        name: 'Hilton Hotel',
+        tags: ['aerodrom', 'restaurant', 'luxury', 'breakfast', 'coffee']
     }
 ];
 
