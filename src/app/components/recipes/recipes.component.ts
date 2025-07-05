@@ -3,9 +3,10 @@ import recipes, { Recipe } from 'src/app/models/recipes';
 import { RecipesService } from 'src/app/services/recipes.service'; // Adjust the import path as necessary
 
 @Component({
-  selector: 'app-recipes',
-  templateUrl: './recipes.component.html',
-  styleUrls: ['./recipes.component.scss'],
+    selector: 'app-recipes',
+    templateUrl: './recipes.component.html',
+    styleUrls: ['./recipes.component.scss'],
+    standalone: false
 })
 export class RecipesComponent implements OnInit {
   recipes: Recipe[] = recipes;

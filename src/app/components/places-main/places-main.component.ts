@@ -3,9 +3,10 @@ import places, { Place } from 'src/app/models/places';
 import { availableTags, locationTags, stuffTags, vibeTags } from 'src/app/models/tags';
 
 @Component({
-  selector: 'app-places-main',
-  templateUrl: './places-main.component.html',
-  styleUrls: ['./places-main.component.scss']
+    selector: 'app-places-main',
+    templateUrl: './places-main.component.html',
+    styleUrls: ['./places-main.component.scss'],
+    standalone: false
 })
 export class PlacesMainComponent implements OnInit {
 

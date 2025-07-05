@@ -3,9 +3,10 @@ import { locationTags } from 'src/app/models/tags';
 import places, { Place } from 'src/app/models/places';
 
 @Component({
-  selector: 'app-places-list',
-  templateUrl: './places-list.component.html',
-  styleUrls: ['./places-list.component.scss']
+    selector: 'app-places-list',
+    templateUrl: './places-list.component.html',
+    styleUrls: ['./places-list.component.scss'],
+    standalone: false
 })
 export class PlacesListComponent {
 
