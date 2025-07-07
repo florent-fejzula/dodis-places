@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "dist/dodi-places",
+    "public": "dist/dodi-places/browser",
     "ignore": [
       "firebase.json",
       "**/.*",
