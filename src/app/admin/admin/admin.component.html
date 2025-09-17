@@ -1,0 +1,37 @@
+<div class="admin-container">
+  <h1>Add New Place</h1>
+  <form [formGroup]="placeForm" (ngSubmit)="submitForm()">
+    <label>Name</label>
+    <input formControlName="name" required />
+
+    <label>Description</label>
+    <textarea formControlName="description"></textarea>
+
+    <label>Image URL</label>
+    <input formControlName="imageUrl" />
+
+    <label>Instagram</label>
+    <input formControlName="instagram" />
+
+    <label>Google Maps Link</label>
+    <input formControlName="locationUrl" />
+
+    <label>Tags (comma-separated)</label>
+    <input formControlName="tags" />
+
+    <label>Highlighted Tags (comma-separated)</label>
+    <input formControlName="highlightedTags" />
+
+    <label>
+      <input type="checkbox" formControlName="isReferencePoint" />
+      Reference Point
+    </label>
+
+    <label>
+      <input type="checkbox" formControlName="isHeadquarter" />
+      Headquarter
+    </label>
+
+    <button type="submit" [disabled]="placeForm.invalid">Add Place</button>
+  </form>
+</div>

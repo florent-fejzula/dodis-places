@@ -7,6 +7,6 @@ export const environment = {
     storageBucket: 'dodi-s-places.firebasestorage.app',
     messagingSenderId: '514987896059',
     appId: '1:514987896059:web:54dedb8f20f766584a545e',
-    measurementId: 'G-7HXV32PJHT',
   },
+  googleMapsKey: 'AIzaSyDnyZ8J5fuAlurIOyvmCUdRwuWS3u9fAX8'
 };

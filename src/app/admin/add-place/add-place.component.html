@@ -1,0 +1,117 @@
+<div class="page">
+  <header class="header">
+    <h1>Add New Place</h1>
+    <div class="meta">
+      <span class="dot"></span>
+      <span
+        >{{ selected.size }} tag{{
+          selected.size === 1 ? "" : "s"
+        }}
+        selected</span
+      >
+    </div>
+  </header>
+
+  <section class="card">
+    <div class="section">
+      <label class="label">Google Maps link</label>
+      <input
+        class="input"
+        [(ngModel)]="mapsLink"
+        (blur)="autoFill()"
+        placeholder="Paste a Google Maps URL (auto-fills name & coordinates)"
+      />
+      <p class="help">
+        Tip: paste a link like <em>https://goo.gl/maps/…</em> or any Google Maps
+        place URL.
+      </p>
+    </div>
+
+    <div class="grid-2">
+      <div class="section">
+        <label class="label">Name</label>
+        <input
+          class="input"
+          [(ngModel)]="name"
+          placeholder="e.g., Café World of Coffee"
+        />
+      </div>
+      <div class="section">
+        <label class="label"
+          >Description <span class="muted">(optional)</span></label
+        >
+        <input
+          class="input"
+          [(ngModel)]="description"
+          placeholder="Short note you’ll remember"
+        />
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="section">
+        <label class="label">Lat</label>
+        <input
+          class="input"
+          [(ngModel)]="lat"
+          type="number"
+          step="0.000001"
+          placeholder="41.998100"
+        />
+      </div>
+      <div class="section">
+        <label class="label">Lng</label>
+        <input
+          class="input"
+          [(ngModel)]="lng"
+          type="number"
+          step="0.000001"
+          placeholder="21.425400"
+        />
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="section section--tight">
+      <div class="section-title">
+        <h2>Tags</h2>
+        <button type="button" class="btn btn-ghost" (click)="selected.clear()">
+          Clear all
+        </button>
+      </div>
+
+      <div class="chips">
+        <label class="chip" *ngFor="let t of tags">
+          <input
+            type="checkbox"
+            [checked]="selected.has(t)"
+            (change)="toggle(t, $event)"
+          />
+          <span>{{ t }}</span>
+        </label>
+      </div>
+    </div>
+  </section>
+
+  <footer class="actions">
+    <div class="left">
+      <span *ngIf="error" class="error">{{ error }}</span>
+    </div>
+    <div class="right">
+      <button type="button" class="btn btn-ghost" (click)="selected.clear()">
+        Reset tags
+      </button>
+      <button
+        type="button"
+        class="btn btn-primary"
+        [disabled]="!canSave"
+        (click)="save()"
+      >
+        Add Place
+      </button>
+
+      <p class="hint" *ngIf="!canSave">{{ disableReason }}</p>
+    </div>
+  </footer>
+</div>

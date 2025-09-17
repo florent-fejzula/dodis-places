@@ -1,33 +1,27 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>DodiPlaces</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+  </head>
 
-<head>
-  <meta charset="utf-8">
-  <title>DodiPlaces</title>
-  <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-</head>
+  <body>
+    <app-root></app-root>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
 
-<body>
-  <app-root></app-root>
-  <script type="module">
-    
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-analytics.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDnyZ8J5fuAlurIOyvmCUdRwuWS3u9fAX8",
-      authDomain: "dodi-s-places.firebaseapp.com",
-      projectId: "dodi-s-places",
-      storageBucket: "dodi-s-places.appspot.com",
-      messagingSenderId: "514987896059",
-      appId: "1:514987896059:web:54dedb8f20f766584a545e",
-      measurementId: "G-7HXV32PJHT"
-    };
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-  </script>
-</body>
-
+      const firebaseConfig = {
+        apiKey: "AIzaSyDnyZ8J5fuAlurIOyvmCUdRwuWS3u9fAX8",
+        authDomain: "dodi-s-places.firebaseapp.com",
+        projectId: "dodi-s-places",
+        storageBucket: "dodi-s-places.appspot.com",
+        messagingSenderId: "514987896059",
+        appId: "1:514987896059:web:54dedb8f20f766584a545e",
+      };
+      const app = initializeApp(firebaseConfig);
+    </script>
+  </body>
 </html>
