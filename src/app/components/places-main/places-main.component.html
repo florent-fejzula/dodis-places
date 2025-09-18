@@ -9,8 +9,12 @@
         @for (tag of locationTags; track tag) {
         <div
           class="tag"
-          (click)="onTagClicked(tag)"
-          [ngClass]="{ active: isTagSelected(tag) }"
+          (click)="!isTagDisabled(tag) && onTagClicked(tag)"
+          [ngClass]="{
+            active: isTagSelected(tag),
+            disabled: isTagDisabled(tag)
+          }"
+          [attr.aria-disabled]="isTagDisabled(tag)"
         >
           {{ tag }}
         </div>
@@ -24,8 +28,12 @@
         @for (tag of vibeTags; track tag) {
         <div
           class="tag"
-          (click)="onTagClicked(tag)"
-          [ngClass]="{ active: isTagSelected(tag) }"
+          (click)="!isTagDisabled(tag) && onTagClicked(tag)"
+          [ngClass]="{
+            active: isTagSelected(tag),
+            disabled: isTagDisabled(tag)
+          }"
+          [attr.aria-disabled]="isTagDisabled(tag)"
         >
           {{ tag }}
         </div>
@@ -39,8 +47,12 @@
         @for (tag of stuffTags; track tag) {
         <div
           class="tag"
-          (click)="onTagClicked(tag)"
-          [ngClass]="{ active: isTagSelected(tag) }"
+          (click)="!isTagDisabled(tag) && onTagClicked(tag)"
+          [ngClass]="{
+            active: isTagSelected(tag),
+            disabled: isTagDisabled(tag)
+          }"
+          [attr.aria-disabled]="isTagDisabled(tag)"
         >
           {{ tag }}
         </div>
@@ -50,23 +62,6 @@
   </div>
 
   <button (click)="clearSelectedTags()" class="clear-button">Clear</button>
-
-  @if (filteredStuffTags.length) {
-  <h2 class="thesePlacesHave">Selected places have:</h2>
-  <div class="tag-list">
-    <div class="tagContainer">
-      @for (tag of filteredStuffTags; track tag) {
-      <div
-        class="tag"
-        (click)="onStuffTagClicked(tag)"
-        [ngClass]="{ active: isStuffTagSelected(tag) }"
-      >
-        {{ tag }}
-      </div>
-      }
-    </div>
-  </div>
-  }
 
   <!-- cards.component.html (or wherever your template lives) -->
   <div class="cards" (click)="closeMenu()">

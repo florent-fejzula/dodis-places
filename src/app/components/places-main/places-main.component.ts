@@ -44,9 +44,7 @@ export class PlacesMainComponent implements OnInit {
   locationTags: string[] = locationTags;
   vibeTags: string[] = vibeTags;
   stuffTags: string[] = stuffTags;
-  selectedTags: string[] = [];
-  selectedStuffTags: string[] = [];
-  filteredStuffTags: string[] = [];
+  selectedTags: string[] = []; // single source of truth
 
   // ---- data
   places: Place[] = [];
@@ -92,6 +90,7 @@ export class PlacesMainComponent implements OnInit {
     });
   }
 
+  // ---------- admin menu ----------
   openMenu(p: Place, ev: MouseEvent) {
     ev.stopPropagation();
     this.menuOpenFor = this.menuOpenFor?.id === p.id ? null : p;
@@ -104,7 +103,6 @@ export class PlacesMainComponent implements OnInit {
     await this.svc.deletePlace(p.id!);
     this.menuOpenFor = null;
   }
-
   closeMenu() {
     this.menuOpenFor = null;
   }
@@ -114,49 +112,38 @@ export class PlacesMainComponent implements OnInit {
     this.toggle(this.selectedTags, selectedTag);
     this.applyFilters();
   }
-  onStuffTagClicked(stuffTag: string) {
-    this.toggle(this.selectedStuffTags, stuffTag);
-    this.applyFilters();
-  }
+
   isTagSelected(tag: string): boolean {
     return this.selectedTags.includes(tag);
   }
-  isStuffTagSelected(tag: string): boolean {
-    return this.selectedStuffTags.includes(tag);
+
+  /** Disable a tag if adding it would produce 0 results */
+  isTagDisabled(tag: string): boolean {
+    // already selected tags are never disabled (you can always unselect)
+    if (this.isTagSelected(tag)) return false;
+    if (!this.places.length) return true;
+    const need = [...this.selectedTags, tag];
+    return !this.places.some((p) => need.every((t) => p.tags?.includes(t)));
   }
 
   clearSelectedTags() {
     this.selectedTags = [];
-    this.selectedStuffTags = [];
     this.filteredPlaces = this.places.slice();
-    this.updateFilteredStuffTags();
     this.infoWindow?.close();
     this.fitToMarkers();
   }
+
   private toggle(arr: string[], value: string) {
     const i = arr.indexOf(value);
     i >= 0 ? arr.splice(i, 1) : arr.push(value);
   }
 
   applyFilters() {
-    this.filteredPlaces = this.places.filter(
-      (place) =>
-        this.selectedTags.every((tag) => place.tags?.includes(tag)) &&
-        this.selectedStuffTags.every((tag) => place.tags?.includes(tag))
+    this.filteredPlaces = this.places.filter((place) =>
+      this.selectedTags.every((tag) => place.tags?.includes(tag))
     );
-    this.updateFilteredStuffTags();
-    this.infoWindow?.close(); // ⬅️ ensure old bubble closes when filtering
+    this.infoWindow?.close(); // close bubble when filtering
     this.fitToMarkers();
-  }
-
-  updateFilteredStuffTags() {
-    const used = new Set<string>();
-    this.filteredPlaces.forEach((p) =>
-      p.tags?.forEach((t) => {
-        if (this.stuffTags.includes(t)) used.add(t);
-      })
-    );
-    this.filteredStuffTags = Array.from(used);
   }
 
   // ---------- map helpers ----------
@@ -180,9 +167,10 @@ export class PlacesMainComponent implements OnInit {
     });
   }
 
+  // ---------- cards & info window ----------
   getImage(p: Place): string | null {
-    // use your current selected filter arrays combined:
-    const active = [...this.selectedTags, ...this.selectedStuffTags];
+    // use only the selected tags now
+    const active = [...this.selectedTags];
     return selectCardImage(p, active);
   }
 
