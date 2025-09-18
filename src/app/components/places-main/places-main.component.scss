@@ -95,6 +95,7 @@
 
 .iw {
   min-width: 220px;
+  max-width: 254px;
 }
 .iw-title {
   font-weight: 700;
@@ -126,6 +127,7 @@
 }
 
 .card {
+  position: relative;
   border: 2px solid #d1d5db; /* stronger border */
   border-radius: 14px;
   overflow: hidden;
@@ -136,10 +138,61 @@
   height: 100%; /* ensures equal height grid */
 }
 
+.card-menu {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  border: none;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(2px);
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  line-height: 28px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+/* Dropdown */
+.menu {
+  position: absolute;
+  top: 44px;
+  right: 8px;
+  min-width: 140px;
+  background: #fff;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  z-index: 5;
+
+  button {
+    text-align: left;
+    padding: 8px 10px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 14px;
+
+    &:hover {
+      background: #f5f7fa;
+    }
+    &.danger {
+      color: #c62828;
+    }
+  }
+}
+
 .media {
   height: 160px;
   background: #f3f4f6;
   overflow: hidden;
+  display: grid;
+  place-items: center;
 
   img {
     width: 100%;

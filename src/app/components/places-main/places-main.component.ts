@@ -18,16 +18,26 @@ import {
 import { PlacesService } from 'src/app/services/places.service';
 import { environment } from 'src/environments/environment';
 import { selectCardImage } from 'src/app/utils/general.util';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-places-main',
   standalone: true,
-  imports: [NgClass, GoogleMapsModule, PlacesListComponent, CommonModule],
+  imports: [
+    NgClass,
+    CommonModule,
+    GoogleMapsModule,
+    PlacesListComponent,
+    CommonModule,
+  ],
   templateUrl: './places-main.component.html',
   styleUrls: ['./places-main.component.scss'],
 })
 export class PlacesMainComponent implements OnInit {
   private svc = inject(PlacesService);
+
+  adminMode = environment.adminMode;
+  menuOpenFor: Place | null = null;
 
   // ---- filters
   allTags: string[] = availableTags;
@@ -63,6 +73,8 @@ export class PlacesMainComponent implements OnInit {
     ],
   };
 
+  constructor(private router: Router) {}
+
   async ngOnInit(): Promise<void> {
     // 1) Load Google Maps JS API first
     const loader = new Loader({
@@ -78,6 +90,23 @@ export class PlacesMainComponent implements OnInit {
       this.applyFilters();
       this.fitToMarkers();
     });
+  }
+
+  openMenu(p: Place, ev: MouseEvent) {
+    ev.stopPropagation();
+    this.menuOpenFor = this.menuOpenFor?.id === p.id ? null : p;
+  }
+  goEdit(p: Place) {
+    this.router.navigate(['/admin/places', p.id]);
+  }
+  async confirmDelete(p: Place) {
+    if (!confirm(`Delete "${p.name}"? This cannot be undone.`)) return;
+    await this.svc.deletePlace(p.id!);
+    this.menuOpenFor = null;
+  }
+
+  closeMenu() {
+    this.menuOpenFor = null;
   }
 
   // ---------- filter logic ----------

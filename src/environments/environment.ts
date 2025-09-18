@@ -1,5 +1,6 @@
 export const environment = {
   production: false,
+  adminMode: true,
   firebase: {
     apiKey: 'AIzaSyDnyZ8J5fuAlurIOyvmCUdRwuWS3u9fAX8',
     authDomain: 'dodi-s-places.firebaseapp.com',

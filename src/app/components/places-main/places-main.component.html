@@ -68,8 +68,44 @@
   </div>
   }
 
-  <div class="cards">
-    <div class="card" *ngFor="let p of filteredPlaces">
+  <!-- cards.component.html (or wherever your template lives) -->
+  <div class="cards" (click)="closeMenu()">
+    <div
+      class="card"
+      *ngFor="let p of filteredPlaces"
+      (click)="$event.stopPropagation()"
+    >
+      <!-- Admin menu trigger (top-right) -->
+      <button
+        *ngIf="adminMode"
+        type="button"
+        class="card-menu"
+        aria-label="Open actions"
+        aria-haspopup="true"
+        [attr.aria-expanded]="menuOpenFor?.id === p.id"
+        (click)="openMenu(p, $event)"
+      >
+        ⋮
+      </button>
+
+      <!-- Simple dropdown menu -->
+      <div
+        class="menu"
+        *ngIf="menuOpenFor?.id === p.id"
+        role="menu"
+        (click)="$event.stopPropagation()"
+      >
+        <button type="button" role="menuitem" (click)="goEdit(p)">Edit</button>
+        <button
+          type="button"
+          role="menuitem"
+          class="danger"
+          (click)="confirmDelete(p)"
+        >
+          Delete
+        </button>
+      </div>
+
       <div class="media" *ngIf="getImage(p) as img; else noimg">
         <img [src]="img" [alt]="p.name" loading="lazy" />
       </div>
@@ -80,11 +116,11 @@
       <div class="body">
         <h3>{{ p.name }}</h3>
         <div class="tags">
-          <span class="pill" *ngFor="let t of p.tags | slice : 0 : 6">{{
-            t
-          }}</span>
+          <span class="pill" *ngFor="let t of p.tags | slice : 0 : 6">
+            {{ t }}
+          </span>
         </div>
-        <button class="link" (click)="openInMaps(p)">
+        <button class="link" type="button" (click)="openInMaps(p)">
           Open in Google Maps
         </button>
       </div>

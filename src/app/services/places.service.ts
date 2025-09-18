@@ -14,6 +14,7 @@ import {
   CollectionReference,
   DocumentData,
   arrayUnion,
+  docData,
 } from '@angular/fire/firestore';
 import {
   Storage,
@@ -86,6 +87,11 @@ export class PlacesService {
 
     const docRef = await this.inCtx(() => addDoc(this.placesRef, payload));
     return docRef.id;
+  }
+
+  getPlace(id: string) {
+    const d = doc(this.db, 'places', id);
+    return this.inCtx(() => docData(d, { idField: 'id' }) as Observable<Place>);
   }
 
   /** Update an existing place by id (safe partial update) */
