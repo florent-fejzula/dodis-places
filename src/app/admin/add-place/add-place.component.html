@@ -72,6 +72,69 @@
     </div>
   </section>
 
+  <!-- Photos -->
+  <section class="card" (paste)="onPaste($event)">
+    <div class="section-title">
+      <h2>Photos <span class="muted">(optional)</span></h2>
+      <div class="uploader-actions">
+        <label class="btn">
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            hidden
+            (change)="onFilesSelected($event)"
+          />
+          Upload images
+        </label>
+        <span class="paste-hint"
+          >or <kbd>Ctrl</kbd> + <kbd>V</kbd> to paste</span
+        >
+      </div>
+    </div>
+
+    <div class="grid-photos" *ngIf="photos.length; else noPhotos">
+      <div class="photo" *ngFor="let p of photos; let i = index">
+        <img [src]="p.preview" alt="preview" />
+        <div class="photo-actions">
+          <button
+            type="button"
+            class="btn btn-ghost"
+            (click)="removePhoto(p, i)"
+          >
+            Remove
+          </button>
+          <label class="cover">
+            <input
+              type="radio"
+              name="cover"
+              [checked]="selectedCoverIdx === i"
+              (change)="selectedCoverIdx = i"
+            />
+            Set as cover
+          </label>
+        </div>
+        <div class="chips compact">
+          <label class="chip" *ngFor="let t of tags">
+            <input
+              type="checkbox"
+              [checked]="p.tags.has(t)"
+              (change)="togglePhotoTag(p, t, $event)"
+            />
+            <span>{{ t }}</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #noPhotos>
+      <p class="muted">
+        No photos yet. Click <strong>Upload images</strong> or just press
+        <kbd>Ctrl</kbd>+<kbd>V</kbd> to paste from clipboard.
+      </p>
+    </ng-template>
+  </section>
+
   <section class="card">
     <div class="section section--tight">
       <div class="section-title">

@@ -13,15 +13,28 @@ import {
   where,
   CollectionReference,
   DocumentData,
+  arrayUnion,
 } from '@angular/fire/firestore';
+import {
+  Storage,
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL,
+} from '@angular/fire/storage';
 import { Observable } from 'rxjs';
 import { Place } from '../models/places';
+
+type ImageMeta = { url: string; tags: string[]; weight?: number };
 
 @Injectable({ providedIn: 'root' })
 export class PlacesService {
   private placesRef!: CollectionReference<DocumentData>;
 
-  constructor(private db: Firestore, private injector: Injector) {
+  constructor(
+    private db: Firestore,
+    private storage: Storage,
+    private injector: Injector
+  ) {
     // initialize refs INSIDE constructor
     this.placesRef = collection(this.db, 'places');
   }
@@ -51,8 +64,8 @@ export class PlacesService {
     });
   }
 
-  /** Add a new place (timestamps auto) */
-  async addPlace(p: Place): Promise<void> {
+  /** Create place and return its new id */
+  async addPlace(p: Place): Promise<string> {
     const payload: Place = {
       name: p.name.trim(),
       description: p.description?.trim() || '',
@@ -60,34 +73,40 @@ export class PlacesService {
       lat: Number(p.lat),
       lng: Number(p.lng),
       tags: [...(p.tags || [])],
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    };
-    return this.inCtx(async () => {
-      await addDoc(this.placesRef, payload);
+      imagePrimaryUrl: p.imagePrimaryUrl,
+      images: p.images || [],
+      createdAt: serverTimestamp() as any,
+      updatedAt: serverTimestamp() as any,
+    } as any;
+
+    // Strip undefined keys (Firestore rejects them)
+    (Object.keys(payload) as (keyof Place)[]).forEach((k) => {
+      if (payload[k] === undefined) delete (payload as any)[k];
     });
+
+    const docRef = await this.inCtx(() => addDoc(this.placesRef, payload));
+    return docRef.id;
   }
 
   /** Update an existing place by id (safe partial update) */
   async updatePlace(id: string, patch: Partial<Place>): Promise<void> {
     const ref = doc(this.db, 'places', id);
-    const cleaned: Partial<Place> = { ...patch, updatedAt: serverTimestamp() };
+    const cleaned: Partial<Place> = {
+      ...patch,
+      updatedAt: serverTimestamp() as any,
+    };
     if (typeof cleaned.name === 'string') cleaned.name = cleaned.name.trim();
     if (typeof cleaned.description === 'string')
       cleaned.description = cleaned.description.trim();
     if (typeof cleaned.gmapsUrl === 'string')
       cleaned.gmapsUrl = cleaned.gmapsUrl.trim();
 
-    return this.inCtx(async () => {
-      await updateDoc(ref, cleaned as any);
-    });
+    await this.inCtx(() => updateDoc(ref, cleaned as any));
   }
 
   /** Delete a place */
   async deletePlace(id: string): Promise<void> {
-    return this.inCtx(async () => {
-      await deleteDoc(doc(this.db, 'places', id));
-    });
+    await this.inCtx(() => deleteDoc(doc(this.db, 'places', id)));
   }
 
   /** Bulk add (CSV/JSON import). Ignores empty rows. */
@@ -98,7 +117,42 @@ export class PlacesService {
     }
   }
 
+  // ---------- Images (Firebase Storage) ----------
+
+  /** Upload a single image file and return its download URL */
+  async uploadPlaceImage(placeId: string, file: File): Promise<string> {
+    const safeName = file.name.replace(/[^\w.-]+/g, '_');
+    const path = `places/${placeId}/${Date.now()}_${safeName}`;
+    const ref = storageRef(this.storage, path);
+    await uploadBytes(ref, file);
+    return await getDownloadURL(ref);
+  }
+
+  /** Append one image metadata (url/tags/weight) to place.images */
+  async appendImageMeta(placeId: string, image: ImageMeta): Promise<void> {
+    const ref = doc(this.db, 'places', placeId);
+    await this.inCtx(() =>
+      updateDoc(ref, {
+        images: arrayUnion(image),
+        updatedAt: serverTimestamp() as any,
+      } as any)
+    );
+  }
+
+  /** (Optional) Set/override the primary image URL */
+  async setPrimaryImage(placeId: string, url: string): Promise<void> {
+    const ref = doc(this.db, 'places', placeId);
+    await this.inCtx(() =>
+      updateDoc(ref, {
+        imagePrimaryUrl: url,
+        updatedAt: serverTimestamp() as any,
+      } as any)
+    );
+  }
+
   // ---------- Utilities ----------
+
+  /** Prefer !3d/!4d coords, then q=lat,lng, then @lat,lng; also tries to infer a name */
   parseMapsLink(link: string): { lat?: number; lng?: number; name?: string } {
     const url = decodeURIComponent((link || '').trim());
     if (!url) return {};

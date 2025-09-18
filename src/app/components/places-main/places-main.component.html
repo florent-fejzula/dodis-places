@@ -7,7 +7,13 @@
       <div class="label">Location<span class="colon">:</span></div>
       <div class="tagContainer">
         @for (tag of locationTags; track tag) {
-          <div class="tag" (click)="onTagClicked(tag)" [ngClass]="{ active: isTagSelected(tag) }">{{ tag }}</div>
+        <div
+          class="tag"
+          (click)="onTagClicked(tag)"
+          [ngClass]="{ active: isTagSelected(tag) }"
+        >
+          {{ tag }}
+        </div>
         }
       </div>
     </div>
@@ -16,7 +22,13 @@
       <div class="label">Vibe<span class="colon">:</span></div>
       <div class="tagContainer">
         @for (tag of vibeTags; track tag) {
-          <div class="tag" (click)="onTagClicked(tag)" [ngClass]="{ active: isTagSelected(tag) }">{{ tag }}</div>
+        <div
+          class="tag"
+          (click)="onTagClicked(tag)"
+          [ngClass]="{ active: isTagSelected(tag) }"
+        >
+          {{ tag }}
+        </div>
         }
       </div>
     </div>
@@ -25,7 +37,13 @@
       <div class="label">Stuff<span class="colon">:</span></div>
       <div class="tagContainer">
         @for (tag of stuffTags; track tag) {
-          <div class="tag" (click)="onTagClicked(tag)" [ngClass]="{ active: isTagSelected(tag) }">{{ tag }}</div>
+        <div
+          class="tag"
+          (click)="onTagClicked(tag)"
+          [ngClass]="{ active: isTagSelected(tag) }"
+        >
+          {{ tag }}
+        </div>
         }
       </div>
     </div>
@@ -34,24 +52,78 @@
   <button (click)="clearSelectedTags()" class="clear-button">Clear</button>
 
   @if (filteredStuffTags.length) {
-    <h2 class="thesePlacesHave">Selected places have:</h2>
-    <div class="tag-list">
-      <div class="tagContainer">
-        @for (tag of filteredStuffTags; track tag) {
-          <div class="tag" (click)="onStuffTagClicked(tag)" [ngClass]="{ active: isStuffTagSelected(tag) }">{{ tag }}</div>
-        }
+  <h2 class="thesePlacesHave">Selected places have:</h2>
+  <div class="tag-list">
+    <div class="tagContainer">
+      @for (tag of filteredStuffTags; track tag) {
+      <div
+        class="tag"
+        (click)="onStuffTagClicked(tag)"
+        [ngClass]="{ active: isStuffTagSelected(tag) }"
+      >
+        {{ tag }}
+      </div>
+      }
+    </div>
+  </div>
+  }
+
+  <div class="cards">
+    <div class="card" *ngFor="let p of filteredPlaces">
+      <div class="media" *ngIf="getImage(p) as img; else noimg">
+        <img [src]="img" [alt]="p.name" loading="lazy" />
+      </div>
+      <ng-template #noimg>
+        <div class="media placeholder">No image</div>
+      </ng-template>
+
+      <div class="body">
+        <h3>{{ p.name }}</h3>
+        <div class="tags">
+          <span class="pill" *ngFor="let t of p.tags | slice : 0 : 6">{{
+            t
+          }}</span>
+        </div>
+        <button class="link" (click)="openInMaps(p)">
+          Open in Google Maps
+        </button>
       </div>
     </div>
-  }
+  </div>
 
   <!-- Map only after API is loaded -->
   <div class="map-wrap" *ngIf="apiReady">
-    <google-map height="60vh" width="100%" [center]="center" [zoom]="zoom" [options]="mapOptions">
-      <map-marker *ngFor="let p of filteredPlaces"
-                  [position]="{ lat: p.lat, lng: p.lng }"
-                  [title]="p.name"
-                  (mapClick)="openInMaps(p)">
+    <google-map
+      height="60vh"
+      width="100%"
+      [center]="center"
+      [zoom]="zoom"
+      [options]="mapOptions"
+    >
+      <map-marker
+        *ngFor="let p of filteredPlaces"
+        #m="mapMarker"
+        [position]="{ lat: p.lat, lng: p.lng }"
+        [title]="p.name"
+        (mapClick)="openInfo(m, p)"
+      >
       </map-marker>
+
+      <map-info-window>
+        <div class="iw">
+          <div class="iw-title">{{ selectedPlace?.name }}</div>
+
+          <div class="iw-tags" *ngIf="selectedPlace?.tags?.length">
+            <span class="pill" *ngFor="let t of selectedPlace?.tags">{{
+              t
+            }}</span>
+          </div>
+
+          <a class="iw-link" (click)="openInMaps(selectedPlace!)"
+            >Open in Google Maps</a
+          >
+        </div>
+      </map-info-window>
     </google-map>
   </div>
 
