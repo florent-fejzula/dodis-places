@@ -95,19 +95,27 @@ export class PlacesService {
   }
 
   /** Update an existing place by id (safe partial update) */
+  // src/app/services/places.service.ts
   async updatePlace(id: string, patch: Partial<Place>): Promise<void> {
     const ref = doc(this.db, 'places', id);
-    const cleaned: Partial<Place> = {
+
+    const cleaned: any = {
       ...patch,
-      updatedAt: serverTimestamp() as any,
+      updatedAt: serverTimestamp(),
     };
+
     if (typeof cleaned.name === 'string') cleaned.name = cleaned.name.trim();
     if (typeof cleaned.description === 'string')
       cleaned.description = cleaned.description.trim();
     if (typeof cleaned.gmapsUrl === 'string')
       cleaned.gmapsUrl = cleaned.gmapsUrl.trim();
 
-    await this.inCtx(() => updateDoc(ref, cleaned as any));
+    // 🔑 Firestore rejects `undefined` — remove such keys
+    Object.keys(cleaned).forEach(
+      (k) => cleaned[k] === undefined && delete cleaned[k]
+    );
+
+    await this.inCtx(() => updateDoc(ref, cleaned));
   }
 
   /** Delete a place */

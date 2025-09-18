@@ -194,7 +194,7 @@ export class EditPlaceComponent implements OnInit, OnDestroy {
     if (!this.canSave) return;
     this.busy = true;
     try {
-      // 1) Update base fields
+      // 1) Update base fields (⚠️ no imagePrimaryUrl here)
       await this.svc.updatePlace(this.id, {
         name: this.name.trim(),
         description: this.description?.trim() || '',
@@ -202,8 +202,7 @@ export class EditPlaceComponent implements OnInit, OnDestroy {
         lat: this.latNumber!,
         lng: this.lngNumber!,
         tags: Array.from(this.selected),
-        imagePrimaryUrl: this.coverUrl ?? undefined,
-        images: this.existingImages, // keep edited tag sets
+        images: this.existingImages, // keep any tag edits on existing images
       });
 
       // 2) Upload any new photos
@@ -218,10 +217,19 @@ export class EditPlaceComponent implements OnInit, OnDestroy {
         });
       }
 
-      // 3) If no explicit cover but we uploaded, set first new
-      if (!this.coverUrl && uploadedUrls.length) {
+      // 3) Resolve cover candidate
+      let coverCandidate: string | null = this.coverUrl || null; // existing cover selection from "Existing Photos"
+      if (uploadedUrls.length) {
+        // If user selected "Prefer as cover" for a new photo, use that;
+        // otherwise default to the first uploaded
+        const idx = this.selectedCoverIdx ?? 0;
+        coverCandidate = uploadedUrls[idx] || uploadedUrls[0];
+      }
+
+      // 4) Only send imagePrimaryUrl if we actually have a string
+      if (coverCandidate) {
         await this.svc.updatePlace(this.id, {
-          imagePrimaryUrl: uploadedUrls[0],
+          imagePrimaryUrl: coverCandidate,
         });
       }
 
