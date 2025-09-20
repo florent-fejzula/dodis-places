@@ -42,6 +42,9 @@ export class EditPlaceComponent implements OnInit, OnDestroy {
   lng: number | string | null = null;
   coverUrl: string | null = null;
 
+  selectedExistingCoverUrl: string | null = null; // when user clicks an existing photo
+  selectedNewCoverIdx: number | null = null; // when user clicks a newly added photo
+
   // existing images from Firestore
   existingImages: Array<{ url: string; tags: string[]; weight?: number }> = [];
 
@@ -193,7 +196,7 @@ export class EditPlaceComponent implements OnInit, OnDestroy {
     if (!this.canSave) return;
     this.busy = true;
     try {
-      // 1) Update base fields (⚠️ no imagePrimaryUrl here)
+      // 1) Update base fields (⚠️ don't send imagePrimaryUrl here)
       await this.svc.updatePlace(this.id, {
         name: this.name.trim(),
         description: this.description?.trim() || '',
@@ -201,7 +204,7 @@ export class EditPlaceComponent implements OnInit, OnDestroy {
         lat: this.latNumber!,
         lng: this.lngNumber!,
         tags: Array.from(this.selected),
-        images: this.existingImages,
+        images: this.existingImages, // keep tag edits on existing images
       });
 
       // 2) Upload any new photos
@@ -216,14 +219,32 @@ export class EditPlaceComponent implements OnInit, OnDestroy {
         });
       }
 
-      // 3) Resolve cover candidate
+      // 3) Decide the cover deterministically
+      // Start from current cover
       let coverCandidate: string | null = this.coverUrl || null;
-      if (uploadedUrls.length) {
-        const idx = this.selectedCoverIdx ?? 0;
-        coverCandidate = uploadedUrls[idx] || uploadedUrls[0];
+
+      // Highest priority: user explicitly picked an EXISTING photo as cover
+      if (this.selectedExistingCoverUrl) {
+        coverCandidate = this.selectedExistingCoverUrl;
+      }
+      // Next priority: user explicitly picked a NEWLY ADDED photo as cover
+      else if (this.selectedNewCoverIdx != null && uploadedUrls.length) {
+        const i = this.selectedNewCoverIdx;
+        coverCandidate = uploadedUrls[i] ?? uploadedUrls[0];
+      }
+      // Else: keep current cover IF it still exists; otherwise pick a sensible fallback
+      else {
+        const existingUrls = (this.existingImages ?? []).map((img) => img.url);
+        const currentCoverStillExists = coverCandidate
+          ? existingUrls.includes(coverCandidate)
+          : false;
+
+        if (!currentCoverStillExists) {
+          coverCandidate = uploadedUrls[0] || existingUrls[0] || null;
+        }
       }
 
-      // 4) Only send imagePrimaryUrl if we actually have a string
+      // 4) Apply cover only if we have a valid candidate
       if (coverCandidate) {
         await this.svc.updatePlace(this.id, {
           imagePrimaryUrl: coverCandidate,
@@ -235,6 +256,19 @@ export class EditPlaceComponent implements OnInit, OnDestroy {
     } finally {
       this.busy = false;
     }
+  }
+
+  // existing photo card
+  onPickExistingCover(url: string) {
+    this.selectedExistingCoverUrl = url;
+    this.selectedNewCoverIdx = null;
+    this.coverUrl = url; // optional: reflect in UI immediately
+  }
+
+  // newly added (local) photo card
+  onPickNewCover(idx: number) {
+    this.selectedNewCoverIdx = idx;
+    this.selectedExistingCoverUrl = null;
   }
 
   async deletePlace() {
