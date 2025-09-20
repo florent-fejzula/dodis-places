@@ -1,9 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, Injector, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { Place } from 'src/app/models/places';
 import { availableTags } from 'src/app/models/tags';
 import { PlacesService } from 'src/app/services/places.service';
 import { arrayRemove, doc, updateDoc } from '@angular/fire/firestore';
@@ -202,7 +201,7 @@ export class EditPlaceComponent implements OnInit, OnDestroy {
         lat: this.latNumber!,
         lng: this.lngNumber!,
         tags: Array.from(this.selected),
-        images: this.existingImages, // keep any tag edits on existing images
+        images: this.existingImages,
       });
 
       // 2) Upload any new photos
@@ -218,10 +217,8 @@ export class EditPlaceComponent implements OnInit, OnDestroy {
       }
 
       // 3) Resolve cover candidate
-      let coverCandidate: string | null = this.coverUrl || null; // existing cover selection from "Existing Photos"
+      let coverCandidate: string | null = this.coverUrl || null;
       if (uploadedUrls.length) {
-        // If user selected "Prefer as cover" for a new photo, use that;
-        // otherwise default to the first uploaded
         const idx = this.selectedCoverIdx ?? 0;
         coverCandidate = uploadedUrls[idx] || uploadedUrls[0];
       }
@@ -234,8 +231,7 @@ export class EditPlaceComponent implements OnInit, OnDestroy {
       }
 
       alert('Changes saved ✅');
-      this.photos = [];
-      this.selectedCoverIdx = null;
+      await this.router.navigate(['/places']);
     } finally {
       this.busy = false;
     }
