@@ -1,0 +1,120 @@
+<div class="page">
+  <header class="header">
+    <h1>Bulk Tag Manager</h1>
+    <div class="right">
+      <a class="btn btn-ghost" routerLink="/places">← Back to Places</a>
+    </div>
+  </header>
+
+  <section class="card">
+    <div class="row gap">
+      <input
+        class="input grow"
+        placeholder="New or existing tag (e.g. brunch)"
+        [(ngModel)]="tagName"
+      />
+      <button
+        class="btn"
+        [disabled]="!tagName?.trim() || busy() || !selectedIds().size"
+        (click)="applyTag()"
+      >
+        Apply to selected
+      </button>
+      <button
+        class="btn outline"
+        [disabled]="!tagName?.trim() || busy() || !selectedIds().size"
+        (click)="removeTag()"
+      >
+        Remove from selected
+      </button>
+    </div>
+
+    <div class="row gap">
+      <input
+        class="input grow"
+        placeholder="Search by name, desc or tag…"
+        [(ngModel)]="q"
+      />
+      <div class="chips">
+        <span class="chip muted">Total: {{ filteredPlaces().length }}</span>
+        <span class="chip" *ngIf="selectedIds().size"
+          >{{ selectedIds().size }} selected</span
+        >
+      </div>
+    </div>
+
+    <div class="table">
+      <div class="tr th">
+        <div class="td sel">Select</div>
+        <div class="td name">Name</div>
+        <div class="td tags">Tags</div>
+      </div>
+
+      <ng-container *ngIf="!loading(); else loadingTpl">
+        <div class="tr" *ngFor="let p of pagedPlaces()">
+          <div class="td sel">
+            <input
+              type="checkbox"
+              [checked]="isSelected(p.id!)"
+              #cb
+              (change)="toggleSelection(p.id!, cb.checked)"
+            />
+          </div>
+          <div class="td name">
+            <div class="title">{{ p.name }}</div>
+            <div class="sub">{{ p.description }}</div>
+          </div>
+          <div class="td tags">
+            <span class="chip" *ngFor="let t of p.tags">{{ t }}</span>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+
+    <div class="row justify-between mt">
+      <div class="left">
+        <button class="btn btn-ghost" (click)="selectAllOnPage()">
+          Select all on page
+        </button>
+        <button
+          class="btn btn-ghost"
+          (click)="clearSelection()"
+          [disabled]="!selectedIds().size"
+        >
+          Clear selection
+        </button>
+      </div>
+      <div class="right pager">
+        <button
+          class="btn outline"
+          (click)="prevPage()"
+          [disabled]="pageIndex() === 0"
+        >
+          Prev
+        </button>
+        <span class="muted"
+          >Page {{ pageIndex() + 1 }} / {{ totalPages() }}</span
+        >
+        <button
+          class="btn outline"
+          (click)="nextPage()"
+          [disabled]="pageIndex() + 1 >= totalPages()"
+        >
+          Next
+        </button>
+        <select class="input page-size" [(ngModel)]="pageSize">
+          <option [ngValue]="10">10</option>
+          <option [ngValue]="20">20</option>
+          <option [ngValue]="50">50</option>
+        </select>
+      </div>
+    </div>
+
+    <p class="muted mt" *ngIf="message()">{{ message() }}</p>
+    <p class="error mt" *ngIf="error()">{{ error() }}</p>
+  </section>
+</div>
+
+<ng-template #loadingTpl>
+  <div class="loading">Loading places…</div>
+</ng-template>

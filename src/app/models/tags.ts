@@ -9,7 +9,7 @@ export const locationTags: string[] = [
 export const vibeTags: string[] = [
   'luxury',
   'chill',
-  'work',
+  'Sunday',
   'restaurant',
   'food',
   'coffee',

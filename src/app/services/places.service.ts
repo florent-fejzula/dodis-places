@@ -14,7 +14,9 @@ import {
   CollectionReference,
   DocumentData,
   arrayUnion,
+  arrayRemove,
   docData,
+  writeBatch,
 } from '@angular/fire/firestore';
 import {
   Storage,
@@ -26,10 +28,12 @@ import { Observable } from 'rxjs';
 import { Place } from '../models/places';
 
 type ImageMeta = { url: string; tags: string[]; weight?: number };
+type TagDoc = { name: string; color?: string | null; createdAt: any };
 
 @Injectable({ providedIn: 'root' })
 export class PlacesService {
   private placesRef!: CollectionReference<DocumentData>;
+  private tagsRef!: CollectionReference<DocumentData>;
 
   constructor(
     private db: Firestore,
@@ -38,12 +42,17 @@ export class PlacesService {
   ) {
     // initialize refs INSIDE constructor
     this.placesRef = collection(this.db, 'places');
+    this.tagsRef = collection(this.db, 'tags');
   }
 
   /** helper to ensure calls happen inside Angular injection context */
   private inCtx<T>(fn: () => T): T {
     return runInInjectionContext(this.injector, fn);
   }
+
+  // =========================
+  // Places (read/query/write)
+  // =========================
 
   /** Live stream of all places (context-safe) */
   getPlaces(): Observable<Place[]> {
@@ -95,7 +104,6 @@ export class PlacesService {
   }
 
   /** Update an existing place by id (safe partial update) */
-  // src/app/services/places.service.ts
   async updatePlace(id: string, patch: Partial<Place>): Promise<void> {
     const ref = doc(this.db, 'places', id);
 
@@ -131,7 +139,9 @@ export class PlacesService {
     }
   }
 
-  // ---------- Images (Firebase Storage) ----------
+  // ==============
+  // Images (Storage)
+  // ==============
 
   /** Upload a single image file and return its download URL */
   async uploadPlaceImage(placeId: string, file: File): Promise<string> {
@@ -164,7 +174,81 @@ export class PlacesService {
     );
   }
 
-  // ---------- Utilities ----------
+  // ==========
+  // Tags (CRUD)
+  // ==========
+
+  /** Live stream of tag documents (if you want a registry UI) */
+  getTags(): Observable<(TagDoc & { id: string })[]> {
+    return this.inCtx(
+      () =>
+        collectionData(this.tagsRef, { idField: 'id' }) as Observable<
+          (TagDoc & { id: string })[]
+        >
+    );
+  }
+
+  /** Create a tag doc (optional registry) */
+  async createTag(name: string, color?: string) {
+    const payload: TagDoc = {
+      name: name.trim(),
+      color: color ?? null,
+      createdAt: serverTimestamp(),
+    };
+    await this.inCtx(() => addDoc(this.tagsRef, payload));
+  }
+
+  // ===================
+  // Bulk Tag Operations
+  // ===================
+
+  /** Add a tag to many places at once (chunked under batch limits) */
+  async bulkAddTagToPlaces(tag: string, placeIds: string[]) {
+    const t = tag.trim();
+    if (!t || !placeIds?.length) return;
+
+    const CHUNK = 450; // headroom below 500 write limit
+    for (let i = 0; i < placeIds.length; i += CHUNK) {
+      const slice = placeIds.slice(i, i + CHUNK);
+      await this.inCtx(async () => {
+        const batch = writeBatch(this.db);
+        for (const id of slice) {
+          const ref = doc(this.db, 'places', id);
+          batch.update(ref, {
+            tags: arrayUnion(t),
+            updatedAt: serverTimestamp(),
+          } as any);
+        }
+        await batch.commit();
+      });
+    }
+  }
+
+  /** Remove a tag from many places at once (chunked) */
+  async bulkRemoveTagFromPlaces(tag: string, placeIds: string[]) {
+    const t = tag.trim();
+    if (!t || !placeIds?.length) return;
+
+    const CHUNK = 450;
+    for (let i = 0; i < placeIds.length; i += CHUNK) {
+      const slice = placeIds.slice(i, i + CHUNK);
+      await this.inCtx(async () => {
+        const batch = writeBatch(this.db);
+        for (const id of slice) {
+          const ref = doc(this.db, 'places', id);
+          batch.update(ref, {
+            tags: arrayRemove(t),
+            updatedAt: serverTimestamp(),
+          } as any);
+        }
+        await batch.commit();
+      });
+    }
+  }
+
+  // ----------
+  // Utilities
+  // ----------
 
   /** Prefer !3d/!4d coords, then q=lat,lng, then @lat,lng; also tries to infer a name */
   parseMapsLink(link: string): { lat?: number; lng?: number; name?: string } {
