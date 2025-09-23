@@ -33,6 +33,7 @@
 .iw-title {
   font-weight: 700;
   margin-bottom: 6px;
+  color: var(--ink, #111);
 }
 .iw-tags {
   margin: 6px 0 8px;
@@ -41,7 +42,8 @@
   gap: 6px;
 }
 .pill {
-  background: #efefef;
+  background: var(--chip, #efefef);
+  color: var(--ink, #111);
   border-radius: 999px;
   padding: 2px 8px;
   font-size: 12px;
@@ -65,7 +67,8 @@
   border: 2px solid var(--border, #d1d5db);
   border-radius: 14px;
   overflow: hidden;
-  background: #fff;
+  background: var(--surface, #fff);
+  color: var(--ink, #111);
   box-shadow: var(--shadow, 0 6px 14px rgba(0, 0, 0, 0.06));
   display: flex;
   flex-direction: column;
@@ -77,8 +80,8 @@
   top: 8px;
   right: 8px;
   border: none;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(2px);
+  /* translucent chip that adapts to theme */
+  background: color-mix(in srgb, var(--surface, #fff) 85%, transparent);
   border-radius: 8px;
   width: 32px;
   height: 32px;
@@ -86,6 +89,8 @@
   text-align: center;
   cursor: pointer;
   font-size: 18px;
+  backdrop-filter: blur(2px);
+  color: silver;
 }
 
 /* Dropdown */
@@ -94,10 +99,10 @@
   top: 44px;
   right: 8px;
   min-width: 140px;
-  background: #fff;
+  background: var(--surface, #fff);
   border: 1px solid var(--border, #e6e6e6);
   border-radius: 10px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
   padding: 6px;
   display: flex;
   flex-direction: column;
@@ -107,13 +112,14 @@
     text-align: left;
     padding: 8px 10px;
     border: none;
-    background: none;
+    background: transparent;
+    color: var(--ink, #111);
     cursor: pointer;
     border-radius: 8px;
     font-size: 14px;
 
     &:hover {
-      background: #f5f7fa;
+      background: var(--chip, #f5f7fa);
     }
     &.danger {
       color: #c62828;
@@ -123,7 +129,7 @@
 
 .media {
   height: 160px;
-  background: #f3f4f6;
+  background: var(--chip-hover, #f3f4f6);
   overflow: hidden;
   display: grid;
   place-items: center;
@@ -138,7 +144,7 @@
   &.placeholder {
     display: grid;
     place-items: center;
-    color: #94a3b8;
+    color: var(--muted, #94a3b8);
     font-size: 12px;
   }
 }
@@ -153,6 +159,7 @@
 h3 {
   margin: 0 0 6px;
   font-size: 18px;
+  color: var(--ink, #111);
 }
 
 .tags {
@@ -162,8 +169,10 @@ h3 {
   margin: 6px 0 10px;
 }
 
+/* card-level pill (redeclare to ensure theme match) */
 .pill {
-  background: #f2f4f7;
+  background: var(--chip, #f2f4f7);
+  color: var(--ink, #111);
   padding: 2px 8px;
   border-radius: 999px;
   font-size: 12px;

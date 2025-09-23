@@ -1,29 +1,29 @@
 /* You can add global styles to this file, and also import other style files */
 
 // “Skopje Sunset” (warm, friendly)
-:root {
-  --bg: #ffffff;
-  --ink: #1f2937; /* text */
-  --muted: #6b7280;
-  --surface: #ffffff;
-  --border: #e9edf2;
+// :root {
+//   --bg: #ffffff;
+//   --ink: #1f2937; /* text */
+//   --muted: #6b7280;
+//   --surface: #ffffff;
+//   --border: #e9edf2;
 
-  --brand: #e4572e; /* terracotta */
-  --brand-600: #cf4b25;
-  --brand-700: #b3421f;
+//   --brand: #e4572e; /* terracotta */
+//   --brand-600: #cf4b25;
+//   --brand-700: #b3421f;
 
-  --chip: #f6f7fb;
-  --chip-hover: #eef2f7;
-  --chip-active: var(--brand);
-  --chip-active-ink: #ffffff;
+//   --chip: #f6f7fb;
+//   --chip-hover: #eef2f7;
+//   --chip-active: var(--brand);
+//   --chip-active-ink: #ffffff;
 
-  --action: var(--brand);
-  --action-ink: #ffffff;
+//   --action: var(--brand);
+//   --action-ink: #ffffff;
 
-  --link: #0b66ff; /* subtle cool link */
-  --link-visited: #6b4eff; /* optional */
-  --shadow: 0 6px 14px rgba(17, 24, 39, 0.06);
-}
+//   --link: #0b66ff; /* subtle cool link */
+//   --link-visited: #6b4eff; /* optional */
+//   --shadow: 0 6px 14px rgba(17, 24, 39, 0.06);
+// }
 
 // “Vardar Mint” (fresh, café vibe)
 // :root {
@@ -46,10 +46,45 @@
 //   --shadow: 0 6px 14px rgba(10, 24, 34, 0.06);
 // }
 
-html {
-  overflow-y: scroll;
+/* Old Bazaar Night — dark, warm terracotta accent */
+.theme-night {
+  --bg: #0d1117;           /* page background */
+  --surface: #11161f;      /* cards / panels */
+  --ink: #e6eaf0;          /* primary text */
+  --muted: #9aa4b2;        /* secondary text */
+  --border: #1f2732;       /* hairlines */
+  --shadow: 0 10px 24px rgba(0,0,0,.40);
+
+  /* Brand (keeps your Sunset vibe, tuned for dark) */
+  --brand: #e46a3c;
+  --brand-600: #cf5e33;
+  --brand-700: #b7522b;
+
+  /* Chips and interactions */
+  --chip: #161c26;         /* idle pill bg */
+  --chip-hover: #1b2230;   /* hover pill bg */
+  --chip-active: var(--brand);
+  --chip-active-ink: #ffffff;
+
+  /* Buttons/accents */
+  --action: var(--brand);
+  --action-ink: #ffffff;
+
+  /* Links */
+  --link: #6fb2ff;
+  --link-visited: #a48bff;
 }
-body {
+
+/* Make the theme actually apply to the page */
+.theme-night body, body.theme-night {
   background: var(--bg);
   color: var(--ink);
 }
+
+html {
+  overflow-y: scroll;
+}
+// body {
+//   background: var(--bg);
+//   color: var(--ink);
+// }
