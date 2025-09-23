@@ -1,28 +1,31 @@
 .container {
-  width: calc(100% - 40px); /* Adjusted width to account for padding */
+  width: calc(100% - 40px);
   margin: 0 auto;
-  box-sizing: border-box; /* Include padding and border in the element's total width */
+  box-sizing: border-box;
 
   h1 {
     text-align: center;
     margin-bottom: 20px;
+    color: var(--ink, inherit);
   }
 }
 
 @media (min-width: 768px) {
   .container {
-    border: 1px solid red;
+    border: 1px solid red; /* preserved from your original */
     padding: 20px;
   }
 }
 
+/* Map */
 .map-wrap {
   margin: 10px 0 16px;
   border-radius: 12px;
   overflow: hidden;
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--border, #e5e5e5);
 }
 
+/* InfoWindow */
 .iw {
   min-width: 220px;
   max-width: 254px;
@@ -44,11 +47,12 @@
   font-size: 12px;
 }
 .iw-link {
-  color: #2563eb;
+  color: var(--link, #2563eb);
   cursor: pointer;
   font-weight: 600;
 }
 
+/* Cards grid */
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -58,14 +62,14 @@
 
 .card {
   position: relative;
-  border: 2px solid #d1d5db; /* stronger border */
+  border: 2px solid var(--border, #d1d5db);
   border-radius: 14px;
   overflow: hidden;
   background: #fff;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow, 0 6px 14px rgba(0, 0, 0, 0.06));
   display: flex;
   flex-direction: column;
-  height: 100%; /* ensures equal height grid */
+  height: 100%;
 }
 
 .card-menu {
@@ -91,7 +95,7 @@
   right: 8px;
   min-width: 140px;
   background: #fff;
-  border: 1px solid #e6e6e6;
+  border: 1px solid var(--border, #e6e6e6);
   border-radius: 10px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
   padding: 6px;
@@ -140,7 +144,7 @@
 }
 
 .body {
-  flex: 1; /* pushes content to fill */
+  flex: 1;
   padding: 12px;
   display: flex;
   flex-direction: column;
@@ -167,8 +171,8 @@ h3 {
 
 /* pin the link at bottom */
 .link {
-  margin-top: auto; /* pushes it down */
-  color: #2563eb;
+  margin-top: auto;
+  color: var(--link, #2563eb);
   background: transparent;
   border: 0;
   padding: 0;
@@ -178,7 +182,6 @@ h3 {
 }
 
 @media (max-width: 768px) {
-  /* Styles for smaller screens */
   .container {
     width: 100%;
     padding: 2px;

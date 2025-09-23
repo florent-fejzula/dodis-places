@@ -3,10 +3,10 @@
   display: flex;
   gap: 16px;
   padding: 12px 16px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border, #eee);
   align-items: center;
 
-  /* mobile: allow horizontal scroll instead of ugly wrapping */
+  /* mobile: allow horizontal scroll instead of wrapping */
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scroll-snap-type: x proximity;
@@ -18,10 +18,11 @@
 }
 
 .topnav a {
-  --fg: #374151; /* slate-700 */
+  /* tokens with safe fallbacks */
+  --fg: var(--ink, #374151);
   --bg: transparent;
-  --bg-hover: #f3f4f6; /* slate-100 */
-  --bg-active: #111; /* pill active */
+  --bg-hover: var(--chip-hover, #f3f4f6);
+  --bg-active: var(--brand, #111);
   --fg-active: #fff;
 
   color: var(--fg);
@@ -42,7 +43,7 @@
 
 .topnav a:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px #fff, 0 0 0 4px #111; /* accessible focus ring */
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--brand-700, #111); /* accessible focus ring */
 }
 
 .topnav a.active {

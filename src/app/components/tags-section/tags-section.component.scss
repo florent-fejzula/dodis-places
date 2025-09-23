@@ -2,24 +2,28 @@
   padding-bottom: 20px;
 }
 
+/* Chip */
 .tag {
-  background-color: #f2f2f2;
-  border: 2px solid #f2f2f2;
+  background-color: var(--chip, #f2f2f2);
+  border: 2px solid var(--chip, #f2f2f2);
+  color: var(--ink, #111);
   padding: 6px 12px;
   margin: 4px 2px;
   border-radius: 20px;
   cursor: pointer;
   user-select: none;
-  transition: filter 0.12s ease, opacity 0.12s ease, border-color 0.12s ease;
+  transition: filter 0.12s ease, opacity 0.12s ease, border-color 0.12s ease,
+    background 0.12s ease;
 
   &:hover {
-    border: 2px solid #007bff;
+    border-color: var(--chip-hover, #007bff);
+    background: var(--chip-hover, #eef2f7);
   }
 
   &.active {
-    background-color: #007bff;
-    color: #ffffff;
-    border-color: #007bff;
+    background-color: var(--chip-active, #007bff);
+    color: var(--chip-active-ink, #ffffff);
+    border-color: var(--chip-active, #007bff);
   }
 
   &.disabled {
@@ -27,29 +31,33 @@
     cursor: not-allowed;
     filter: grayscale(0.2);
     &:hover {
-      border-color: #f2f2f2;
+      border-color: var(--chip, #f2f2f2);
+      background: var(--chip, #f2f2f2);
     }
   }
 }
 
+/* Rows */
 .locationTags,
 .vibeTags,
 .stuffTags {
   display: flex;
   align-items: center;
-  gap: 12px; /* replaces manual margins */
+  gap: 12px;
   margin: 8px 0;
 }
 
+/* Label */
 .label {
-  color: #374151; /* slate-700, neutral */
-  font-weight: 600; /* not heavy bold */
+  color: var(--muted, #374151); /* neutral */
+  font-weight: 600;
   font-size: 15px;
   line-height: 1.2;
-  min-width: 88px; /* keeps columns aligned */
+  min-width: 88px; /* aligns columns on desktop */
   text-align: right;
 }
 
+/* Chips container */
 .tagContainer {
   display: flex;
   flex-wrap: wrap;
@@ -57,65 +65,73 @@
   flex: 1 1 auto;
 }
 
+/* Clear button */
 .clear-button {
-  background-color: #f44336;
-  color: white;
+  background-color: var(--action, #f44336);
+  color: var(--action-ink, #fff);
   border: none;
   padding: 10px 20px;
   border-radius: 25px;
   cursor: pointer;
   margin: 10px 0;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.25s ease;
 
   &:hover {
-    background-color: #d32f2f;
+    background-color: var(--brand-600, #d32f2f);
   }
-
   &:active {
-    background-color: #b71c1c;
+    background-color: var(--brand-700, #b71c1c);
   }
 }
 
-/* mobile tweaks kept */
+/* --- Mobile layout tweaks --- */
 @media (max-width: 768px) {
-  /* Label sits above chips */
   .label {
-    text-align: left; /* not right-aligned on mobile */
-    min-width: auto; /* remove fixed width */
+    text-align: left;
+    min-width: auto;
     width: 100%;
     font-size: 14px;
     line-height: 1.2;
-    margin: 0; /* no extra right margin */
-    opacity: 0.85; /* softer */
+    margin: 0;
+    opacity: 0.85;
   }
 
-  /* Slightly larger tap targets on small screens */
   .tag {
     font-size: 13px;
     padding: 6px 10px;
     margin: 0; /* rely on gap instead */
+
+    &:hover {
+      /* brand-tinted hover instead of neutral gray */
+      background: color-mix(in srgb, var(--chip-active, #e4572e) 12%, white);
+      border-color: color-mix(in srgb, var(--chip-active, #e4572e) 18%, white);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 2px #fff,
+        0 0 0 4px color-mix(in srgb, var(--chip-active, #e4572e) 55%, black);
+    }
   }
 
-  /* Chips fill available width and wrap neatly */
   .tagContainer {
     flex: 1 1 auto;
     display: flex;
     flex-wrap: wrap;
-    gap: 6px 8px; /* rows x columns gap */
-    justify-content: flex-start; /* avoid awkward centering */
+    gap: 6px 8px;
+    justify-content: flex-start;
     max-width: 100%;
   }
 
   .locationTags,
   .vibeTags,
   .stuffTags {
-    flex-direction: column; /* was row */
+    flex-direction: column;
     align-items: stretch;
-    gap: 6px; /* tighter rhythm */
+    gap: 6px;
     margin: 10px 0;
   }
 
-  /* Keep the Clear button visible and thumb-friendly */
   .clear-button {
     position: sticky;
     bottom: 10px;
@@ -127,7 +143,7 @@
     justify-content: center;
     min-width: 110px;
     padding: 10px 14px;
-    z-index: 1; /* above chips if content scrolls */
+    z-index: 1;
   }
 
   .tag-list {
