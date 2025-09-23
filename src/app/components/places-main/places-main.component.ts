@@ -7,7 +7,6 @@ import {
   MapMarker,
 } from '@angular/google-maps';
 import { Loader } from '@googlemaps/js-api-loader';
-import { PlacesListComponent } from '../places-list/places-list.component';
 import { Place } from 'src/app/models/places';
 import {
   availableTags,
@@ -19,6 +18,7 @@ import { PlacesService } from 'src/app/services/places.service';
 import { environment } from 'src/environments/environment';
 import { selectCardImage } from 'src/app/utils/general.util';
 import { Router } from '@angular/router';
+import { TagsSectionComponent } from '../tags-section/tags-section.component';
 
 @Component({
   selector: 'app-places-main',
@@ -27,8 +27,8 @@ import { Router } from '@angular/router';
     NgClass,
     CommonModule,
     GoogleMapsModule,
-    PlacesListComponent,
     CommonModule,
+    TagsSectionComponent,
   ],
   templateUrl: './places-main.component.html',
   styleUrls: ['./places-main.component.scss'],
@@ -52,6 +52,8 @@ export class PlacesMainComponent implements OnInit {
 
   @ViewChild(MapInfoWindow) infoWindow?: MapInfoWindow;
   selectedPlace: Place | null = null;
+
+  disabledTags = new Set<string>();
 
   // ---- map
   @ViewChild(GoogleMap) map?: GoogleMap;
@@ -86,6 +88,7 @@ export class PlacesMainComponent implements OnInit {
     this.svc.getPlaces().subscribe((list) => {
       this.places = list ?? [];
       this.applyFilters();
+      this.recomputeDisabledTags();
       this.fitToMarkers();
     });
   }
@@ -111,6 +114,7 @@ export class PlacesMainComponent implements OnInit {
   onTagClicked(selectedTag: string) {
     this.toggle(this.selectedTags, selectedTag);
     this.applyFilters();
+    this.recomputeDisabledTags();
   }
 
   isTagSelected(tag: string): boolean {
@@ -131,6 +135,7 @@ export class PlacesMainComponent implements OnInit {
     this.filteredPlaces = this.places.slice();
     this.infoWindow?.close();
     this.fitToMarkers();
+    this.recomputeDisabledTags();
   }
 
   private toggle(arr: string[], value: string) {
@@ -144,6 +149,7 @@ export class PlacesMainComponent implements OnInit {
     );
     this.infoWindow?.close(); // close bubble when filtering
     this.fitToMarkers();
+    this.recomputeDisabledTags();
   }
 
   // ---------- map helpers ----------
@@ -165,6 +171,19 @@ export class PlacesMainComponent implements OnInit {
       bottom: 40,
       left: 40,
     });
+  }
+
+  private recomputeDisabledTags() {
+    const set = new Set<string>();
+    for (const tag of this.allTags) {
+      if (this.selectedTags.includes(tag)) continue; // never disable selected
+      const need = [...this.selectedTags, tag];
+      const anyHasAll = this.places.some((p) =>
+        need.every((t) => p.tags?.includes(t))
+      );
+      if (!anyHasAll) set.add(tag);
+    }
+    this.disabledTags = set;
   }
 
   // ---------- cards & info window ----------

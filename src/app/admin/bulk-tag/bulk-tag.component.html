@@ -15,14 +15,14 @@
       />
       <button
         class="btn"
-        [disabled]="!tagName?.trim() || busy() || !selectedIds().size"
+        [disabled]="!tagName.trim() || busy() || !selectedIds().size"
         (click)="applyTag()"
       >
         Apply to selected
       </button>
       <button
         class="btn outline"
-        [disabled]="!tagName?.trim() || busy() || !selectedIds().size"
+        [disabled]="!tagName.trim() || busy() || !selectedIds().size"
         (click)="removeTag()"
       >
         Remove from selected

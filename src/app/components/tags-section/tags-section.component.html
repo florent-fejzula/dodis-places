@@ -1,0 +1,51 @@
+<div class="tag-list">
+  <div class="locationTags">
+    <div class="label">Neighborhoods<span class="colon">:</span></div>
+    <div class="tagContainer">
+      @for (tag of locationTags; track tag) {
+      <div
+        class="tag"
+        (click)="onTagClicked(tag)"
+        [ngClass]="{ active: isTagSelected(tag), disabled: isTagDisabled(tag) }"
+        [attr.aria-disabled]="isTagDisabled(tag)"
+      >
+        {{ tag }}
+      </div>
+      }
+    </div>
+  </div>
+
+  <div class="vibeTags">
+    <div class="label">Ambience<span class="colon">:</span></div>
+    <div class="tagContainer">
+      @for (tag of vibeTags; track tag) {
+      <div
+        class="tag"
+        (click)="onTagClicked(tag)"
+        [ngClass]="{ active: isTagSelected(tag), disabled: isTagDisabled(tag) }"
+        [attr.aria-disabled]="isTagDisabled(tag)"
+      >
+        {{ tag }}
+      </div>
+      }
+    </div>
+  </div>
+
+  <div class="stuffTags">
+    <div class="label">Food & Drink<span class="colon">:</span></div>
+    <div class="tagContainer">
+      @for (tag of stuffTags; track tag) {
+      <div
+        class="tag"
+        (click)="onTagClicked(tag)"
+        [ngClass]="{ active: isTagSelected(tag), disabled: isTagDisabled(tag) }"
+        [attr.aria-disabled]="isTagDisabled(tag)"
+      >
+        {{ tag }}
+      </div>
+      }
+    </div>
+  </div>
+</div>
+
+<button (click)="clearSelectedTags()" class="clear-button">Clear</button>
