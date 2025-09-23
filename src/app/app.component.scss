@@ -1,3 +1,63 @@
-.topnav { display:flex; gap:14px; padding:10px 14px; border-bottom:1px solid #eee; }
-.topnav a { text-decoration:none; padding:6px 10px; border-radius:8px; }
-.topnav a.active { background:#efefef; }
+/* Top nav */
+.topnav {
+  display: flex;
+  gap: 16px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+  align-items: center;
+
+  /* mobile: allow horizontal scroll instead of ugly wrapping */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+
+  /* remove scrollbar on WebKit (optional) */
+  &::-webkit-scrollbar {
+    height: 0;
+  }
+}
+
+.topnav a {
+  --fg: #374151; /* slate-700 */
+  --bg: transparent;
+  --bg-hover: #f3f4f6; /* slate-100 */
+  --bg-active: #111; /* pill active */
+  --fg-active: #fff;
+
+  color: var(--fg);
+  text-decoration: none;
+  padding: 8px 12px; /* good tap target */
+  border-radius: 10px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap; /* keep labels on one line */
+  background: var(--bg);
+  scroll-snap-align: start;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.05s ease;
+}
+
+.topnav a:hover {
+  background: var(--bg-hover);
+}
+
+.topnav a:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px #111; /* accessible focus ring */
+}
+
+.topnav a.active {
+  background: var(--bg-active);
+  color: var(--fg-active);
+}
+
+@media (max-width: 640px) {
+  .topnav {
+    gap: 10px;
+    padding: 10px 12px;
+  }
+  .topnav a {
+    padding: 8px 10px;
+    border-radius: 9px;
+    font-weight: 600;
+  }
+}

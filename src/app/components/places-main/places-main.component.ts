@@ -24,7 +24,6 @@ import { TagsSectionComponent } from '../tags-section/tags-section.component';
   selector: 'app-places-main',
   standalone: true,
   imports: [
-    NgClass,
     CommonModule,
     GoogleMapsModule,
     CommonModule,
