@@ -36,23 +36,25 @@
 .vibeTags,
 .stuffTags {
   display: flex;
+  align-items: center;
+  gap: 12px; /* replaces manual margins */
   margin: 8px 0;
-  align-items: baseline;
 }
 
 .label {
-  color: #000dc6;
-  width: 78px;
+  color: #374151; /* slate-700, neutral */
+  font-weight: 600; /* not heavy bold */
+  font-size: 15px;
+  line-height: 1.2;
+  min-width: 88px; /* keeps columns aligned */
   text-align: right;
-  font-weight: bold;
-  font-size: 18px;
-  margin-right: 8px;
 }
 
 .tagContainer {
-  flex-wrap: wrap;
   display: flex;
-  max-width: 90%;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex: 1 1 auto;
 }
 
 .clear-button {
@@ -76,39 +78,59 @@
 
 /* mobile tweaks kept */
 @media (max-width: 768px) {
+  /* Label sits above chips */
   .label {
-    font-size: 17px;
-    margin-right: 8px;
-    text-align: center;
+    text-align: left; /* not right-aligned on mobile */
+    min-width: auto; /* remove fixed width */
+    width: 100%;
+    font-size: 14px;
+    line-height: 1.2;
+    margin: 0; /* no extra right margin */
+    opacity: 0.85; /* softer */
   }
 
+  /* Slightly larger tap targets on small screens */
   .tag {
-    font-size: 12px;
-    padding: 4px 10px;
-    margin: 2px;
+    font-size: 13px;
+    padding: 6px 10px;
+    margin: 0; /* rely on gap instead */
   }
 
+  /* Chips fill available width and wrap neatly */
   .tagContainer {
-    max-width: 94%;
-    justify-content: center;
+    flex: 1 1 auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 8px; /* rows x columns gap */
+    justify-content: flex-start; /* avoid awkward centering */
+    max-width: 100%;
   }
 
   .locationTags,
   .vibeTags,
   .stuffTags {
-    margin: 0 0 6px;
+    flex-direction: column; /* was row */
+    align-items: stretch;
+    gap: 6px; /* tighter rhythm */
+    margin: 10px 0;
   }
 
+  /* Keep the Clear button visible and thumb-friendly */
   .clear-button {
-    font-size: 12px;
-    margin: 0 0 4px;
+    position: sticky;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    margin: 10px auto 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 110px;
+    padding: 10px 14px;
+    z-index: 1; /* above chips if content scrolls */
   }
 
   .tag-list {
     padding-bottom: 0;
-  }
-
-  .colon {
-    display: none;
   }
 }
