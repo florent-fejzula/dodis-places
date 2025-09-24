@@ -2,7 +2,9 @@
   padding-bottom: 20px;
 }
 
-/* Chip */
+/* ---------------------------
+   Chip
+--------------------------- */
 .tag {
   background-color: var(--chip, #f2f2f2);
   border: 2px solid var(--chip, #f2f2f2);
@@ -15,10 +17,9 @@
   transition: filter 0.12s ease, opacity 0.12s ease, border-color 0.12s ease,
     background 0.12s ease;
 
-  &:hover {
-    border-color: var(--chip-hover, #007bff);
-    background: var(--chip-hover, #eef2f7);
-  }
+  /* kill iOS/Android tap highlight */
+  -webkit-tap-highlight-color: transparent !important;
+  tap-highlight-color: transparent;
 
   &.active {
     background-color: var(--chip-active, #007bff);
@@ -26,18 +27,39 @@
     border-color: var(--chip-active, #007bff);
   }
 
+  /* Press state for touch (momentary) */
+  &:active:not(.disabled):not(.active) {
+    background: var(--chip-hover, #1b2230);
+    border-color: var(--chip-hover, #1b2230);
+    color: var(--ink, #e6eaf0);
+  }
+  &.active:active {
+    background: var(--chip-active, #e46a3c);
+    color: var(--chip-active-ink, #fff);
+  }
+
+  &:focus {
+    outline: none;
+  }
+
   &.disabled {
     opacity: 0.45;
     cursor: not-allowed;
     filter: grayscale(0.2);
-    &:hover {
-      border-color: var(--chip, #f2f2f2);
-      background: var(--chip, #f2f2f2);
-    }
   }
 }
 
-/* Rows */
+/* Apply hover ONLY on devices that actually support hover */
+@media (hover: hover) and (pointer: fine) {
+  .tag:hover:not(.disabled) {
+    background: var(--chip-hover, #eef2f7);
+    border-color: var(--chip-hover, #eef2f7);
+  }
+}
+
+/* ---------------------------
+   Rows & Labels
+--------------------------- */
 .locationTags,
 .vibeTags,
 .stuffTags {
@@ -47,9 +69,8 @@
   margin: 8px 0;
 }
 
-/* Label */
 .label {
-  color: var(--muted, #374151); /* neutral */
+  color: var(--muted, #374151);
   font-weight: 600;
   font-size: 15px;
   line-height: 1.2;
@@ -57,7 +78,6 @@
   text-align: right;
 }
 
-/* Chips container */
 .tagContainer {
   display: flex;
   flex-wrap: wrap;
@@ -65,7 +85,9 @@
   flex: 1 1 auto;
 }
 
-/* Clear button */
+/* ---------------------------
+   Clear button
+--------------------------- */
 .clear-button {
   background-color: var(--action, #f44336);
   color: var(--action-ink, #fff);
@@ -76,15 +98,19 @@
   margin: 10px 0;
   transition: background-color 0.25s ease;
 
-  &:hover {
-    background-color: var(--brand-600, #d32f2f);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background-color: var(--brand-600, #d32f2f);
+    }
   }
   &:active {
     background-color: var(--brand-700, #b71c1c);
   }
 }
 
-/* --- Mobile layout tweaks --- */
+/* ---------------------------
+   Mobile layout tweaks
+--------------------------- */
 @media (max-width: 768px) {
   .label {
     text-align: left;
@@ -100,25 +126,13 @@
     font-size: 13px;
     padding: 6px 10px;
     margin: 0; /* rely on gap instead */
-
-    &:hover {
-      /* brand-tinted hover instead of neutral gray */
-      background: color-mix(in srgb, var(--chip-active, #e4572e) 12%, white);
-      border-color: color-mix(in srgb, var(--chip-active, #e4572e) 18%, white);
-    }
-
-    &:focus-visible {
-      outline: none;
-      box-shadow: 0 0 0 2px #fff,
-        0 0 0 4px color-mix(in srgb, var(--chip-active, #e4572e) 55%, black);
-    }
   }
 
   .tagContainer {
     flex: 1 1 auto;
     display: flex;
     flex-wrap: wrap;
-    gap: 6px 8px;
+    gap: 6px 8px; /* rows x columns gap */
     justify-content: flex-start;
     max-width: 100%;
   }
@@ -126,7 +140,7 @@
   .locationTags,
   .vibeTags,
   .stuffTags {
-    flex-direction: column;
+    flex-direction: column; /* stack label over chips */
     align-items: stretch;
     gap: 6px;
     margin: 10px 0;
