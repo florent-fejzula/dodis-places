@@ -14,13 +14,13 @@ export const routes: Routes = [
   { path: 'recipes', component: RecipesComponent },
 
   // Admin
-  { path: 'admin/add', component: AddPlaceComponent },
+  { path: 'add-place', component: AddPlaceComponent },
 
   // Admin Edit
-  { path: 'admin/places/:id', component: EditPlaceComponent },
+  { path: 'add-place/:id', component: EditPlaceComponent },
 
   {
-    path: 'admin/bulk-tag',
+    path: 'tag-manager',
     component: BulkTagComponent,
   },
 

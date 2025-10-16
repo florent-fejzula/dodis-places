@@ -23,7 +23,6 @@ export const stuffTags: string[] = [
   'corba',
   'salad',
   'cigKofte',
-  'icliKofte',
   'lahmacun',
   'pizza',
   'pasta',
