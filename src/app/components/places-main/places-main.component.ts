@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, inject } from '@angular/core';
-import { CommonModule, NgClass } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import {
   GoogleMap,
   GoogleMapsModule,
@@ -17,25 +17,25 @@ import {
 import { PlacesService } from 'src/app/services/places.service';
 import { environment } from 'src/environments/environment';
 import { selectCardImage } from 'src/app/utils/general.util';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TagsSectionComponent } from '../tags-section/tags-section.component';
+
+// ✅ Add this import to access Firestore
+
+import { Firestore, doc, getDoc } from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-places-main',
   standalone: true,
-  imports: [
-    CommonModule,
-    GoogleMapsModule,
-    CommonModule,
-    TagsSectionComponent,
-  ],
+  imports: [CommonModule, GoogleMapsModule, TagsSectionComponent],
   templateUrl: './places-main.component.html',
   styleUrls: ['./places-main.component.scss'],
 })
 export class PlacesMainComponent implements OnInit {
+  isAdmin = false;
+
   private svc = inject(PlacesService);
 
-  adminMode = environment.adminMode;
   menuOpenFor: Place | null = null;
 
   // ---- filters
@@ -72,10 +72,14 @@ export class PlacesMainComponent implements OnInit {
     ],
   };
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private firestore: Firestore
+  ) {}
 
   async ngOnInit(): Promise<void> {
-    // 1) Load Google Maps JS API first
+    // 1) Load Google Maps JS API
     const loader = new Loader({
       apiKey: environment.googleMapsKey,
       libraries: ['marker', 'places'],
@@ -83,7 +87,33 @@ export class PlacesMainComponent implements OnInit {
     await loader.load();
     this.apiReady = true;
 
-    // 2) Then subscribe to Firestore
+    // 2) Determine Admin Mode
+    try {
+      const configRef = doc(this.firestore, 'config', 'settings');
+      const snap = await getDoc(configRef);
+      const data = snap.data();
+
+      const urlAdmin = this.route.snapshot.queryParamMap.get('admin') === '1';
+      const urlAdminOff =
+        this.route.snapshot.queryParamMap.get('admin') === '0';
+      const savedAdmin = localStorage.getItem('isAdmin') === 'true';
+
+      if (urlAdmin) {
+        localStorage.setItem('isAdmin', 'true');
+        this.isAdmin = true;
+      } else if (urlAdminOff) {
+        localStorage.removeItem('isAdmin');
+        this.isAdmin = false;
+      } else {
+        // ✅ fix: access adminMode safely
+        this.isAdmin = (data && data['adminMode']) || savedAdmin;
+      }
+    } catch (err) {
+      console.error('Error checking admin mode:', err);
+      this.isAdmin = false;
+    }
+
+    // 3) Subscribe to Firestore places
     this.svc.getPlaces().subscribe((list) => {
       this.places = list ?? [];
       this.applyFilters();
@@ -98,7 +128,7 @@ export class PlacesMainComponent implements OnInit {
     this.menuOpenFor = this.menuOpenFor?.id === p.id ? null : p;
   }
   goEdit(p: Place) {
-    this.router.navigate(['/admin/places', p.id]);
+    this.router.navigate(['/add-place', p.id]);
   }
   async confirmDelete(p: Place) {
     if (!confirm(`Delete "${p.name}"? This cannot be undone.`)) return;
@@ -187,7 +217,6 @@ export class PlacesMainComponent implements OnInit {
 
   // ---------- cards & info window ----------
   getImage(p: Place): string | null {
-    // use only the selected tags now
     const active = [...this.selectedTags];
     return selectCardImage(p, active);
   }
