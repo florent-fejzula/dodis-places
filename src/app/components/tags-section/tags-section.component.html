@@ -1,10 +1,11 @@
 <div class="tag-list">
-  <div class="locationTags">
+  <div class="row locationTags">
     <div class="label">Neighborhoods</div>
     <div class="tagContainer">
-      @for (tag of locationTags; track tag) {
+      @for (tag of locationTags; track tag; let i = $index) {
       <div
         class="tag"
+        [style.--i]="i"
         (click)="onTagClicked(tag)"
         [ngClass]="{ active: isTagSelected(tag), disabled: isTagDisabled(tag) }"
         [attr.aria-disabled]="isTagDisabled(tag)"
@@ -15,12 +16,13 @@
     </div>
   </div>
 
-  <div class="vibeTags">
+  <div class="row vibeTags">
     <div class="label">Ambience</div>
     <div class="tagContainer">
-      @for (tag of vibeTags; track tag) {
+      @for (tag of vibeTags; track tag; let i = $index) {
       <div
         class="tag"
+        [style.--i]="i"
         (click)="onTagClicked(tag)"
         [ngClass]="{ active: isTagSelected(tag), disabled: isTagDisabled(tag) }"
         [attr.aria-disabled]="isTagDisabled(tag)"
@@ -31,12 +33,13 @@
     </div>
   </div>
 
-  <div class="stuffTags">
+  <div class="row stuffTags">
     <div class="label">Food & Drink</div>
     <div class="tagContainer">
-      @for (tag of stuffTags; track tag) {
+      @for (tag of stuffTags; track tag; let i = $index) {
       <div
         class="tag"
+        [style.--i]="i"
         (click)="onTagClicked(tag)"
         [ngClass]="{ active: isTagSelected(tag), disabled: isTagDisabled(tag) }"
         [attr.aria-disabled]="isTagDisabled(tag)"

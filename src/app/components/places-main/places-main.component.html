@@ -19,14 +19,20 @@
     (clearClicked)="clearSelectedTags()"
   ></app-tags-section>
 
-  <!-- cards.component.html (or wherever your template lives) -->
+  <!-- Results bar / Empty state -->
+  <div class="results-bar" *ngIf="filteredPlaces.length > 0" aria-live="polite">
+    {{ filteredPlaces.length }}
+    {{ filteredPlaces.length === 1 ? "place" : "places" }} found
+  </div>
+
+  <!-- Cards -->
   <div class="cards" (click)="closeMenu()">
     <div
       class="card"
-      *ngFor="let p of filteredPlaces"
+      *ngFor="let p of filteredPlaces; let i = index"
+      [style.--i]="i"
       (click)="$event.stopPropagation()"
     >
-      <!-- Admin menu trigger (top-right) -->
       <button
         *ngIf="isAdmin"
         type="button"
@@ -39,7 +45,6 @@
         ⋮
       </button>
 
-      <!-- Simple dropdown menu -->
       <div
         class="menu"
         *ngIf="menuOpenFor?.id === p.id"
@@ -67,9 +72,9 @@
       <div class="body">
         <h3>{{ p.name }}</h3>
         <div class="tags">
-          <span class="pill" *ngFor="let t of p.tags | slice : 0 : 6">
-            {{ t }}
-          </span>
+          <span class="pill" *ngFor="let t of p.tags | slice : 0 : 6">{{
+            t
+          }}</span>
         </div>
         <button class="link" type="button" (click)="openInMaps(p)">
           Open in Google Maps
@@ -78,7 +83,7 @@
     </div>
   </div>
 
-  <!-- Map only after API is loaded -->
+  <!-- Map -->
   <div class="map-wrap" *ngIf="apiReady">
     <google-map
       height="60vh"
@@ -93,19 +98,16 @@
         [position]="{ lat: p.lat, lng: p.lng }"
         [title]="p.name"
         (mapClick)="openInfo(m, p)"
-      >
-      </map-marker>
+      ></map-marker>
 
       <map-info-window>
         <div class="iw">
           <div class="iw-title">{{ selectedPlace?.name }}</div>
-
           <div class="iw-tags" *ngIf="selectedPlace?.tags?.length">
             <span class="pill" *ngFor="let t of selectedPlace?.tags">{{
               t
             }}</span>
           </div>
-
           <a class="iw-link" (click)="openInMaps(selectedPlace!)"
             >Open in Google Maps</a
           >

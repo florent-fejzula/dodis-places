@@ -2,75 +2,69 @@
   width: calc(100% - 40px);
   margin: 0 auto;
   box-sizing: border-box;
+}
 
-  .app-header {
-    text-align: center;
-    padding: 3rem 1rem 2rem;
-    background: var(--surface);
+/* Header */
+.app-header {
+  text-align: center;
+  padding: 1.5rem 1rem 2rem;
+  background: var(--surface);
+  color: var(--ink);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.03);
+  opacity: 0;
+  transform: translateY(10px);
+  animation: headerFadeIn 0.9s ease-out forwards;
+
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .title {
+    font-size: 2.4rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 0.5rem;
     color: var(--ink);
-    border-bottom: 1px solid var(--border);
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.03);
-    opacity: 0;
-    transform: translateY(10px);
-    animation: headerFadeIn 0.9s ease-out forwards;
+  }
+  .tagline {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--muted);
+    font-weight: 400;
+    margin: 0 auto;
+    max-width: 620px;
+  }
 
-    .header-inner {
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
+  @media (max-width: 768px) {
+    padding: 2.2rem 1rem 1.5rem;
     .title {
-      font-size: 2.4rem;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-      margin-bottom: 0.5rem;
-      color: var(--ink);
+      font-size: 1.9rem;
     }
-
     .tagline {
-      font-size: 1.05rem;
-      line-height: 1.6;
-      color: var(--muted);
-      font-weight: 400;
-      margin: 0 auto;
-      max-width: 620px;
+      font-size: 0.95rem;
+      max-width: 90%;
     }
-
-    @media (max-width: 768px) {
-      padding: 2.2rem 1rem 1.5rem;
-
-      .title {
-        font-size: 1.9rem;
-      }
-
-      .tagline {
-        font-size: 0.95rem;
-        max-width: 90%;
-      }
+  }
+  @media (max-width: 480px) {
+    padding: 1.8rem 1rem 1.2rem;
+    .title {
+      font-size: 1.6rem;
     }
-
-    @media (max-width: 480px) {
-      padding: 1.8rem 1rem 1.2rem;
-
-      .title {
-        font-size: 1.6rem;
-      }
-
-      .tagline {
-        font-size: 0.9rem;
-        line-height: 1.4;
-      }
+    .tagline {
+      font-size: 0.9rem;
+      line-height: 1.4;
     }
   }
 }
 
-/* ✨ Fade + Lift animation */
+/* Subtle header animation */
 @keyframes headerFadeIn {
-  0% {
+  from {
     opacity: 0;
     transform: translateY(20px);
   }
-  100% {
+  to {
     opacity: 1;
     transform: translateY(0);
   }
@@ -79,6 +73,47 @@
 @media (min-width: 768px) {
   .container {
     padding: 10px;
+  }
+}
+
+/* Results bar + Empty state */
+.results-bar {
+  margin: 14px 0 6px;
+  color: var(--muted);
+  font-weight: 600;
+  opacity: 0;
+  animation: fadeUp 0.4s ease-out 0.2s forwards;
+}
+
+.empty {
+  margin: 16px 0 24px;
+  .empty-inner {
+    background: var(--surface);
+    color: var(--ink);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.04);
+    opacity: 0;
+    animation: fadeUp 0.45s ease-out 0.15s forwards;
+
+    h3 {
+      margin: 0 0 6px;
+      font-size: 1.1rem;
+    }
+    p {
+      margin: 0;
+      color: var(--muted);
+    }
+    .linklike {
+      border: 0;
+      background: none;
+      color: var(--link);
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+    }
   }
 }
 
@@ -138,6 +173,31 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+
+  /* Staggered entrance */
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeUp 0.55s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  animation-delay: calc(var(--i, 0) * 60ms);
+
+  @media (hover: hover) and (pointer: fine) {
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.08);
+    }
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .card-menu {
@@ -145,7 +205,6 @@
   top: 8px;
   right: 8px;
   border: none;
-  /* translucent chip that adapts to theme */
   background: color-mix(in srgb, var(--surface, #fff) 85%, transparent);
   border-radius: 8px;
   width: 32px;
@@ -182,7 +241,6 @@
     cursor: pointer;
     border-radius: 8px;
     font-size: 14px;
-
     &:hover {
       background: var(--chip, #f5f7fa);
     }
@@ -204,6 +262,12 @@
     height: 100%;
     object-fit: cover;
     display: block;
+    transition: transform 0.35s ease;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .card:hover & img {
+      transform: scale(1.03);
+    }
   }
 
   &.placeholder {
@@ -220,21 +284,17 @@
   display: flex;
   flex-direction: column;
 }
-
 h3 {
   margin: 0 0 6px;
   font-size: 18px;
   color: var(--ink, #111);
 }
-
 .tags {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
   margin: 6px 0 10px;
 }
-
-/* card-level pill (redeclare to ensure theme match) */
 .pill {
   background: var(--chip, #f2f4f7);
   color: var(--ink, #111);
@@ -242,8 +302,6 @@ h3 {
   border-radius: 999px;
   font-size: 12px;
 }
-
-/* pin the link at bottom */
 .link {
   margin-top: auto;
   color: var(--link, #2563eb);
