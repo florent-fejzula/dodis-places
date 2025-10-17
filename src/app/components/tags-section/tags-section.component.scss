@@ -38,22 +38,40 @@
     color: var(--chip-active-ink, #ffffff);
     border-color: var(--chip-active, #007bff);
   }
+
   &:active:not(.disabled):not(.active) {
     background: var(--chip-hover, #1b2230);
     border-color: var(--chip-hover, #1b2230);
     color: var(--ink, #e6eaf0);
   }
+
   &.active:active {
     background: var(--chip-active, #e46a3c);
     color: var(--chip-active-ink, #fff);
   }
+
   &:focus {
     outline: none;
   }
+
+  /* Disabled tags — softened, unclickable, and visually distinct */
   &.disabled {
     opacity: 0.45;
     cursor: not-allowed;
-    filter: grayscale(0.2);
+    background-color: #fcf6eb !important;
+    border-color: #eeeeee !important;
+    color: #a7a7a7 !important;
+    box-shadow: none;
+    transform: none !important;
+    pointer-events: none;
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background-color: #e7e0d7 !important;
+        border-color: #d4c9bb !important;
+        transform: none;
+      }
+    }
   }
 }
 
@@ -110,6 +128,7 @@
       background-color: var(--brand-600, #d32f2f);
     }
   }
+
   &:active {
     background-color: var(--brand-700, #b71c1c);
   }
@@ -126,11 +145,13 @@
     margin: 0;
     opacity: 0.85;
   }
+
   .tag {
     font-size: 13px;
     padding: 6px 10px;
     margin: 0;
   }
+
   .tagContainer {
     flex: 1 1 auto;
     display: flex;
@@ -139,12 +160,14 @@
     justify-content: flex-start;
     max-width: 100%;
   }
+
   .row {
     flex-direction: column;
     align-items: stretch;
     gap: 6px;
     margin: 10px 0;
   }
+
   .clear-button {
     position: sticky;
     bottom: 10px;
@@ -156,6 +179,7 @@
     padding: 10px 14px;
     z-index: 1;
   }
+
   .tag-list {
     padding-bottom: 0;
   }
