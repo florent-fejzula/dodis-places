@@ -7,6 +7,9 @@ import {
   MapMarker,
 } from '@angular/google-maps';
 import { Loader } from '@googlemaps/js-api-loader';
+import { ActivatedRoute, Router } from '@angular/router';
+import { effect, Injector } from '@angular/core';
+
 import { Place } from 'src/app/models/places';
 import {
   availableTags,
@@ -17,12 +20,8 @@ import {
 import { PlacesService } from 'src/app/services/places.service';
 import { environment } from 'src/environments/environment';
 import { selectCardImage } from 'src/app/utils/general.util';
-import { ActivatedRoute, Router } from '@angular/router';
 import { TagsSectionComponent } from '../tags-section/tags-section.component';
-
-// ✅ Add this import to access Firestore
-
-import { Firestore, doc, getDoc } from '@angular/fire/firestore';
+import { AdminService } from 'src/app/services/admin.service';
 
 @Component({
   selector: 'app-places-main',
@@ -32,31 +31,27 @@ import { Firestore, doc, getDoc } from '@angular/fire/firestore';
   styleUrls: ['./places-main.component.scss'],
 })
 export class PlacesMainComponent implements OnInit {
+  // --- state ---
   isAdmin = false;
-
-  private svc = inject(PlacesService);
-
   menuOpenFor: Place | null = null;
 
-  // ---- filters
+  // --- tags ---
   allTags: string[] = availableTags;
   locationTags: string[] = locationTags;
   vibeTags: string[] = vibeTags;
   stuffTags: string[] = stuffTags;
-  selectedTags: string[] = []; // single source of truth
+  selectedTags: string[] = [];
+  disabledTags = new Set<string>();
 
-  // ---- data
+  // --- data ---
   places: Place[] = [];
   filteredPlaces: Place[] = [];
 
+  // --- map ---
+  @ViewChild(GoogleMap) map?: GoogleMap;
   @ViewChild(MapInfoWindow) infoWindow?: MapInfoWindow;
   selectedPlace: Place | null = null;
-
-  disabledTags = new Set<string>();
-
-  // ---- map
-  @ViewChild(GoogleMap) map?: GoogleMap;
-  apiReady = false; // gate map render
+  apiReady = false;
   center: google.maps.LatLngLiteral = { lat: 41.9981, lng: 21.4254 };
   zoom = 13;
   mapOptions: google.maps.MapOptions = {
@@ -72,14 +67,14 @@ export class PlacesMainComponent implements OnInit {
     ],
   };
 
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private firestore: Firestore
-  ) {}
+  // --- inject dependencies ---
+  private svc = inject(PlacesService);
+  private adminService = inject(AdminService);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private injector = inject(Injector);
 
   async ngOnInit(): Promise<void> {
-    // 1) Load Google Maps JS API
     const loader = new Loader({
       apiKey: environment.googleMapsKey,
       libraries: ['marker', 'places'],
@@ -87,33 +82,16 @@ export class PlacesMainComponent implements OnInit {
     await loader.load();
     this.apiReady = true;
 
-    // 2) Determine Admin Mode
-    try {
-      const configRef = doc(this.firestore, 'config', 'settings');
-      const snap = await getDoc(configRef);
-      const data = snap.data();
+    await this.adminService.initRealtimeAdminMode(this.route);
 
-      const urlAdmin = this.route.snapshot.queryParamMap.get('admin') === '1';
-      const urlAdminOff =
-        this.route.snapshot.queryParamMap.get('admin') === '0';
-      const savedAdmin = localStorage.getItem('isAdmin') === 'true';
+    // ✅ Use Angular’s effect with proper context
+    effect(
+      () => {
+        this.isAdmin = this.adminService.isAdmin();
+      },
+      { injector: this.injector }
+    );
 
-      if (urlAdmin) {
-        localStorage.setItem('isAdmin', 'true');
-        this.isAdmin = true;
-      } else if (urlAdminOff) {
-        localStorage.removeItem('isAdmin');
-        this.isAdmin = false;
-      } else {
-        // ✅ fix: access adminMode safely
-        this.isAdmin = (data && data['adminMode']) || savedAdmin;
-      }
-    } catch (err) {
-      console.error('Error checking admin mode:', err);
-      this.isAdmin = false;
-    }
-
-    // 3) Subscribe to Firestore places
     this.svc.getPlaces().subscribe((list) => {
       this.places = list ?? [];
       this.applyFilters();
@@ -122,24 +100,31 @@ export class PlacesMainComponent implements OnInit {
     });
   }
 
-  // ---------- admin menu ----------
+  ngOnDestroy() {
+    this.adminService.cleanup();
+  }
+
+  // ---------- Admin menu ----------
   openMenu(p: Place, ev: MouseEvent) {
     ev.stopPropagation();
     this.menuOpenFor = this.menuOpenFor?.id === p.id ? null : p;
   }
+
   goEdit(p: Place) {
     this.router.navigate(['/add-place', p.id]);
   }
+
   async confirmDelete(p: Place) {
     if (!confirm(`Delete "${p.name}"? This cannot be undone.`)) return;
     await this.svc.deletePlace(p.id!);
     this.menuOpenFor = null;
   }
+
   closeMenu() {
     this.menuOpenFor = null;
   }
 
-  // ---------- filter logic ----------
+  // ---------- Filtering ----------
   onTagClicked(selectedTag: string) {
     this.toggle(this.selectedTags, selectedTag);
     this.applyFilters();
@@ -150,9 +135,7 @@ export class PlacesMainComponent implements OnInit {
     return this.selectedTags.includes(tag);
   }
 
-  /** Disable a tag if adding it would produce 0 results */
   isTagDisabled(tag: string): boolean {
-    // already selected tags are never disabled (you can always unselect)
     if (this.isTagSelected(tag)) return false;
     if (!this.places.length) return true;
     const need = [...this.selectedTags, tag];
@@ -173,27 +156,29 @@ export class PlacesMainComponent implements OnInit {
   }
 
   applyFilters() {
-    this.filteredPlaces = this.places.filter((place) =>
-      this.selectedTags.every((tag) => place.tags?.includes(tag))
+    this.filteredPlaces = this.places.filter((p) =>
+      this.selectedTags.every((t) => p.tags?.includes(t))
     );
-    this.infoWindow?.close(); // close bubble when filtering
+    this.infoWindow?.close();
     this.fitToMarkers();
     this.recomputeDisabledTags();
   }
 
-  // ---------- map helpers ----------
+  // ---------- Map ----------
   fitToMarkers() {
     if (!this.filteredPlaces.length || !this.map?.googleMap) return;
     const bounds = new google.maps.LatLngBounds();
     this.filteredPlaces.forEach((p) =>
       bounds.extend(new google.maps.LatLng(p.lat, p.lng))
     );
+
     if (bounds.getNorthEast().equals(bounds.getSouthWest())) {
       const s = this.filteredPlaces[0];
       this.center = { lat: s.lat, lng: s.lng };
       this.zoom = 15;
       return;
     }
+
     this.map.googleMap.fitBounds(bounds, {
       top: 40,
       right: 40,
@@ -205,7 +190,7 @@ export class PlacesMainComponent implements OnInit {
   private recomputeDisabledTags() {
     const set = new Set<string>();
     for (const tag of this.allTags) {
-      if (this.selectedTags.includes(tag)) continue; // never disable selected
+      if (this.selectedTags.includes(tag)) continue;
       const need = [...this.selectedTags, tag];
       const anyHasAll = this.places.some((p) =>
         need.every((t) => p.tags?.includes(t))
@@ -215,7 +200,7 @@ export class PlacesMainComponent implements OnInit {
     this.disabledTags = set;
   }
 
-  // ---------- cards & info window ----------
+  // ---------- Cards & Info Window ----------
   getImage(p: Place): string | null {
     const active = [...this.selectedTags];
     return selectCardImage(p, active);
