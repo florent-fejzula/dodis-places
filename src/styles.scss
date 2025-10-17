@@ -2,27 +2,26 @@
 
 // “Skopje Sunset” (warm, friendly)
 .skopje-sunset {
-  --bg: #ffffff;
-  --ink: #1f2937;
-  --muted: #6b7280;
-  --surface: #ffffff;
-  --border: #e9edf2;
-
+  --bg: #f7f4ee;
+  --surface: #f7f4ee;
+  --ink: #2b2b2b;
+  --muted: #766f66;
+  --border: #c2b29e;
   --brand: #e4572e;
   --brand-600: #cf4b25;
   --brand-700: #b3421f;
-
-  --chip: #f6f7fb;
-  --chip-hover: #eef2f7;
+  --chip: #ece7de;
+  --chip-hover: #f3ecdf;
   --chip-active: var(--brand);
   --chip-active-ink: #ffffff;
 
   --action: var(--brand);
   --action-ink: #ffffff;
 
-  --link: #0b66ff;
-  --link-visited: #6b4eff;
-  --shadow: 0 6px 14px rgba(17, 24, 39, 0.06);
+  --link: #b65c2e; /* warm brown-orange link */
+  --link-visited: #9c4a25;
+
+  --shadow: 0 6px 14px rgba(80, 60, 40, 0.08); /* warm shadow tint */
 }
 
 /* ===============================

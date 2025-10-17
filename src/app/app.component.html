@@ -1,5 +1,10 @@
+<div class="admin-banner" *ngIf="isAdmin()">
+  🛠️ <span>Admin Mode Active</span>
+  <button class="exit-btn" (click)="disableAdmin()">Exit</button>
+</div>
+
 <nav class="topnav" role="navigation" aria-label="Main">
-  <div *ngIf="isAdmin">
+  <div *ngIf="isAdmin()">
     <a
       routerLink="/places"
       routerLinkActive="active"

@@ -1,7 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet, ActivatedRoute } from '@angular/router';
-import { Firestore, doc, getDoc } from '@angular/fire/firestore';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import {
+  RouterLink,
+  RouterLinkActive,
+  RouterOutlet,
+  ActivatedRoute,
+} from '@angular/router';
+import { AdminService } from './services/admin.service'; // adjust path if needed
 
 @Component({
   selector: 'app-root',
@@ -10,35 +15,22 @@ import { Firestore, doc, getDoc } from '@angular/fire/firestore';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
-export class AppComponent implements OnInit {
-  isAdmin = false;
+export class AppComponent implements OnInit, OnDestroy {
+  private route = inject(ActivatedRoute);
+  private adminService = inject(AdminService);
 
-  constructor(private route: ActivatedRoute, private firestore: Firestore) {}
+  isAdmin = this.adminService.isAdmin;
 
   async ngOnInit(): Promise<void> {
-    try {
-      // Read Firestore admin flag
-      const configRef = doc(this.firestore, 'config', 'settings');
-      const snap = await getDoc(configRef);
-      const data = snap.data();
+    await this.adminService.initRealtimeAdminMode(this.route);
+  }
 
-      // Check URL and local storage
-      const urlAdmin = this.route.snapshot.queryParamMap.get('admin') === '1';
-      const urlAdminOff = this.route.snapshot.queryParamMap.get('admin') === '0';
-      const savedAdmin = localStorage.getItem('isAdmin') === 'true';
+  ngOnDestroy(): void {
+    this.adminService.cleanup();
+  }
 
-      if (urlAdmin) {
-        localStorage.setItem('isAdmin', 'true');
-        this.isAdmin = true;
-      } else if (urlAdminOff) {
-        localStorage.removeItem('isAdmin');
-        this.isAdmin = false;
-      } else {
-        this.isAdmin = (data && data['adminMode']) || savedAdmin;
-      }
-    } catch (err) {
-      console.error('Error checking admin mode:', err);
-      this.isAdmin = false;
-    }
+  disableAdmin() {
+    localStorage.removeItem('isAdmin');
+    this.isAdmin.set(false);
   }
 }
