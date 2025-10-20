@@ -23,6 +23,7 @@ import {
   ref as storageRef,
   uploadBytes,
   getDownloadURL,
+  updateMetadata,
 } from '@angular/fire/storage';
 import { Observable } from 'rxjs';
 import { Place } from '../models/places';
@@ -40,12 +41,11 @@ export class PlacesService {
     private storage: Storage,
     private injector: Injector
   ) {
-    // initialize refs INSIDE constructor
     this.placesRef = collection(this.db, 'places');
     this.tagsRef = collection(this.db, 'tags');
   }
 
-  /** helper to ensure calls happen inside Angular injection context */
+  /** Helper to ensure calls happen inside Angular injection context */
   private inCtx<T>(fn: () => T): T {
     return runInInjectionContext(this.injector, fn);
   }
@@ -54,7 +54,6 @@ export class PlacesService {
   // Places (read/query/write)
   // =========================
 
-  /** Live stream of all places (context-safe) */
   getPlaces(): Observable<Place[]> {
     return this.inCtx(
       () =>
@@ -62,7 +61,6 @@ export class PlacesService {
     );
   }
 
-  /** Query by up to 10 tags (OR). */
   getPlacesByTags(tags: string[]): Observable<Place[]> {
     if (!tags?.length || tags.length > 10) return this.getPlaces();
     return this.inCtx(() => {
@@ -74,7 +72,6 @@ export class PlacesService {
     });
   }
 
-  /** Create place and return its new id */
   async addPlace(p: Place): Promise<string> {
     const payload: Place = {
       name: p.name.trim(),
@@ -89,10 +86,10 @@ export class PlacesService {
       updatedAt: serverTimestamp() as any,
     } as any;
 
-    // Strip undefined keys (Firestore rejects them)
-    (Object.keys(payload) as (keyof Place)[]).forEach((k) => {
-      if (payload[k] === undefined) delete (payload as any)[k];
-    });
+    // Remove undefined keys (Firestore rejects them)
+    Object.keys(payload).forEach(
+      (k) => (payload as any)[k] === undefined && delete (payload as any)[k]
+    );
 
     const docRef = await this.inCtx(() => addDoc(this.placesRef, payload));
     return docRef.id;
@@ -103,22 +100,17 @@ export class PlacesService {
     return this.inCtx(() => docData(d, { idField: 'id' }) as Observable<Place>);
   }
 
-  /** Update an existing place by id (safe partial update) */
   async updatePlace(id: string, patch: Partial<Place>): Promise<void> {
     const ref = doc(this.db, 'places', id);
-
     const cleaned: any = {
       ...patch,
       updatedAt: serverTimestamp(),
     };
 
-    if (typeof cleaned.name === 'string') cleaned.name = cleaned.name.trim();
-    if (typeof cleaned.description === 'string')
-      cleaned.description = cleaned.description.trim();
-    if (typeof cleaned.gmapsUrl === 'string')
-      cleaned.gmapsUrl = cleaned.gmapsUrl.trim();
+    ['name', 'description', 'gmapsUrl'].forEach((k) => {
+      if (typeof cleaned[k] === 'string') cleaned[k] = cleaned[k].trim();
+    });
 
-    // 🔑 Firestore rejects `undefined` — remove such keys
     Object.keys(cleaned).forEach(
       (k) => cleaned[k] === undefined && delete cleaned[k]
     );
@@ -126,12 +118,10 @@ export class PlacesService {
     await this.inCtx(() => updateDoc(ref, cleaned));
   }
 
-  /** Delete a place */
   async deletePlace(id: string): Promise<void> {
     await this.inCtx(() => deleteDoc(doc(this.db, 'places', id)));
   }
 
-  /** Bulk add (CSV/JSON import). Ignores empty rows. */
   async bulkAdd(places: Place[]): Promise<void> {
     for (const p of places) {
       if (!p?.name || !p?.gmapsUrl || p.lat == null || p.lng == null) continue;
@@ -143,13 +133,26 @@ export class PlacesService {
   // Images (Storage)
   // ==============
 
-  /** Upload a single image file and return its download URL */
+  /** Upload a single image file and return its download URL (with caching) */
   async uploadPlaceImage(placeId: string, file: File): Promise<string> {
     const safeName = file.name.replace(/[^\w.-]+/g, '_');
     const path = `places/${placeId}/${Date.now()}_${safeName}`;
     const ref = storageRef(this.storage, path);
-    await uploadBytes(ref, file);
-    return await getDownloadURL(ref);
+
+    // ✅ Add long-term caching metadata
+    const metadata = {
+      contentType: file.type,
+      cacheControl: 'public,max-age=31536000,immutable', // 1 year caching
+    };
+
+    const snapshot = await uploadBytes(ref, file, metadata);
+
+    // Ensure metadata is correctly applied (some Firebase versions require explicit update)
+    await updateMetadata(snapshot.ref, metadata).catch(() => {});
+
+    // ✅ Get stable download URL (browser will cache it)
+    const url = await getDownloadURL(snapshot.ref);
+    return url;
   }
 
   /** Append one image metadata (url/tags/weight) to place.images */
@@ -163,7 +166,6 @@ export class PlacesService {
     );
   }
 
-  /** (Optional) Set/override the primary image URL */
   async setPrimaryImage(placeId: string, url: string): Promise<void> {
     const ref = doc(this.db, 'places', placeId);
     await this.inCtx(() =>
@@ -178,7 +180,6 @@ export class PlacesService {
   // Tags (CRUD)
   // ==========
 
-  /** Live stream of tag documents (if you want a registry UI) */
   getTags(): Observable<(TagDoc & { id: string })[]> {
     return this.inCtx(
       () =>
@@ -188,7 +189,6 @@ export class PlacesService {
     );
   }
 
-  /** Create a tag doc (optional registry) */
   async createTag(name: string, color?: string) {
     const payload: TagDoc = {
       name: name.trim(),
@@ -202,12 +202,11 @@ export class PlacesService {
   // Bulk Tag Operations
   // ===================
 
-  /** Add a tag to many places at once (chunked under batch limits) */
   async bulkAddTagToPlaces(tag: string, placeIds: string[]) {
     const t = tag.trim();
     if (!t || !placeIds?.length) return;
 
-    const CHUNK = 450; // headroom below 500 write limit
+    const CHUNK = 450;
     for (let i = 0; i < placeIds.length; i += CHUNK) {
       const slice = placeIds.slice(i, i + CHUNK);
       await this.inCtx(async () => {
@@ -224,7 +223,6 @@ export class PlacesService {
     }
   }
 
-  /** Remove a tag from many places at once (chunked) */
   async bulkRemoveTagFromPlaces(tag: string, placeIds: string[]) {
     const t = tag.trim();
     if (!t || !placeIds?.length) return;
@@ -250,33 +248,26 @@ export class PlacesService {
   // Utilities
   // ----------
 
-  /** Prefer !3d/!4d coords, then q=lat,lng, then @lat,lng; also tries to infer a name */
   parseMapsLink(link: string): { lat?: number; lng?: number; name?: string } {
     const url = decodeURIComponent((link || '').trim());
     if (!url) return {};
 
-    // 1) Prefer the actual place coordinates: !3dLAT!4dLNG
     let m = /!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/.exec(url);
     if (m) return { lat: +m[1], lng: +m[2], name: this.extractName(url) };
 
-    // 2) Next, q=lat,lng (common in share links)
     m = /[?&]q=(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/.exec(url);
     if (m) return { lat: +m[1], lng: +m[2], name: this.extractName(url) };
 
-    // 3) Lastly, @lat,lng (viewport center; can be off)
     m = /@(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/.exec(url);
     if (m) return { lat: +m[1], lng: +m[2], name: this.extractName(url) };
 
-    // Fallback: just try to infer a name
     return { name: this.extractName(url) };
   }
 
   private extractName(url: string): string | undefined {
-    // Try /place/<Name>/
     const seg = url.split('/place/')[1]?.split(/[/?#]/)[0];
     if (seg) return seg.replace(/\+/g, ' ').replace(/%20/g, ' ').trim();
 
-    // Try q=<query> if it looks like a name (not coords)
     try {
       const u = new URL(url);
       const q = u.searchParams.get('q');
