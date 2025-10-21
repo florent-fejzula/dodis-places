@@ -1,26 +1,41 @@
-<div class="login-wrap">
-  <h2>Login</h2>
+<div class="login-card">
+  <h2>Welcome Back</h2>
+  <p class="subtitle">Sign in to continue exploring places</p>
 
   <input
     type="email"
     [(ngModel)]="email"
     placeholder="Email"
     autocomplete="email"
+    [disabled]="loading"
   />
   <input
     type="password"
     [(ngModel)]="password"
     placeholder="Password"
     autocomplete="current-password"
+    [disabled]="loading"
+    (keydown.enter)="loginEmail()"
   />
 
-  <button (click)="loginEmail()">Sign in with Email</button>
-  <button (click)="loginGoogle()">Sign in with Google</button>
+  <a routerLink="/forgot-password" class="forgot-link">Forgot password?</a>
+
+  <button (click)="loginEmail()" [disabled]="loading">
+    {{ loading ? "Signing in..." : "Sign in with Email" }}
+  </button>
+
+  <button class="google" (click)="loginGoogle()" [disabled]="loading">
+    <img
+      src="https://www.svgrepo.com/show/475656/google-color.svg"
+      alt="Google"
+    />
+    <span>Sign in with Google</span>
+  </button>
+
+  <p *ngIf="error" class="error">{{ error }}</p>
 
   <p class="signup-text">
     Don't have an account?
     <a routerLink="/signup" class="signup-link">Sign up</a>
   </p>
-
-  <p *ngIf="error" class="error">{{ error }}</p>
 </div>

@@ -1,9 +1,33 @@
-<h2>My Favorite Places</h2>
-<div *ngIf="!favorites.length">No favorites yet.</div>
+<div class="my-list-page">
+  <h2>My Favorite Places</h2>
 
-<div class="cards">
-  <div class="card" *ngFor="let p of favorites">
-    <img [src]="p.imagePrimaryUrl" [alt]="p.name" />
-    <h3>{{ p.name }}</h3>
+  <div *ngIf="!favorites.length" class="empty">
+    <p>You haven’t added any favorites yet 💔</p>
+    <p class="hint">
+      Go explore the map and tap the heart ❤️ on your favorite spots!
+    </p>
+  </div>
+
+  <div class="cards" *ngIf="favorites.length">
+    <div class="card" *ngFor="let p of favorites">
+      <div class="image-wrap">
+        <img [src]="p.imagePrimaryUrl" [alt]="p.name" />
+      </div>
+      <div class="info">
+        <h3>{{ p.name }}</h3>
+        <div class="tags">
+          <span *ngFor="let tag of p.tags">{{ tag }}</span>
+        </div>
+        <a
+          *ngIf="p.gmapsUrl"
+          [href]="p.gmapsUrl"
+          target="_blank"
+          rel="noopener"
+          class="map-link"
+        >
+          Open in Google Maps
+        </a>
+      </div>
+    </div>
   </div>
 </div>

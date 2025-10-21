@@ -1,23 +1,45 @@
-<div class="auth-container">
-  <div class="auth-card">
-    <h2>Sign Up</h2>
+<div class="auth-card">
+  <h2>Create Account</h2>
+  <p class="subtitle">Join the community and explore amazing places</p>
 
-    <input type="email" [(ngModel)]="email" placeholder="Email" />
-    <input type="password" [(ngModel)]="password" placeholder="Password" />
-    <input
-      type="password"
-      [(ngModel)]="confirm"
-      placeholder="Confirm Password"
-    />
+  <input
+    type="text"
+    [(ngModel)]="username"
+    placeholder="Username"
+    autocomplete="nickname"
+    [disabled]="loading"
+  />
+  <input
+    type="email"
+    [(ngModel)]="email"
+    placeholder="Email"
+    autocomplete="email"
+    [disabled]="loading"
+  />
+  <input
+    type="password"
+    [(ngModel)]="password"
+    placeholder="Password"
+    autocomplete="new-password"
+    [disabled]="loading"
+  />
+  <input
+    type="password"
+    [(ngModel)]="confirm"
+    placeholder="Confirm Password"
+    autocomplete="new-password"
+    [disabled]="loading"
+    (keydown.enter)="signUp()"
+  />
 
-    <button type="button" (click)="signUp()">Create Account</button>
+  <button (click)="signUp()" [disabled]="loading">
+    {{ loading ? "Creating Account..." : "Create Account" }}
+  </button>
 
-    <p *ngIf="error" class="error">{{ error }}</p>
-    <p *ngIf="message" class="message">{{ message }}</p>
+  <p *ngIf="error" class="error">{{ error }}</p>
 
-    <p class="switch-text">
-      Already have an account?
-      <a routerLink="/login" class="switch-link">Log in</a>
-    </p>
-  </div>
+  <p class="switch-text">
+    Already have an account?
+    <a routerLink="/login" class="switch-link">Log in</a>
+  </p>
 </div>

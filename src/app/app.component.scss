@@ -105,6 +105,19 @@
     color: #555;
   }
 
+  .user-display {
+    font-weight: 600;
+    color: #3b3b3b;
+    font-size: 0.95rem;
+    margin-right: 8px;
+    display: inline-block;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+
   .logout-btn {
     background: #3aaed8;
     border: none;
