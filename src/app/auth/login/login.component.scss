@@ -1,0 +1,46 @@
+.login-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: 260px;
+  margin: 40px auto;
+  input {
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+  button {
+    padding: 8px;
+    border: none;
+    background: #3aaed8;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+}
+.error {
+  color: crimson;
+}
+
+.signup-text {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  text-align: center;
+  color: #555;
+
+  .signup-link {
+    color: #3aaed8;
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: #2f96be;
+      text-decoration: underline;
+    }
+  }
+}

@@ -1,19 +1,41 @@
+<!-- 🛠️ Admin banner -->
 <div class="admin-banner" *ngIf="isAdmin()">
   🛠️ <span>Admin Mode Active</span>
   <button class="exit-btn" (click)="disableAdmin()">Exit</button>
 </div>
 
+<!-- 🌐 Main Navigation -->
 <nav class="topnav" role="navigation" aria-label="Main">
-  <div *ngIf="isAdmin()">
+  <!-- Public navigation -->
+  <div class="nav-left">
     <a
-      routerLink="/places"
+      routerLink="/"
       routerLinkActive="active"
       [routerLinkActiveOptions]="{ exact: true }"
       >Home</a
     >
+    <a routerLink="/my-lists" routerLinkActive="active">My Lists</a>
+  </div>
+
+  <!-- Admin-only links -->
+  <div class="nav-admin" *ngIf="isAdmin()">
     <a routerLink="/recipes" routerLinkActive="active">Recipes</a>
     <a routerLink="/tag-manager" routerLinkActive="active">Tag Manager</a>
     <a routerLink="/add-place" routerLinkActive="active">Add Place</a>
   </div>
+
+  <!-- User actions -->
+  <div class="nav-right" *ngIf="!auth.user(); else loggedIn">
+    <a routerLink="/login" routerLinkActive="active">Login</a>
+  </div>
+
+  <ng-template #loggedIn>
+    <div class="nav-right logged-in">
+      <span class="user-email">{{ auth.user()?.email }}</span>
+      <button class="logout-btn" (click)="logout()">Logout</button>
+    </div>
+  </ng-template>
 </nav>
+
+<!-- Main content -->
 <router-outlet></router-outlet>

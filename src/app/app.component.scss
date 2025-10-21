@@ -1,70 +1,8 @@
-/* Top nav */
-.topnav {
-  display: flex;
-  gap: 16px;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border, #eee);
-  align-items: center;
-
-  /* mobile: allow horizontal scroll instead of wrapping */
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scroll-snap-type: x proximity;
-
-  /* remove scrollbar on WebKit (optional) */
-  &::-webkit-scrollbar {
-    height: 0;
-  }
-}
-
-.topnav a {
-  /* tokens with safe fallbacks */
-  --fg: var(--ink, #374151);
-  --bg: transparent;
-  --bg-hover: var(--chip-hover, #f3f4f6);
-  --bg-active: var(--brand, #111);
-  --fg-active: #fff;
-
-  color: var(--fg);
-  text-decoration: none;
-  padding: 8px 12px; /* good tap target */
-  border-radius: 10px;
-  font-weight: 600;
-  line-height: 1;
-  white-space: nowrap; /* keep labels on one line */
-  background: var(--bg);
-  scroll-snap-align: start;
-  transition: background 0.15s ease, color 0.15s ease, transform 0.05s ease;
-}
-
-.topnav a:hover {
-  background: var(--bg-hover);
-}
-
-.topnav a:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--brand-700, #111); /* accessible focus ring */
-}
-
-.topnav a.active {
-  background: var(--bg-active);
-  color: var(--fg-active);
-}
-
-@media (max-width: 640px) {
-  .topnav {
-    gap: 10px;
-    padding: 10px 12px;
-  }
-  .topnav a {
-    padding: 8px 10px;
-    border-radius: 9px;
-    font-weight: 600;
-  }
-}
-
+/* =========================================================
+   🛠️ Admin Banner
+   ========================================================= */
 .admin-banner {
-  background-color: #b3421f; /* matches your brand-700 tone */
+  background-color: #b3421f; /* brand tone */
   color: #fff;
   padding: 0.5rem 1rem;
   display: flex;
@@ -90,6 +28,127 @@
   }
 }
 
+/* =========================================================
+   🌐 Top Navigation
+   ========================================================= */
+.topnav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border, #eee);
+  background: #fff;
+  font-weight: 600;
+
+  /* Layout groups */
+  .nav-left,
+  .nav-admin,
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  /* mobile: allow horizontal scroll */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+
+  &::-webkit-scrollbar {
+    height: 0;
+  }
+}
+
+/* --- Links --- */
+.topnav a {
+  --fg: var(--ink, #374151);
+  --bg: transparent;
+  --bg-hover: var(--chip-hover, #f3f4f6);
+  --bg-active: var(--brand, #111);
+  --fg-active: #fff;
+
+  color: var(--fg);
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 10px;
+  line-height: 1;
+  white-space: nowrap;
+  background: var(--bg);
+  scroll-snap-align: start;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.05s ease;
+
+  &:hover {
+    background: var(--bg-hover);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--brand-700, #111);
+  }
+
+  &.active {
+    background: var(--bg-active);
+    color: var(--fg-active);
+  }
+}
+
+/* --- Admin Links --- */
+.nav-admin a {
+  color: #8b0000;
+  font-weight: 600;
+}
+
+/* --- Right Side (Auth info) --- */
+.nav-right {
+  .user-email {
+    font-size: 0.9rem;
+    color: #555;
+  }
+
+  .logout-btn {
+    background: #3aaed8;
+    border: none;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s ease;
+
+    &:hover {
+      background: #2f96be;
+    }
+  }
+}
+
+/* =========================================================
+   📱 Responsive Tweaks
+   ========================================================= */
+@media (max-width: 640px) {
+  .topnav {
+    gap: 10px;
+    padding: 10px 12px;
+
+    .nav-left,
+    .nav-admin,
+    .nav-right {
+      gap: 10px;
+    }
+  }
+
+  .topnav a {
+    padding: 8px 10px;
+    border-radius: 9px;
+  }
+
+  .nav-right .user-email {
+    display: none; /* cleaner mobile header */
+  }
+}
+
+/* =========================================================
+   ✨ Animations
+   ========================================================= */
 @keyframes fadeIn {
   from {
     opacity: 0;

@@ -1,0 +1,9 @@
+<h2>My Favorite Places</h2>
+<div *ngIf="!favorites.length">No favorites yet.</div>
+
+<div class="cards">
+  <div class="card" *ngFor="let p of favorites">
+    <img [src]="p.imagePrimaryUrl" [alt]="p.name" />
+    <h3>{{ p.name }}</h3>
+  </div>
+</div>

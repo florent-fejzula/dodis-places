@@ -5,8 +5,20 @@ import { RecipesComponent } from './components/recipes/recipes.component';
 import { AddPlaceComponent } from './admin/add-place/add-place.component';
 import { EditPlaceComponent } from './admin/edit-place/edit-place.component';
 import BulkTagComponent from './admin/bulk-tag/bulk-tag.component';
+import { LoginComponent } from './auth/login/login.component';
+import { MyListsComponent } from './components/my-lists/my-lists.component';
+import { SignupComponent } from './auth/signup/signup.component';
 
 export const routes: Routes = [
+  // Login page
+  { path: 'login', component: LoginComponent },
+
+  // Signup page
+  { path: 'signup', component: SignupComponent },
+
+  // My lists page
+  { path: 'my-lists', component: MyListsComponent },
+
   // Main map page
   { path: 'places', component: PlacesMainComponent },
 

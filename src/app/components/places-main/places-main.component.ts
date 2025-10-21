@@ -22,6 +22,8 @@ import { environment } from 'src/environments/environment';
 import { selectCardImage } from 'src/app/utils/general.util';
 import { TagsSectionComponent } from '../tags-section/tags-section.component';
 import { AdminService } from 'src/app/services/admin.service';
+import { FavoritesService } from 'src/app/services/favorites.service';
+import { AuthService } from 'src/app/auth/auth.service';
 
 @Component({
   selector: 'app-places-main',
@@ -34,6 +36,10 @@ export class PlacesMainComponent implements OnInit {
   // --- state ---
   isAdmin = false;
   menuOpenFor: Place | null = null;
+
+  private favs = inject(FavoritesService);
+  private auth = inject(AuthService);
+  favorites: string[] = [];
 
   // --- tags ---
   allTags: string[] = availableTags;
@@ -98,10 +104,29 @@ export class PlacesMainComponent implements OnInit {
       this.recomputeDisabledTags();
       this.fitToMarkers();
     });
+
+    await this.loadFavorites();
   }
 
   ngOnDestroy() {
     this.adminService.cleanup();
+  }
+
+  async loadFavorites() {
+    this.favorites = await this.favs.getFavorites();
+  }
+
+  isFavorite(p: Place) {
+    return this.favorites.includes(p.id!);
+  }
+
+  async toggleFavorite(p: Place) {
+    if (!this.auth.user()) {
+      alert('Please log in to save favorites.');
+      return;
+    }
+    await this.favs.toggleFavorite(p);
+    this.favorites = await this.favs.getFavorites();
   }
 
   // ---------- Admin menu ----------

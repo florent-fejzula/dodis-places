@@ -1,0 +1,23 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <h2>Sign Up</h2>
+
+    <input type="email" [(ngModel)]="email" placeholder="Email" />
+    <input type="password" [(ngModel)]="password" placeholder="Password" />
+    <input
+      type="password"
+      [(ngModel)]="confirm"
+      placeholder="Confirm Password"
+    />
+
+    <button type="button" (click)="signUp()">Create Account</button>
+
+    <p *ngIf="error" class="error">{{ error }}</p>
+    <p *ngIf="message" class="message">{{ message }}</p>
+
+    <p class="switch-text">
+      Already have an account?
+      <a routerLink="/login" class="switch-link">Log in</a>
+    </p>
+  </div>
+</div>

@@ -1,0 +1,26 @@
+<div class="login-wrap">
+  <h2>Login</h2>
+
+  <input
+    type="email"
+    [(ngModel)]="email"
+    placeholder="Email"
+    autocomplete="email"
+  />
+  <input
+    type="password"
+    [(ngModel)]="password"
+    placeholder="Password"
+    autocomplete="current-password"
+  />
+
+  <button (click)="loginEmail()">Sign in with Email</button>
+  <button (click)="loginGoogle()">Sign in with Google</button>
+
+  <p class="signup-text">
+    Don't have an account?
+    <a routerLink="/signup" class="signup-link">Sign up</a>
+  </p>
+
+  <p *ngIf="error" class="error">{{ error }}</p>
+</div>

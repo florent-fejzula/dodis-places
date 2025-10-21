@@ -7,6 +7,7 @@ import {
   ActivatedRoute,
 } from '@angular/router';
 import { AdminService } from './services/admin.service'; // adjust path if needed
+import { AuthService } from './auth/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -18,6 +19,7 @@ import { AdminService } from './services/admin.service'; // adjust path if neede
 export class AppComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private adminService = inject(AdminService);
+  auth = inject(AuthService);
 
   isAdmin = this.adminService.isAdmin;
 
@@ -32,5 +34,9 @@ export class AppComponent implements OnInit, OnDestroy {
   disableAdmin() {
     localStorage.removeItem('isAdmin');
     this.isAdmin.set(false);
+  }
+
+  logout() {
+    this.auth.logout();
   }
 }

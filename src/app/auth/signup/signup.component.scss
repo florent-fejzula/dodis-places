@@ -1,0 +1,98 @@
+/* ========= Global layout ========= */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 70vh;
+  background: var(--bg, #f7f5ef);
+}
+
+/* ========= Card ========= */
+.auth-card {
+  background: #fff;
+  padding: 2rem 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  width: 320px;
+  max-width: 90%;
+  text-align: center;
+  animation: fadeIn 0.3s ease;
+
+  h2 {
+    margin-bottom: 1.25rem;
+    font-weight: 700;
+    color: #222;
+  }
+
+  input {
+    margin-bottom: 0.9rem;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease;
+    &:focus {
+      outline: none;
+      border-color: #3aaed8;
+    }
+  }
+
+  button {
+    background: #3aaed8;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
+    &:hover {
+      background: #2f96be;
+    }
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+
+  .error {
+    color: #c0392b;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+  }
+
+  .message {
+    color: #388659;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+  }
+
+  .switch-text {
+    margin-top: 1.25rem;
+    font-size: 0.9rem;
+    color: #444;
+    .switch-link {
+      color: #3aaed8;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+/* ========= Animation ========= */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
