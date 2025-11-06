@@ -15,11 +15,24 @@ export class MyListsComponent implements OnInit {
   private favs = inject(FavoritesService);
   private places = inject(PlacesService);
   favorites: Place[] = [];
+  favoriteIds: string[] = [];
 
   async ngOnInit() {
-    const ids = await this.favs.getFavorites();
+    this.favoriteIds = await this.favs.getFavorites();
     this.places.getPlaces().subscribe((all) => {
-      this.favorites = all.filter((p) => ids.includes(p.id!));
+      this.favorites = all.filter((p) => this.favoriteIds.includes(p.id!));
     });
+  }
+
+  async toggleFavorite(place: Place) {
+    await this.favs.toggleFavorite(place!);
+    this.favoriteIds = await this.favs.getFavorites();
+    this.favorites = this.favorites.filter((p) =>
+      this.favoriteIds.includes(p.id!)
+    );
+  }
+
+  isFavorite(id: string) {
+    return this.favoriteIds.includes(id);
   }
 }

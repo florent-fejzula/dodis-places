@@ -4,7 +4,7 @@
   <div *ngIf="!favorites.length" class="empty">
     <p>You haven’t added any favorites yet 💔</p>
     <p class="hint">
-      Go explore the map and tap the heart ❤️ on your favorite spots!
+      Go explore the main page and tap the heart ❤️ on your favorite spots!
     </p>
   </div>
 
@@ -12,7 +12,28 @@
     <div class="card" *ngFor="let p of favorites">
       <div class="image-wrap">
         <img [src]="p.imagePrimaryUrl" [alt]="p.name" />
+        <button
+          class="heart-btn"
+          (click)="toggleFavorite(p)"
+          title="Remove from favorites"
+        >
+          <svg
+            [class.active]="isFavorite(p.id!)"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M20.8 4.6c-1.7-1.7-4.5-1.7-6.2 0l-.6.6-.6-.6c-1.7-1.7-4.5-1.7-6.2 0-1.7 1.7-1.7 4.5 0 6.2l6.8 6.8 6.8-6.8c1.8-1.7 1.8-4.5 0-6.2z"
+            />
+          </svg>
+        </button>
       </div>
+
       <div class="info">
         <h3>{{ p.name }}</h3>
         <div class="tags">

@@ -44,17 +44,52 @@
     }
 
     .image-wrap {
+      position: relative;
       width: 100%;
       height: 180px;
       overflow: hidden;
+
       img {
         width: 100%;
         height: 100%;
         object-fit: cover;
         transition: transform 0.3s ease;
       }
+
       &:hover img {
         transform: scale(1.03);
+      }
+
+      .heart-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(255, 255, 255, 0.85);
+        border: none;
+        border-radius: 50%;
+        width: 34px;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.2s ease;
+
+        &:hover {
+          background: rgba(255, 255, 255, 1);
+        }
+
+        svg {
+          width: 20px;
+          height: 20px;
+          color: #b3421f;
+          transition: all 0.25s ease;
+        }
+
+        svg.active {
+          fill: #b3421f;
+          transform: scale(1.15);
+        }
       }
     }
 
@@ -94,6 +129,7 @@
         font-size: 0.9rem;
         text-decoration: none;
         transition: color 0.2s ease;
+
         &:hover {
           text-decoration: underline;
           color: #913319;
