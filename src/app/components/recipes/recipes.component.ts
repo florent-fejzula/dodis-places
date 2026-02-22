@@ -9,6 +9,8 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ImageCropperComponent, ImageCroppedEvent } from 'ngx-image-cropper';
+
 import { RecipesService } from 'src/app/services/recipes.service';
 import { Recipe } from 'src/app/models/recipes';
 import { AdminService } from 'src/app/services/admin.service';
@@ -16,7 +18,7 @@ import { AdminService } from 'src/app/services/admin.service';
 @Component({
   selector: 'app-recipes',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ImageCropperComponent],
   templateUrl: './recipes.component.html',
   styleUrls: ['./recipes.component.scss'],
 })
@@ -26,7 +28,6 @@ export class RecipesComponent implements OnInit {
 
   // UI state
   selectedCategory = signal<string>('');
-  selectedRecipes = signal<string[]>([]);
   showAddForm = signal<boolean>(false);
   showDetail = signal<boolean>(false);
   detailRecipe = signal<Recipe | null>(null);
@@ -36,6 +37,9 @@ export class RecipesComponent implements OnInit {
 
   // admin flag
   isAdmin = this.adminSvc.isAdmin;
+
+  cropFile: File | null = null;
+  lockAspectRatio = true;
 
   // derived
   filteredRecipes = computed(() => {
@@ -61,26 +65,20 @@ export class RecipesComponent implements OnInit {
   // file input reference
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
+  // ---- Cropper state (upload-before-save)
+  showCropper = false;
+  imageChangedEvent: Event | null = null;
+  private pendingRawFileName = 'recipe-image';
+  private croppedBlob: Blob | null = null;
+
   ngOnInit() {
     this.recipesSvc.getRecipes().subscribe((list) => {
       this.recipes.set(list || []);
-    });
-
-    this.recipesSvc.getSelectedRecipes().subscribe((data: any) => {
-      if (data?.recipes?.length) this.selectedRecipes.set(data.recipes);
     });
   }
 
   selectCategory(cat: string) {
     this.selectedCategory.set(cat);
-  }
-
-  toggleSelect(recipeName: string) {
-    const arr = [...this.selectedRecipes()];
-    const i = arr.indexOf(recipeName);
-    i === -1 ? arr.push(recipeName) : arr.splice(i, 1);
-    this.selectedRecipes.set(arr);
-    this.recipesSvc.updateSelectedRecipes(arr);
   }
 
   // details
@@ -98,8 +96,9 @@ export class RecipesComponent implements OnInit {
     const set = new Set<string>(
       this.recipes()
         .map((r) => r.category)
-        .filter(Boolean)
+        .filter(Boolean),
     );
+
     const pref = [
       'Breakfast',
       'Appetizers',
@@ -110,6 +109,7 @@ export class RecipesComponent implements OnInit {
       'Snacks',
       'Desserts',
     ];
+
     const found = pref.filter((c) => set.has(c));
     const rest = [...set].filter((c) => !pref.includes(c)).sort();
     return found.concat(rest);
@@ -124,36 +124,91 @@ export class RecipesComponent implements OnInit {
     }
   }
 
-  // ---- Image from clipboard
-  async onPasteImage(e: ClipboardEvent) {
-    const items = e.clipboardData?.items;
-    if (!items) return;
-    const it = Array.from(items).find(
-      (i) => i.kind === 'file' && i.type.startsWith('image/')
-    );
-    if (!it) return;
-    const file = it.getAsFile();
-    if (!file) return;
-    const url = await this.recipesSvc.uploadRecipeImage(file);
-    this.newRecipe.image = url;
-  }
+  // ---- Image from clipboard (kept simple: direct upload, no crop)
+ async onPasteImage(e: ClipboardEvent) {
+  if (this.showCropper) return;
+  const items = e.clipboardData?.items;
+  if (!items) return;
 
-  // ---- Upload from device
+  const it = Array.from(items).find(
+    (i) => i.kind === 'file' && i.type.startsWith('image/')
+  );
+  if (!it) return;
+
+  const blob = it.getAsFile();
+  if (!blob) return;
+
+  // Turn clipboard blob into a File so cropper can use it
+  const ext = blob.type === 'image/png' ? 'png' : 'jpg';
+  const file = new File([blob], `pasted-recipe-${Date.now()}.${ext}`, {
+    type: blob.type,
+  });
+
+  this.pendingRawFileName = 'pasted-recipe';
+  this.cropFile = file;
+  this.croppedBlob = null;
+  this.showCropper = true;
+
+  // Optional: prevent the pasted image from also being inserted into inputs
+  e.preventDefault();
+}
+
+  // ---- Upload from device (now opens cropper first)
   triggerFilePicker() {
     this.fileInput?.nativeElement.click();
   }
-  async onFileSelected(event: Event) {
+
+  onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
+
+    this.pendingRawFileName =
+      file.name?.replace(/\.[^/.]+$/, '') || 'recipe-image';
+
+    this.cropFile = file; // ✅ pass file directly
+    this.croppedBlob = null;
+    this.showCropper = true;
+
+    input.value = ''; // ✅ safe now
+  }
+
+  onImageCropped(event: ImageCroppedEvent) {
+    // Prefer blob if available (newer ngx-image-cropper versions)
+    if (event.blob) {
+      this.croppedBlob = event.blob;
+      return;
+    }
+
+    // Fallback: base64 -> blob
+    if (event.base64) {
+      this.croppedBlob = this.base64ToBlob(event.base64);
+    }
+  }
+
+  async applyCroppedImage() {
+    if (!this.croppedBlob) return;
+
+    const file = this.blobToFile(
+      this.croppedBlob,
+      `${this.pendingRawFileName}-cropped.webp`,
+      'image/webp',
+    );
+
     const url = await this.recipesSvc.uploadRecipeImage(file);
     this.newRecipe.image = url;
-    input.value = '';
+
+    this.closeCropper();
+  }
+
+  closeCropper() {
+    this.showCropper = false;
+    this.cropFile = null;
+    this.croppedBlob = null;
   }
 
   // admin: add recipe
   async addRecipe() {
-    // resolve category (existing or new)
     const category =
       this.categoryChoice === this.NEW_OPT
         ? (this.newCategory || '').trim()
@@ -165,6 +220,7 @@ export class RecipesComponent implements OnInit {
     if (!name || !image || !cat) return;
 
     await this.recipesSvc.addRecipe(this.newRecipe);
+
     // reset form
     this.newRecipe = {
       name: '',
@@ -186,7 +242,25 @@ export class RecipesComponent implements OnInit {
     await this.recipesSvc.deleteRecipe(r.id);
   }
 
-  isSelected(name: string) {
-    return this.selectedRecipes().includes(name);
+  // ---------------- helpers ----------------
+
+  private blobToFile(blob: Blob, fileName: string, mimeType?: string): File {
+    return new File([blob], fileName, {
+      type: mimeType || blob.type || 'image/webp',
+    });
+  }
+
+  private base64ToBlob(base64: string): Blob {
+    // base64 format: data:image/png;base64,....
+    const [header, data] = base64.split(',');
+    const mimeMatch = header?.match(/data:(.*?);base64/);
+    const mime = mimeMatch?.[1] || 'image/png';
+
+    const byteString = atob(data);
+    const byteNumbers = new Array(byteString.length);
+    for (let i = 0; i < byteString.length; i++)
+      byteNumbers[i] = byteString.charCodeAt(i);
+
+    return new Blob([new Uint8Array(byteNumbers)], { type: mime });
   }
 }

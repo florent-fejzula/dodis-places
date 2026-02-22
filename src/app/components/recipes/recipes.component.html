@@ -30,7 +30,7 @@
           <input [(ngModel)]="newRecipe.name" name="name" required />
         </label>
 
-        <!-- Image block (no label wrapping the file input) -->
+        <!-- Image block -->
         <div class="img-row" (paste)="onPasteImage($event)">
           <div class="grow">
             <label for="imageUrl">Image (paste Ctrl+V, upload or URL)</label>
@@ -42,6 +42,7 @@
               >
                 Upload image
               </button>
+
               <input
                 #fileInput
                 type="file"
@@ -49,6 +50,7 @@
                 (change)="onFileSelected($event)"
                 hidden
               />
+
               <input
                 id="imageUrl"
                 [(ngModel)]="newRecipe.image"
@@ -111,7 +113,6 @@
       [style.backgroundImage]="'url(' + recipe.image + ')'"
       title="Click for details"
     >
-      <!-- tiny delete X (admin only) -->
       <button
         class="delete-x"
         *ngIf="isAdmin()"
@@ -122,7 +123,6 @@
         ×
       </button>
 
-      <!-- bottom gradient + title -->
       <div class="overlay">
         <h2>{{ recipe.name }}</h2>
       </div>
@@ -162,6 +162,42 @@
       >
         Open source link →
       </a>
+    </div>
+  </div>
+</div>
+
+<!-- Cropper modal (for upload-before-save cropping) -->
+<div class="modal" *ngIf="showCropper" (click)="closeCropper()">
+  <div class="modal-card cropper-card" (click)="$event.stopPropagation()">
+    <button class="close" (click)="closeCropper()" aria-label="Close">×</button>
+
+    <div class="modal-content">
+      <h3>Crop image</h3>
+
+      <div class="crop-controls">
+        <label class="ratio-toggle">
+          <input type="checkbox" [(ngModel)]="lockAspectRatio" />
+          Lock to card ratio (16:9)
+        </label>
+      </div>
+
+      <!-- requires ngx-image-cropper -->
+      <image-cropper
+        [imageFile]="cropFile!"
+        [maintainAspectRatio]="false"
+        [resizeToWidth]="1400"
+        format="webp"
+        (imageCropped)="onImageCropped($event)"
+      ></image-cropper>
+
+      <div class="crop-actions">
+        <button type="button" class="ghost" (click)="closeCropper()">
+          Cancel
+        </button>
+        <button type="button" class="save" (click)="applyCroppedImage()">
+          Use photo
+        </button>
+      </div>
     </div>
   </div>
 </div>
