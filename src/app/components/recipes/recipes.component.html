@@ -108,29 +108,23 @@
       class="recipe-card"
       *ngFor="let recipe of filteredRecipes()"
       (click)="openDetails(recipe)"
-      [class.selected]="isSelected(recipe.name)"
+      [style.backgroundImage]="'url(' + recipe.image + ')'"
       title="Click for details"
     >
-      <div class="thumb">
-        <img [src]="recipe.image" [alt]="recipe.name" />
-      </div>
+      <!-- tiny delete X (admin only) -->
+      <button
+        class="delete-x"
+        *ngIf="isAdmin()"
+        (click)="deleteRecipe(recipe, $event)"
+        aria-label="Delete recipe"
+        title="Delete"
+      >
+        ×
+      </button>
 
-      <h2>{{ recipe.name }}</h2>
-
-      <div class="card-actions">
-        <button
-          class="ghost"
-          (click)="toggleSelect(recipe.name); $event.stopPropagation()"
-        >
-          {{ isSelected(recipe.name) ? "Remove" : "Pick" }}
-        </button>
-        <button
-          class="danger"
-          *ngIf="isAdmin()"
-          (click)="deleteRecipe(recipe, $event)"
-        >
-          Delete
-        </button>
+      <!-- bottom gradient + title -->
+      <div class="overlay">
+        <h2>{{ recipe.name }}</h2>
       </div>
     </div>
   </div>
@@ -139,30 +133,35 @@
 <!-- Detail modal -->
 <div class="modal" *ngIf="showDetail()" (click)="closeDetails()">
   <div class="modal-card" (click)="$event.stopPropagation()">
-    <button class="close" (click)="closeDetails()">×</button>
+    <button class="close" (click)="closeDetails()" aria-label="Close">×</button>
+
     <img
       class="hero"
       [src]="detailRecipe()?.image"
       [alt]="detailRecipe()?.name"
     />
-    <h3>{{ detailRecipe()?.name }}</h3>
-    <div class="meta">
-      <span class="pill">{{ detailRecipe()?.category }}</span>
-    </div>
 
-    <div class="notes" *ngIf="detailRecipe()?.notes">
-      <h4>Notes</h4>
-      <p>{{ detailRecipe()?.notes }}</p>
-    </div>
+    <div class="modal-content">
+      <h3>{{ detailRecipe()?.name }}</h3>
 
-    <a
-      class="source"
-      *ngIf="detailRecipe()?.sourceUrl"
-      [href]="detailRecipe()?.sourceUrl!"
-      target="_blank"
-      rel="noopener"
-    >
-      Open source link
-    </a>
+      <div class="meta">
+        <span class="pill">{{ detailRecipe()?.category }}</span>
+      </div>
+
+      <div class="notes" *ngIf="detailRecipe()?.notes">
+        <h4>Notes</h4>
+        <p>{{ detailRecipe()?.notes }}</p>
+      </div>
+
+      <a
+        class="source"
+        *ngIf="detailRecipe()?.sourceUrl"
+        [href]="detailRecipe()?.sourceUrl!"
+        target="_blank"
+        rel="noopener"
+      >
+        Open source link →
+      </a>
+    </div>
   </div>
 </div>
