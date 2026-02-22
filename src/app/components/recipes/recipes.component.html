@@ -1,73 +1,168 @@
 <div class="recipes-layout">
+  <!-- Sidebar -->
   <div class="sidebar">
     <div class="menu-header" (click)="selectCategory('')">Menu</div>
     <ul>
       <li
-        (click)="selectCategory('Breakfast')"
-        [ngClass]="{ active: selectedCategory === 'Breakfast' }"
-        >
-        Breakfast
-      </li>
-      <li
-        (click)="selectCategory('Appetizers')"
-        [ngClass]="{ active: selectedCategory === 'Appetizers' }"
-        >
-        Appetizers
-      </li>
-      <li
-        (click)="selectCategory('Salads')"
-        [ngClass]="{ active: selectedCategory === 'Salads' }"
-        >
-        Salads
-      </li>
-      <li
-        (click)="selectCategory('Sides')"
-        [ngClass]="{ active: selectedCategory === 'Sides' }"
-        >
-        Sides
-      </li>
-      <li
-        (click)="selectCategory('Pastas')"
-        [ngClass]="{ active: selectedCategory === 'Pastas' }"
-        >
-        Pastas
-      </li>
-      <li
-        (click)="selectCategory('Mains')"
-        [ngClass]="{ active: selectedCategory === 'Mains' }"
-        >
-        Mains
-      </li>
-      <li
-        (click)="selectCategory('Snacks')"
-        [ngClass]="{ active: selectedCategory === 'Snacks' }"
-        >
-        Snacks
-      </li>
-      <li
-        (click)="selectCategory('Desserts')"
-        [ngClass]="{ active: selectedCategory === 'Desserts' }"
-        >
-        Desserts
+        *ngFor="let c of categories()"
+        (click)="selectCategory(c)"
+        [ngClass]="{ active: selectedCategory() === c }"
+      >
+        {{ c }}
       </li>
     </ul>
+
+    <!-- Admin-only add button & form -->
+    <div class="admin-tools" *ngIf="isAdmin()">
+      <button class="add-btn" (click)="showAddForm.set(!showAddForm())">
+        {{ showAddForm() ? "Close" : "Add Recipe" }}
+      </button>
+
+      <form
+        class="add-form"
+        *ngIf="showAddForm()"
+        (ngSubmit)="addRecipe()"
+        (paste)="onPasteImage($event)"
+        autocomplete="off"
+      >
+        <label>
+          Name
+          <input [(ngModel)]="newRecipe.name" name="name" required />
+        </label>
+
+        <!-- Image block (no label wrapping the file input) -->
+        <div class="img-row" (paste)="onPasteImage($event)">
+          <div class="grow">
+            <label for="imageUrl">Image (paste Ctrl+V, upload or URL)</label>
+            <div class="img-controls">
+              <button
+                type="button"
+                class="button"
+                (click)="triggerFilePicker()"
+              >
+                Upload image
+              </button>
+              <input
+                #fileInput
+                type="file"
+                accept="image/*"
+                (change)="onFileSelected($event)"
+                hidden
+              />
+              <input
+                id="imageUrl"
+                [(ngModel)]="newRecipe.image"
+                name="imageUrl"
+                placeholder="Or paste image URL"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="preview" *ngIf="newRecipe.image">
+          <img [src]="newRecipe.image" alt="Preview" />
+        </div>
+
+        <!-- Category dropdown -->
+        <label>
+          Category
+          <select
+            [ngModel]="categoryChoice"
+            (ngModelChange)="onCategoryChange($event)"
+            name="categorySel"
+            required
+          >
+            <option value="" disabled>Select category</option>
+            <option *ngFor="let c of categories()" [value]="c">{{ c }}</option>
+            <option [value]="NEW_OPT">+ New category…</option>
+          </select>
+        </label>
+
+        <label *ngIf="categoryChoice === NEW_OPT">
+          New category
+          <input [(ngModel)]="newCategory" name="newCategory" />
+        </label>
+
+        <label>
+          Notes (tips / ingredients)
+          <textarea
+            [(ngModel)]="newRecipe.notes"
+            name="notes"
+            rows="3"
+          ></textarea>
+        </label>
+
+        <label>
+          Source URL (YouTube / blog)
+          <input [(ngModel)]="newRecipe.sourceUrl" name="sourceUrl" />
+        </label>
+
+        <button type="submit" class="save">Save</button>
+      </form>
+    </div>
   </div>
+
+  <!-- Cards grid -->
   <div class="recipes-container">
-    @for (recipe of filteredRecipes; track recipe) {
-      <div
-        class="recipe-card"
-        (click)="selectRecipe(recipe.name)"
-        >
-        <h2>{{ recipe.name }}</h2>
-        <img [src]="recipe.image" alt="{{ recipe.name }}" />
+    <div
+      class="recipe-card"
+      *ngFor="let recipe of filteredRecipes()"
+      (click)="openDetails(recipe)"
+      [class.selected]="isSelected(recipe.name)"
+      title="Click for details"
+    >
+      <div class="thumb">
+        <img [src]="recipe.image" [alt]="recipe.name" />
       </div>
-    }
+
+      <h2>{{ recipe.name }}</h2>
+
+      <div class="card-actions">
+        <button
+          class="ghost"
+          (click)="toggleSelect(recipe.name); $event.stopPropagation()"
+        >
+          {{ isSelected(recipe.name) ? "Remove" : "Pick" }}
+        </button>
+        <button
+          class="danger"
+          *ngIf="isAdmin()"
+          (click)="deleteRecipe(recipe, $event)"
+        >
+          Delete
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 
-@if (selectedRecipes.length > 0) {
-  <div class="footer">
-    <span>{{ selectedRecipes.join(", ") }}</span>
-    <button (click)="clearSelection()"><span>Clear</span></button>
+<!-- Detail modal -->
+<div class="modal" *ngIf="showDetail()" (click)="closeDetails()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <button class="close" (click)="closeDetails()">×</button>
+    <img
+      class="hero"
+      [src]="detailRecipe()?.image"
+      [alt]="detailRecipe()?.name"
+    />
+    <h3>{{ detailRecipe()?.name }}</h3>
+    <div class="meta">
+      <span class="pill">{{ detailRecipe()?.category }}</span>
+    </div>
+
+    <div class="notes" *ngIf="detailRecipe()?.notes">
+      <h4>Notes</h4>
+      <p>{{ detailRecipe()?.notes }}</p>
+    </div>
+
+    <a
+      class="source"
+      *ngIf="detailRecipe()?.sourceUrl"
+      [href]="detailRecipe()?.sourceUrl!"
+      target="_blank"
+      rel="noopener"
+    >
+      Open source link
+    </a>
   </div>
-}
+</div>

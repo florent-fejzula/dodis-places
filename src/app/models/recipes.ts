@@ -1,8 +1,14 @@
 export interface Recipe {
-  name: string;
-  image: string;
-  category: string;
+  id?: string;            // Firestore doc id
+  name: string;           // Card title
+  image: string;          // Image URL (storage or external)
+  category: string;       // Breakfast, Sides, etc.
+  notes?: string;         // Free text (tips, ingredients, small write-up)
+  sourceUrl?: string;     // Optional external link (YouTube/blog)
+  createdAt?: any;        // serverTimestamp
+  updatedAt?: any;        // serverTimestamp
 }
+
 
 const recipes: Recipe[] = [
   {
