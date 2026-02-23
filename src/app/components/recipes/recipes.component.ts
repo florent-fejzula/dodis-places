@@ -48,6 +48,51 @@ export class RecipesComponent implements OnInit {
     return !cat ? all : all.filter((r) => r.category === cat);
   });
 
+  groupedRecipes = computed(() => {
+    const catFilter = this.selectedCategory(); // if you still want sidebar filtering
+    const list = this.recipes();
+
+    const visible = !catFilter
+      ? list
+      : list.filter((r) => r.category === catFilter);
+
+    // group by category
+    const map = new Map<string, Recipe[]>();
+    for (const r of visible) {
+      const cat = (r.category || 'Other').trim() || 'Other';
+      if (!map.has(cat)) map.set(cat, []);
+      map.get(cat)!.push(r);
+    }
+
+    // order categories: preferred order first, then alphabetic
+    const preferred = [
+      'Breakfast',
+      'Appetizers',
+      'Dips',
+      'Salads',
+      'Sides',
+      'Sandwich',
+      'Pasta',
+      'Mains',
+      'Desserts',
+    ];
+
+    const cats = Array.from(map.keys());
+    const ordered = [
+      ...preferred.filter((c) => map.has(c)),
+      ...cats
+        .filter((c) => !preferred.includes(c))
+        .sort((a, b) => a.localeCompare(b)),
+    ];
+
+    return ordered.map((category) => ({
+      category,
+      items: (map.get(category) || [])
+        .slice()
+        .sort((a, b) => (a.name || '').localeCompare(b.name || '')),
+    }));
+  });
+
   // Add form model
   newRecipe: Partial<Recipe> = {
     name: '',
@@ -125,33 +170,33 @@ export class RecipesComponent implements OnInit {
   }
 
   // ---- Image from clipboard (kept simple: direct upload, no crop)
- async onPasteImage(e: ClipboardEvent) {
-  if (this.showCropper) return;
-  const items = e.clipboardData?.items;
-  if (!items) return;
+  async onPasteImage(e: ClipboardEvent) {
+    if (this.showCropper) return;
+    const items = e.clipboardData?.items;
+    if (!items) return;
 
-  const it = Array.from(items).find(
-    (i) => i.kind === 'file' && i.type.startsWith('image/')
-  );
-  if (!it) return;
+    const it = Array.from(items).find(
+      (i) => i.kind === 'file' && i.type.startsWith('image/'),
+    );
+    if (!it) return;
 
-  const blob = it.getAsFile();
-  if (!blob) return;
+    const blob = it.getAsFile();
+    if (!blob) return;
 
-  // Turn clipboard blob into a File so cropper can use it
-  const ext = blob.type === 'image/png' ? 'png' : 'jpg';
-  const file = new File([blob], `pasted-recipe-${Date.now()}.${ext}`, {
-    type: blob.type,
-  });
+    // Turn clipboard blob into a File so cropper can use it
+    const ext = blob.type === 'image/png' ? 'png' : 'jpg';
+    const file = new File([blob], `pasted-recipe-${Date.now()}.${ext}`, {
+      type: blob.type,
+    });
 
-  this.pendingRawFileName = 'pasted-recipe';
-  this.cropFile = file;
-  this.croppedBlob = null;
-  this.showCropper = true;
+    this.pendingRawFileName = 'pasted-recipe';
+    this.cropFile = file;
+    this.croppedBlob = null;
+    this.showCropper = true;
 
-  // Optional: prevent the pasted image from also being inserted into inputs
-  e.preventDefault();
-}
+    // Optional: prevent the pasted image from also being inserted into inputs
+    e.preventDefault();
+  }
 
   // ---- Upload from device (now opens cropper first)
   triggerFilePicker() {

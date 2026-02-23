@@ -106,25 +106,31 @@
 
   <!-- Cards grid -->
   <div class="recipes-container">
-    <div
-      class="recipe-card"
-      *ngFor="let recipe of filteredRecipes()"
-      (click)="openDetails(recipe)"
-      [style.backgroundImage]="'url(' + recipe.image + ')'"
-      title="Click for details"
-    >
-      <button
-        class="delete-x"
-        *ngIf="isAdmin()"
-        (click)="deleteRecipe(recipe, $event)"
-        aria-label="Delete recipe"
-        title="Delete"
-      >
-        ×
-      </button>
+    <div class="recipes-section" *ngFor="let section of groupedRecipes()">
+      <div class="section-title">{{ section.category }}</div>
 
-      <div class="overlay">
-        <h2>{{ recipe.name }}</h2>
+      <div class="section-grid">
+        <div
+          class="recipe-card"
+          *ngFor="let recipe of section.items"
+          (click)="openDetails(recipe)"
+          [style.backgroundImage]="'url(' + recipe.image + ')'"
+          title="Click for details"
+        >
+          <button
+            class="delete-x"
+            *ngIf="isAdmin()"
+            (click)="deleteRecipe(recipe, $event)"
+            aria-label="Delete recipe"
+            title="Delete"
+          >
+            ×
+          </button>
+
+          <div class="overlay">
+            <h2>{{ recipe.name }}</h2>
+          </div>
+        </div>
       </div>
     </div>
   </div>
