@@ -1,12 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
-import {
-  RouterLink,
-  RouterLinkActive,
-  RouterOutlet,
-  ActivatedRoute,
-} from '@angular/router';
-import { AdminService } from './services/admin.service'; // adjust path if needed
+import { Component, inject } from '@angular/core';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { AdminService } from './services/admin.service';
 import { AuthService } from './auth/auth.service';
 
 @Component({
@@ -16,25 +11,11 @@ import { AuthService } from './auth/auth.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
-export class AppComponent implements OnInit, OnDestroy {
-  private route = inject(ActivatedRoute);
+export class AppComponent {
   private adminService = inject(AdminService);
   auth = inject(AuthService);
 
   isAdmin = this.adminService.isAdmin;
-
-  async ngOnInit(): Promise<void> {
-    await this.adminService.initRealtimeAdminMode(this.route);
-  }
-
-  ngOnDestroy(): void {
-    this.adminService.cleanup();
-  }
-
-  disableAdmin() {
-    localStorage.removeItem('isAdmin');
-    this.isAdmin.set(false);
-  }
 
   logout() {
     this.auth.logout();

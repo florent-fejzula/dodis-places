@@ -1,64 +1,24 @@
-import { Injectable, NgZone, signal, inject } from '@angular/core';
-import { Firestore, doc, onSnapshot, getDoc } from '@angular/fire/firestore';
-import { ActivatedRoute } from '@angular/router';
+import { Injectable, signal, inject, effect } from '@angular/core';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
-  private firestore = inject(Firestore);
-  private zone = inject(NgZone);
+  private auth = inject(AuthService);
+
+  // ✅ Single source of truth used across the app
   readonly isAdmin = signal<boolean>(false);
 
-  private unsubscribeFn?: () => void;
+  // ✅ Your allowed admin UIDs
+  private readonly ADMIN_UIDS = new Set<string>([
+    'bEznhQ3reANPyXJpdXUA8t0YsAK2',
+    'JgNkpn0HUOR0v9fw1eLqhwpgzo32',
+  ]);
 
-  async initRealtimeAdminMode(route: ActivatedRoute): Promise<boolean> {
-    const ref = doc(this.firestore, 'config', 'settings');
-
-    // 🧠 Step 1: Get initial snapshot safely inside Angular zone
-    let initialValue = false;
-    try {
-      const snap = await getDoc(ref);
-      const data = snap.data();
-      this.zone.run(() => {
-        initialValue = !!(data && data['adminMode']);
-      });
-    } catch (err) {
-      console.error('Admin init error', err);
-    }
-
-    // 🧩 Step 2: URL / localStorage override logic
-    const urlParam = route.snapshot.queryParamMap.get('admin');
-    const urlAdmin = urlParam === '1';
-    const urlAdminOff = urlParam === '0';
-    const savedAdmin = localStorage.getItem('isAdmin') === 'true';
-
-    this.zone.run(() => {
-      if (urlAdmin) {
-        localStorage.setItem('isAdmin', 'true');
-        this.isAdmin.set(true);
-      } else if (urlAdminOff) {
-        localStorage.removeItem('isAdmin');
-        this.isAdmin.set(false);
-      } else {
-        this.isAdmin.set(initialValue || savedAdmin);
-      }
+  constructor() {
+    // Whenever auth.user() changes, update admin state
+    effect(() => {
+      const uid = this.auth.user()?.uid ?? null;
+      this.isAdmin.set(!!uid && this.ADMIN_UIDS.has(uid));
     });
-
-    // 🧠 Step 3: Start realtime listener inside Angular zone
-    this.unsubscribeFn?.();
-    this.unsubscribeFn = onSnapshot(ref, (snap) => {
-      const data = snap.data();
-      const dbValue = !!(data && data['adminMode']);
-      const saved = localStorage.getItem('isAdmin') === 'true';
-      this.zone.run(() => {
-        if (!saved) this.isAdmin.set(dbValue);
-      });
-    });
-
-    return this.isAdmin();
-  }
-
-  cleanup() {
-    this.unsubscribeFn?.();
-    this.unsubscribeFn = undefined;
   }
 }

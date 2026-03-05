@@ -7,8 +7,7 @@ import {
   MapMarker,
 } from '@angular/google-maps';
 import { Loader } from '@googlemaps/js-api-loader';
-import { ActivatedRoute, Router } from '@angular/router';
-import { effect, Injector } from '@angular/core';
+import { Router } from '@angular/router';
 
 import { Place } from 'src/app/models/places';
 import {
@@ -33,8 +32,11 @@ import { AuthService } from 'src/app/auth/auth.service';
   styleUrls: ['./places-main.component.scss'],
 })
 export class PlacesMainComponent implements OnInit {
+  // --- admin ---
+  // ✅ use the signal directly (template can do isAdmin())
+  isAdmin = inject(AdminService).isAdmin;
+
   // --- state ---
-  isAdmin = false;
   menuOpenFor: Place | null = null;
 
   private favs = inject(FavoritesService);
@@ -75,10 +77,7 @@ export class PlacesMainComponent implements OnInit {
 
   // --- inject dependencies ---
   private svc = inject(PlacesService);
-  private adminService = inject(AdminService);
-  private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private injector = inject(Injector);
 
   async ngOnInit(): Promise<void> {
     const loader = new Loader({
@@ -88,16 +87,6 @@ export class PlacesMainComponent implements OnInit {
     await loader.load();
     this.apiReady = true;
 
-    await this.adminService.initRealtimeAdminMode(this.route);
-
-    // ✅ Use Angular’s effect with proper context
-    effect(
-      () => {
-        this.isAdmin = this.adminService.isAdmin();
-      },
-      { injector: this.injector }
-    );
-
     this.svc.getPlaces().subscribe((list) => {
       this.places = list ?? [];
       this.applyFilters();
@@ -106,10 +95,6 @@ export class PlacesMainComponent implements OnInit {
     });
 
     await this.loadFavorites();
-  }
-
-  ngOnDestroy() {
-    this.adminService.cleanup();
   }
 
   async loadFavorites() {
@@ -140,6 +125,9 @@ export class PlacesMainComponent implements OnInit {
   }
 
   async confirmDelete(p: Place) {
+    // ✅ extra safety: block delete if not admin (even if UI hides it)
+    if (!this.isAdmin()) return;
+
     if (!confirm(`Delete "${p.name}"? This cannot be undone.`)) return;
     await this.svc.deletePlace(p.id!);
     this.menuOpenFor = null;
@@ -182,7 +170,7 @@ export class PlacesMainComponent implements OnInit {
 
   applyFilters() {
     this.filteredPlaces = this.places.filter((p) =>
-      this.selectedTags.every((t) => p.tags?.includes(t))
+      this.selectedTags.every((t) => p.tags?.includes(t)),
     );
     this.infoWindow?.close();
     this.fitToMarkers();
@@ -194,7 +182,7 @@ export class PlacesMainComponent implements OnInit {
     if (!this.filteredPlaces.length || !this.map?.googleMap) return;
     const bounds = new google.maps.LatLngBounds();
     this.filteredPlaces.forEach((p) =>
-      bounds.extend(new google.maps.LatLng(p.lat, p.lng))
+      bounds.extend(new google.maps.LatLng(p.lat, p.lng)),
     );
 
     if (bounds.getNorthEast().equals(bounds.getSouthWest())) {
@@ -218,7 +206,7 @@ export class PlacesMainComponent implements OnInit {
       if (this.selectedTags.includes(tag)) continue;
       const need = [...this.selectedTags, tag];
       const anyHasAll = this.places.some((p) =>
-        need.every((t) => p.tags?.includes(t))
+        need.every((t) => p.tags?.includes(t)),
       );
       if (!anyHasAll) set.add(tag);
     }
