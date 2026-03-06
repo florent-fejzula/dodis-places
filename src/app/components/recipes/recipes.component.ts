@@ -72,8 +72,11 @@ export class RecipesComponent implements OnInit {
       'Salads',
       'Sides',
       'Sandwich',
+      'Sandwiches',
+      'Pastas',
       'Pasta',
       'Mains',
+      'Snacks',
       'Desserts',
     ];
 

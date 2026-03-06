@@ -1,20 +1,20 @@
 /* Layout */
 .recipes-layout {
   display: flex;
-  gap: 0;
+  height: 100vh; /* full viewport */
+  overflow: hidden; /* prevent body scrolling */
 }
 
 /* Sidebar */
 .sidebar {
-  width: 22%;
-  padding: 20px;
+  width: 260px;
+  flex-shrink: 0;
+
+  padding: 24px 20px;
+
   border-right: 1px solid #e7e2d9;
   background-color: #388659;
   color: #fff;
-
-  height: 100vh; /* fixed height */
-  position: sticky; /* sticks while scrolling */
-  top: 0;
 
   overflow-y: auto; /* scroll if needed */
 
@@ -151,8 +151,10 @@
 
 /* Grid */
 .recipes-container {
-  width: 78%;
-  padding: 20px;
+  flex: 1;
+  padding: 22px 24px;
+
+  overflow-y: auto; /* main scroll area */
   background: #fbfaf7;
 }
 
@@ -410,26 +412,26 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
 }
 
-/* Title row with a line so it “separates” clearly */
 .section-title {
   display: flex;
-  align-items: baseline;
-  gap: 12px;
+  align-items: center;
+  gap: 16px;
 
-  font-size: 1.55rem;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.6);
+
   font-weight: 900;
-  color: #2b2b2b;
+  text-transform: uppercase;
+  font-size: 1.35rem;
+  letter-spacing: 1.4px;
+  text-decoration: underline 1px #252525;
+  text-underline-offset: 4px;
 
-  margin: 0 0 14px;
-  letter-spacing: 0.2px;
-}
+  color: #222;
+  margin-bottom: 18px;
 
-.section-title::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: #eee2d5;
-  opacity: 0.9;
+  font-family: Georgia, "Times New Roman", serif; /* cookbook vibe */
 }
 
 /* Slightly more breathing room for the grid */
