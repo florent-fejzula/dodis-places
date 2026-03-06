@@ -147,9 +147,13 @@ export class RecipesComponent implements OnInit {
     const pref = [
       'Breakfast',
       'Appetizers',
+      'Dips',
       'Salads',
       'Sides',
+      'Sandwich',
+      'Sandwiches',
       'Pastas',
+      'Pasta',
       'Mains',
       'Snacks',
       'Desserts',

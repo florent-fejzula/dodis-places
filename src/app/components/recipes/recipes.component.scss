@@ -11,7 +11,12 @@
   border-right: 1px solid #e7e2d9;
   background-color: #388659;
   color: #fff;
-  min-height: 70vh;
+
+  height: 100vh; /* fixed height */
+  position: sticky; /* sticks while scrolling */
+  top: 0;
+
+  overflow-y: auto; /* scroll if needed */
 
   .menu-header {
     font-size: 1.5em;
@@ -27,6 +32,7 @@
     margin: 0 0 14px 0;
     li {
       padding: 10px;
+      margin-bottom: 2px;
       cursor: pointer;
       color: #fff;
       font-size: 1.1em;
@@ -147,6 +153,7 @@
 .recipes-container {
   width: 78%;
   padding: 20px;
+  background: #fbfaf7;
 }
 
 .recipe-card {
@@ -183,12 +190,7 @@
     padding: 12px 12px 10px;
 
     /* darker gradient from bottom */
-    background: linear-gradient(
-      to top,
-      rgba(0, 0, 0, 0.72),
-      rgba(0, 0, 0, 0.25),
-      rgba(0, 0, 0, 0)
-    );
+    background: linear-gradient(to top, #000000db, #00000069, #00000000);
 
     h2 {
       margin: 0;
@@ -196,7 +198,7 @@
       font-size: 1.05rem;
       font-weight: 800;
       line-height: 1.15;
-      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.65);
 
       /* keep long names tidy */
       display: -webkit-box;
@@ -398,18 +400,39 @@
   cursor: pointer;
 }
 
+/* Each category block becomes its own visual section */
 .recipes-section {
-  margin-bottom: 38px;
+  margin-bottom: 26px;
+  padding: 18px 16px 16px;
+  border: 1px solid #eee2d5;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
 }
 
+/* Title row with a line so it “separates” clearly */
 .section-title {
-  font-size: 1.35rem;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+
+  font-size: 1.55rem;
   font-weight: 900;
   color: #2b2b2b;
-  margin: 4px 2px 10px;
+
+  margin: 0 0 14px;
   letter-spacing: 0.2px;
 }
 
+.section-title::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #eee2d5;
+  opacity: 0.9;
+}
+
+/* Slightly more breathing room for the grid */
 .section-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));

@@ -26,17 +26,6 @@ export class RecipesService {
   private firestore = inject(Firestore);
   private storage = inject(Storage);
 
-  // ---- Selected basket
-  getSelectedRecipes(): Observable<any> {
-    const ref = doc(this.firestore, 'selectedRecipes/userRecipes');
-    return docData(ref);
-  }
-
-  updateSelectedRecipes(selectedRecipes: string[]): Promise<void> {
-    const ref = doc(this.firestore, 'selectedRecipes/userRecipes');
-    return setDoc(ref, { recipes: selectedRecipes });
-  }
-
   // ---- Recipes collection
   getRecipes(): Observable<Recipe[]> {
     const ref = collection(this.firestore, 'recipes');
