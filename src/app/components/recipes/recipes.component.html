@@ -1,26 +1,107 @@
-<div class="recipes-layout">
+<div class="recipes-layout" [class.menu-open]="mobileMenuOpen()">
+  <!-- Mobile top bar (shown only on mobile via CSS) -->
+  <div class="mobile-topbar">
+    <button
+      class="hamburger"
+      (click)="mobileMenuOpen.set(!mobileMenuOpen())"
+      aria-label="Toggle categories"
+    >
+      <span></span><span></span><span></span>
+    </button>
+    <div class="mobile-title">
+      {{ selectedCategory() || "All Recipes" }}
+    </div>
+    <button
+      *ngIf="isAdmin()"
+      class="mobile-add"
+      (click)="showAddForm.set(true); mobileMenuOpen.set(false)"
+      aria-label="Add recipe"
+    >
+      +
+    </button>
+  </div>
+
   <!-- Sidebar -->
   <div class="sidebar">
-    <div class="menu-header" (click)="selectCategory('')">Menu</div>
+    <div
+      class="menu-header"
+      (click)="selectCategory(''); mobileMenuOpen.set(false)"
+    >
+      Menu
+    </div>
     <ul>
       <li
         *ngFor="let c of categories()"
-        (click)="selectCategory(c)"
+        (click)="selectCategory(c); mobileMenuOpen.set(false)"
         [ngClass]="{ active: selectedCategory() === c }"
       >
         {{ c }}
       </li>
     </ul>
 
-    <!-- Admin-only add button & form -->
+    <!-- Admin-only add button (desktop) -->
     <div class="admin-tools" *ngIf="isAdmin()">
-      <button class="add-btn" (click)="showAddForm.set(!showAddForm())">
-        {{ showAddForm() ? "Close" : "Add Recipe" }}
+      <button class="add-btn" (click)="showAddForm.set(true)">
+        Add Recipe
       </button>
+    </div>
+  </div>
+
+  <!-- Backdrop for mobile menu -->
+  <div
+    class="mobile-backdrop"
+    *ngIf="mobileMenuOpen()"
+    (click)="mobileMenuOpen.set(false)"
+  ></div>
+
+  <!-- Cards grid -->
+  <div class="recipes-container">
+    <div class="recipes-section" *ngFor="let section of groupedRecipes()">
+      <div class="section-title">{{ section.category }}</div>
+
+      <div class="section-grid">
+        <div
+          class="recipe-card"
+          *ngFor="let recipe of section.items"
+          (click)="openDetails(recipe)"
+          [style.backgroundImage]="'url(' + recipe.image + ')'"
+          title="Click for details"
+        >
+          <button
+            class="delete-x"
+            *ngIf="isAdmin()"
+            (click)="deleteRecipe(recipe, $event)"
+            aria-label="Delete recipe"
+            title="Delete"
+          >
+            ×
+          </button>
+
+          <div class="overlay">
+            <h2>{{ recipe.name }}</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Recipe modal (now a proper modal instead of inline in sidebar) -->
+<div
+  class="modal"
+  *ngIf="showAddForm() && isAdmin()"
+  (click)="showAddForm.set(false)"
+>
+  <div class="modal-card form-card" (click)="$event.stopPropagation()">
+    <button class="close" (click)="showAddForm.set(false)" aria-label="Close">
+      ×
+    </button>
+
+    <div class="modal-content">
+      <h3>Add Recipe</h3>
 
       <form
         class="add-form"
-        *ngIf="showAddForm()"
         (ngSubmit)="addRecipe()"
         (paste)="onPasteImage($event)"
         autocomplete="off"
@@ -99,39 +180,13 @@
           <input [(ngModel)]="newRecipe.sourceUrl" name="sourceUrl" />
         </label>
 
-        <button type="submit" class="save">Save</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Cards grid -->
-  <div class="recipes-container">
-    <div class="recipes-section" *ngFor="let section of groupedRecipes()">
-      <div class="section-title">{{ section.category }}</div>
-
-      <div class="section-grid">
-        <div
-          class="recipe-card"
-          *ngFor="let recipe of section.items"
-          (click)="openDetails(recipe)"
-          [style.backgroundImage]="'url(' + recipe.image + ')'"
-          title="Click for details"
-        >
-          <button
-            class="delete-x"
-            *ngIf="isAdmin()"
-            (click)="deleteRecipe(recipe, $event)"
-            aria-label="Delete recipe"
-            title="Delete"
-          >
-            ×
+        <div class="form-actions">
+          <button type="button" class="ghost" (click)="showAddForm.set(false)">
+            Cancel
           </button>
-
-          <div class="overlay">
-            <h2>{{ recipe.name }}</h2>
-          </div>
+          <button type="submit" class="save">Save</button>
         </div>
-      </div>
+      </form>
     </div>
   </div>
 </div>
@@ -187,7 +242,6 @@
         </label>
       </div>
 
-      <!-- requires ngx-image-cropper -->
       <image-cropper
         [imageFile]="cropFile!"
         [maintainAspectRatio]="false"

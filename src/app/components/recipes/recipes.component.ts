@@ -32,6 +32,8 @@ export class RecipesComponent implements OnInit {
   showDetail = signal<boolean>(false);
   detailRecipe = signal<Recipe | null>(null);
 
+  mobileMenuOpen = signal(false);
+
   // data
   recipes = signal<Recipe[]>([]);
 
