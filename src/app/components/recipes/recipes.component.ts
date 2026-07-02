@@ -1,6 +1,7 @@
 import {
   Component,
   OnInit,
+  OnDestroy,
   inject,
   signal,
   computed,
@@ -22,12 +23,24 @@ import { AdminService } from 'src/app/services/admin.service';
   templateUrl: './recipes.component.html',
   styleUrls: ['./recipes.component.scss'],
 })
-export class RecipesComponent implements OnInit {
+export class RecipesComponent implements OnInit, OnDestroy {
+  private static readonly CATEGORY_ORDER = [
+    'Breakfast', 'Appetizers', 'Dips', 'Salads', 'Sides',
+    'Sandwich', 'Sandwiches', 'Pastas', 'Pasta', 'Mains', 'Snacks', 'Desserts',
+  ];
+
+  private static readonly TIME_BUCKETS = [
+    { label: '15 mins', maxMinutes: 15 },
+    { label: '30 mins', maxMinutes: 30 },
+    { label: '1 hr',    maxMinutes: 60 },
+    { label: '2 hrs',   maxMinutes: 120 },
+  ];
   private recipesSvc = inject(RecipesService);
   private adminSvc = inject(AdminService);
 
   // UI state
   selectedCategory = signal<string>('');
+  selectedTime = signal<number | null>(null);
   showAddForm = signal<boolean>(false);
   showDetail = signal<boolean>(false);
   detailRecipe = signal<Recipe | null>(null);
@@ -44,22 +57,18 @@ export class RecipesComponent implements OnInit {
   cropFile: File | null = null;
   lockAspectRatio = true;
 
-  // derived
-  filteredRecipes = computed(() => {
-    const cat = this.selectedCategory();
-    const all = this.recipes();
-    return !cat ? all : all.filter((r) => r.category === cat);
-  });
-
   groupedRecipes = computed(() => {
-    const catFilter = this.selectedCategory(); // if you still want sidebar filtering
+    const catFilter = this.selectedCategory();
+    const timeFilter = this.selectedTime();
     const list = this.recipes();
+    let visible = !catFilter ? list : list.filter((r) => r.category === catFilter);
+    if (timeFilter !== null) {
+      visible = visible.filter((r) => {
+        const parsed = this.parseTimeMinutes(r.time ?? '');
+        return parsed !== null && parsed.min <= timeFilter;
+      });
+    }
 
-    const visible = !catFilter
-      ? list
-      : list.filter((r) => r.category === catFilter);
-
-    // group by category
     const map = new Map<string, Recipe[]>();
     for (const r of visible) {
       const cat = (r.category || 'Other').trim() || 'Other';
@@ -67,28 +76,11 @@ export class RecipesComponent implements OnInit {
       map.get(cat)!.push(r);
     }
 
-    // order categories: preferred order first, then alphabetic
-    const preferred = [
-      'Breakfast',
-      'Appetizers',
-      'Dips',
-      'Salads',
-      'Sides',
-      'Sandwich',
-      'Sandwiches',
-      'Pastas',
-      'Pasta',
-      'Mains',
-      'Snacks',
-      'Desserts',
-    ];
-
+    const order = RecipesComponent.CATEGORY_ORDER;
     const cats = Array.from(map.keys());
     const ordered = [
-      ...preferred.filter((c) => map.has(c)),
-      ...cats
-        .filter((c) => !preferred.includes(c))
-        .sort((a, b) => a.localeCompare(b)),
+      ...order.filter((c) => map.has(c)),
+      ...cats.filter((c) => !order.includes(c)).sort((a, b) => a.localeCompare(b)),
     ];
 
     return ordered.map((category) => ({
@@ -129,6 +121,10 @@ export class RecipesComponent implements OnInit {
     });
   }
 
+  ngOnDestroy() {
+    document.body.style.overflow = '';
+  }
+
   selectCategory(cat: string) {
     this.selectedCategory.set(cat);
   }
@@ -166,32 +162,46 @@ export class RecipesComponent implements OnInit {
     this.editMode.set(false);
   }
 
-  // categories for dropdown
-  categories(): string[] {
-    const set = new Set<string>(
-      this.recipes()
-        .map((r) => r.category)
-        .filter(Boolean),
-    );
-
-    const pref = [
-      'Breakfast',
-      'Appetizers',
-      'Dips',
-      'Salads',
-      'Sides',
-      'Sandwich',
-      'Sandwiches',
-      'Pastas',
-      'Pasta',
-      'Mains',
-      'Snacks',
-      'Desserts',
-    ];
-
-    const found = pref.filter((c) => set.has(c));
-    const rest = [...set].filter((c) => !pref.includes(c)).sort();
+  // categories for chip bar and add-form dropdown — memoized
+  categories = computed(() => {
+    const set = new Set<string>(this.recipes().map((r) => r.category).filter(Boolean));
+    const order = RecipesComponent.CATEGORY_ORDER;
+    const found = order.filter((c) => set.has(c));
+    const rest = [...set].filter((c) => !order.includes(c)).sort();
     return found.concat(rest);
+  });
+
+  timeBuckets = computed(() => {
+    const recipes = this.recipes();
+    return RecipesComponent.TIME_BUCKETS.filter((bucket) =>
+      recipes.some((r) => {
+        const parsed = this.parseTimeMinutes(r.time ?? '');
+        return parsed !== null && parsed.min <= bucket.maxMinutes;
+      }),
+    );
+  });
+
+  selectTime(maxMinutes: number | null) {
+    this.selectedTime.set(maxMinutes);
+  }
+
+  private parseTimeMinutes(timeStr: string): { min: number; max: number } | null {
+    if (!timeStr) return null;
+    const s = timeStr.toLowerCase().trim();
+
+    const rangeMatch = s.match(/(\d+(?:\.\d+)?)\s*[-–]\s*(\d+(?:\.\d+)?)\s*(min|hr|hour)/);
+    if (rangeMatch) {
+      const mult = rangeMatch[3].startsWith('h') ? 60 : 1;
+      return { min: parseFloat(rangeMatch[1]) * mult, max: parseFloat(rangeMatch[2]) * mult };
+    }
+
+    const singleMatch = s.match(/(\d+(?:\.\d+)?)\s*(min|hr|hour)/);
+    if (singleMatch) {
+      const mins = parseFloat(singleMatch[1]) * (singleMatch[2].startsWith('h') ? 60 : 1);
+      return { min: mins, max: mins };
+    }
+
+    return null;
   }
 
   onCategoryChange(val: string) {

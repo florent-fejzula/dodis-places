@@ -90,6 +90,58 @@
   }
 }
 
+/* ── Time filter bar ── */
+.time-bar-wrap {
+  position: relative;
+  flex-shrink: 0;
+  border-bottom: 1px solid #eee2d5;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 48px;
+    background: linear-gradient(to left, #fbfaf7 40%, transparent);
+    pointer-events: none;
+  }
+}
+
+.time-bar {
+  display: flex;
+  gap: 6px;
+  padding: 8px 22px;
+  padding-right: 56px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+.time-chip {
+  flex-shrink: 0;
+  padding: 5px 14px;
+  border-radius: 999px;
+  border: 1.5px solid #e8dfd0;
+  background: #faf8f5;
+  color: #7a6a56;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.14s, border-color 0.14s, color 0.14s;
+
+  &.active {
+    background: #c98a3e;
+    border-color: #c98a3e;
+    color: #fff;
+  }
+
+  &:hover:not(.active) {
+    background: #f5ede0;
+    border-color: #d4a96a;
+    color: #8a5c1e;
+  }
+}
+
 /* Add Recipe form (now lives inside a modal) */
 .add-form {
   display: flex;
@@ -787,6 +839,17 @@
   .cat-chip {
     padding: 6px 14px;
     font-size: 0.84rem;
+  }
+
+  .time-bar {
+    padding: 6px 14px;
+    padding-right: 48px;
+    gap: 5px;
+  }
+
+  .time-chip {
+    padding: 4px 12px;
+    font-size: 0.77rem;
   }
 
   .recipes-container {

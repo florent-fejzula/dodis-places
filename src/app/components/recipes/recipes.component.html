@@ -24,6 +24,23 @@
     </div>
   </div>
 
+  <!-- Time filter bar -->
+  <div class="time-bar-wrap" *ngIf="timeBuckets().length > 0">
+    <div class="time-bar">
+      <button
+        class="time-chip"
+        [class.active]="selectedTime() === null"
+        (click)="selectTime(null)"
+      >Any time</button>
+      <button
+        class="time-chip"
+        *ngFor="let b of timeBuckets()"
+        [class.active]="selectedTime() === b.maxMinutes"
+        (click)="selectTime(b.maxMinutes)"
+      >≤ {{ b.label }}</button>
+    </div>
+  </div>
+
   <!-- Cards grid -->
   <div class="recipes-container">
     <div class="recipes-section" *ngFor="let section of groupedRecipes()">
@@ -239,7 +256,8 @@
 
       <image-cropper
         [imageFile]="cropFile!"
-        [maintainAspectRatio]="false"
+        [maintainAspectRatio]="lockAspectRatio"
+        [aspectRatio]="16 / 9"
         [resizeToWidth]="1400"
         format="webp"
         (imageCropped)="onImageCropped($event)"
