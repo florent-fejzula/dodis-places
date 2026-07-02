@@ -29,15 +29,15 @@
     <div class="time-bar">
       <button
         class="time-chip"
-        [class.active]="selectedTime() === null"
-        (click)="selectTime(null)"
+        [class.active]="selectedTimes().size === 0"
+        (click)="clearTimes()"
       >Any time</button>
       <button
         class="time-chip"
         *ngFor="let b of timeBuckets()"
-        [class.active]="selectedTime() === b.maxMinutes"
-        (click)="selectTime(b.maxMinutes)"
-      >≤ {{ b.label }}</button>
+        [class.active]="selectedTimes().has(b.maxMinutes)"
+        (click)="toggleTime(b.maxMinutes)"
+      >{{ b.label }}</button>
     </div>
   </div>
 

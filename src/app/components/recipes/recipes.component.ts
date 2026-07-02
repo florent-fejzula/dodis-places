@@ -30,17 +30,17 @@ export class RecipesComponent implements OnInit, OnDestroy {
   ];
 
   private static readonly TIME_BUCKETS = [
-    { label: '15 mins', maxMinutes: 15 },
-    { label: '30 mins', maxMinutes: 30 },
-    { label: '1 hr',    maxMinutes: 60 },
-    { label: '2 hrs',   maxMinutes: 120 },
+    { label: '15 mins', minMinutes: 1,   maxMinutes: 15  },
+    { label: '30 mins', minMinutes: 16,  maxMinutes: 30  },
+    { label: '1 hr',    minMinutes: 31,  maxMinutes: 60  },
+    { label: '2 hrs',   minMinutes: 61,  maxMinutes: 120 },
   ];
   private recipesSvc = inject(RecipesService);
   private adminSvc = inject(AdminService);
 
   // UI state
   selectedCategory = signal<string>('');
-  selectedTime = signal<number | null>(null);
+  selectedTimes = signal<ReadonlySet<number>>(new Set());
   showAddForm = signal<boolean>(false);
   showDetail = signal<boolean>(false);
   detailRecipe = signal<Recipe | null>(null);
@@ -59,13 +59,15 @@ export class RecipesComponent implements OnInit, OnDestroy {
 
   groupedRecipes = computed(() => {
     const catFilter = this.selectedCategory();
-    const timeFilter = this.selectedTime();
+    const timeFilter = this.selectedTimes();
     const list = this.recipes();
     let visible = !catFilter ? list : list.filter((r) => r.category === catFilter);
-    if (timeFilter !== null) {
+    if (timeFilter.size > 0) {
+      const buckets = RecipesComponent.TIME_BUCKETS.filter((b) => timeFilter.has(b.maxMinutes));
       visible = visible.filter((r) => {
         const parsed = this.parseTimeMinutes(r.time ?? '');
-        return parsed !== null && parsed.min <= timeFilter;
+        if (!parsed) return false;
+        return buckets.some((b) => parsed.min <= b.maxMinutes && parsed.max >= b.minMinutes);
       });
     }
 
@@ -176,13 +178,19 @@ export class RecipesComponent implements OnInit, OnDestroy {
     return RecipesComponent.TIME_BUCKETS.filter((bucket) =>
       recipes.some((r) => {
         const parsed = this.parseTimeMinutes(r.time ?? '');
-        return parsed !== null && parsed.min <= bucket.maxMinutes;
+        return parsed !== null && parsed.min <= bucket.maxMinutes && parsed.max >= bucket.minMinutes;
       }),
     );
   });
 
-  selectTime(maxMinutes: number | null) {
-    this.selectedTime.set(maxMinutes);
+  toggleTime(maxMinutes: number) {
+    const next = new Set(this.selectedTimes());
+    if (next.has(maxMinutes)) { next.delete(maxMinutes); } else { next.add(maxMinutes); }
+    this.selectedTimes.set(next);
+  }
+
+  clearTimes() {
+    this.selectedTimes.set(new Set());
   }
 
   private parseTimeMinutes(timeStr: string): { min: number; max: number } | null {
