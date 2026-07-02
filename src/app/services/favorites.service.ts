@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, Injector, inject, runInInjectionContext } from '@angular/core';
 import {
   Firestore,
   doc,
@@ -14,13 +14,18 @@ import { Place } from '../models/places';
 export class FavoritesService {
   private firestore = inject(Firestore);
   private auth = inject(AuthService);
+  private injector = inject(Injector);
+
+  private inCtx<T>(fn: () => T): T {
+    return runInInjectionContext(this.injector, fn);
+  }
 
   async toggleFavorite(place: Place): Promise<void> {
     const user = this.auth.user();
     if (!user) throw new Error('Not logged in');
 
     const ref = doc(this.firestore, 'users', user.uid);
-    const snap = await getDoc(ref);
+    const snap = await this.inCtx(() => getDoc(ref));
     const current = ((snap.data() && snap.data()!['favorites']) ||
       []) as string[];
 
@@ -36,7 +41,7 @@ export class FavoritesService {
     if (!user) return [];
 
     const ref = doc(this.firestore, 'users', user.uid);
-    const snap = await getDoc(ref);
+    const snap = await this.inCtx(() => getDoc(ref));
     const data = snap.data();
     return ((data && data['favorites']) || []) as string[];
   }

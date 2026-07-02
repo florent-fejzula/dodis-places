@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container" [class.skip-anim]="skipAnim">
   <header class="app-header">
     <div class="header-inner">
       <h1 class="title">Dodi’s Places</h1>
@@ -15,6 +15,7 @@
     [stuffTags]="stuffTags"
     [selectedTags]="selectedTags"
     [disabledTags]="disabledTags"
+    [skipAnimation]="skipAnim"
     (tagClicked)="onTagClicked($event)"
     (clearClicked)="clearSelectedTags()"
   ></app-tags-section>
@@ -54,7 +55,7 @@
         </svg>
       </button>
       <button
-        *ngIf="isAdmin"
+        *ngIf="isAdmin()"
         type="button"
         class="card-menu"
         aria-label="Open actions"
@@ -101,6 +102,13 @@
         </button>
       </div>
     </div>
+  </div>
+
+  <!-- Login toast -->
+  <div class="login-toast" *ngIf="showLoginPrompt">
+    <span class="toast-icon">♡</span>
+    <span>Log in to save your favourites</span>
+    <button class="toast-login-btn" (click)="goToLogin()">Log in</button>
   </div>
 
   <!-- Map -->

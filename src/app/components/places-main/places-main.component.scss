@@ -38,45 +38,26 @@
 
   @media (max-width: 768px) {
     padding: 2.2rem 1rem 1.5rem;
-    .title {
-      font-size: 1.9rem;
-    }
-    .tagline {
-      font-size: 0.95rem;
-      max-width: 90%;
-    }
+    .title { font-size: 1.9rem; }
+    .tagline { font-size: 0.95rem; max-width: 90%; }
   }
   @media (max-width: 480px) {
     padding: 1.8rem 1rem 1.2rem;
-    .title {
-      font-size: 1.6rem;
-    }
-    .tagline {
-      font-size: 0.9rem;
-      line-height: 1.4;
-    }
+    .title { font-size: 1.6rem; }
+    .tagline { font-size: 0.9rem; line-height: 1.4; }
   }
 }
 
-/* Subtle header animation */
 @keyframes headerFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @media (min-width: 768px) {
-  .container {
-    padding: 10px;
-  }
+  .container { padding: 10px; }
 }
 
-/* Results bar + Empty state */
+/* Results bar */
 .results-bar {
   margin: 14px 0 6px;
   color: var(--muted);
@@ -98,14 +79,8 @@
     opacity: 0;
     animation: fadeUp 0.45s ease-out 0.15s forwards;
 
-    h3 {
-      margin: 0 0 6px;
-      font-size: 1.1rem;
-    }
-    p {
-      margin: 0;
-      color: var(--muted);
-    }
+    h3 { margin: 0 0 6px; font-size: 1.1rem; }
+    p { margin: 0; color: var(--muted); }
     .linklike {
       border: 0;
       background: none;
@@ -126,21 +101,9 @@
 }
 
 /* InfoWindow */
-.iw {
-  min-width: 220px;
-  max-width: 254px;
-}
-.iw-title {
-  font-weight: 700;
-  margin-bottom: 6px;
-  color: var(--ink, #111);
-}
-.iw-tags {
-  margin: 6px 0 8px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
+.iw { min-width: 220px; max-width: 254px; }
+.iw-title { font-weight: 700; margin-bottom: 6px; color: var(--ink, #111); }
+.iw-tags { margin: 6px 0 8px; display: flex; flex-wrap: wrap; gap: 6px; }
 .pill {
   background: var(--chip, #efefef);
   color: var(--ink, #111);
@@ -148,13 +111,29 @@
   padding: 2px 8px;
   font-size: 12px;
 }
-.iw-link {
-  color: var(--link, #2563eb);
-  cursor: pointer;
-  font-weight: 600;
+.iw-link { color: var(--link, #2563eb); cursor: pointer; font-weight: 600; }
+
+/* Skip entrance animations on return visits */
+.container.skip-anim {
+  .app-header {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .results-bar {
+    animation: none;
+    opacity: 1;
+  }
+
+  .card {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
 }
 
-/* Cards grid */
+/* ─── Cards grid ─── */
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -162,78 +141,154 @@
   margin: 14px 0 24px;
 }
 
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Card ─── */
 .card {
   position: relative;
-  border: 2px solid var(--border, #d1d5db);
   border-radius: 14px;
-  overflow: visible;
-  background: var(--surface, #fff);
-  color: var(--ink, #111);
-  box-shadow: var(--shadow, 0 6px 14px rgba(0, 0, 0, 0.06));
+  overflow: hidden;
+  background: #111;
+  border: 1.5px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-height: 280px;
   z-index: 1;
+  color: #fff;
 
-  /* Staggered entrance */
   opacity: 0;
   transform: translateY(10px);
   animation: fadeUp 0.55s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
   animation-delay: calc(var(--i, 0) * 60ms);
 
+  /* bottom-to-top shadow so text is always readable */
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.88) 0%,
+      rgba(0, 0, 0, 0.32) 48%,
+      transparent 72%
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+
   @media (hover: hover) and (pointer: fine) {
-    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.08);
+      transform: translateY(-3px);
+      box-shadow: 0 20px 44px rgba(0, 0, 0, 0.3);
+    }
+    &:hover .media img {
+      transform: scale(1.05);
     }
   }
 }
 
-.card-menu,
-.fav-btn {
+/* Image fills the entire card */
+.media {
   position: absolute;
-  z-index: 5; /* stays above hover layers */
+  inset: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.45s ease;
+  }
+
+  &.placeholder {
+    display: grid;
+    place-items: center;
+    background: #1c1c2e;
+    color: rgba(255, 255, 255, 0.22);
+    font-size: 13px;
+  }
 }
 
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
+/* ─── Floating controls ─── */
+.fav-btn,
+.card-menu {
+  position: absolute;
+  z-index: 3;
+}
+
+.fav-btn {
+  top: 10px;
+  right: 10px;
+  width: 34px;
+  height: 34px;
+  background: rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+
+  svg {
+    width: 18px;
+    height: 18px;
+    stroke: #fff;
+    fill: transparent;
+    transition: fill 0.22s ease, stroke 0.22s ease;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  &.active svg {
+    fill: #e63946;
+    stroke: #e63946;
+  }
+
+  &:hover {
+    transform: scale(1.12);
+    background: rgba(0, 0, 0, 0.58);
   }
 }
 
 .card-menu {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  border: none;
-  background: color-mix(in srgb, var(--surface, #fff) 85%, transparent);
+  top: 10px;
+  left: 10px;
+  width: 30px;
+  height: 30px;
+  background: rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 8px;
-  width: 32px;
-  height: 32px;
-  line-height: 28px;
-  text-align: center;
+  display: grid;
+  place-items: center;
   cursor: pointer;
-  font-size: 18px;
-  backdrop-filter: blur(2px);
-  color: silver;
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+  }
 }
 
-/* Dropdown */
+/* ─── Admin dropdown ─── */
 .menu {
   position: absolute;
   top: 44px;
-  right: 8px;
+  left: 10px;
   min-width: 140px;
-  background: var(--surface, #fff);
-  border: 1px solid var(--border, #e6e6e6);
+  background: rgba(18, 18, 28, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 10px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
   padding: 6px;
   display: flex;
   flex-direction: column;
@@ -244,80 +299,113 @@
     padding: 8px 10px;
     border: none;
     background: transparent;
-    color: var(--ink, #111);
+    color: rgba(255, 255, 255, 0.88);
     cursor: pointer;
     border-radius: 8px;
     font-size: 14px;
-    &:hover {
-      background: var(--chip, #f5f7fa);
-    }
-    &.danger {
-      color: #c62828;
-    }
+    &:hover { background: rgba(255, 255, 255, 0.08); }
+    &.danger { color: #ff6b6b; }
   }
 }
 
-.media {
-  height: 160px;
-  background: var(--chip-hover, #f3f4f6);
-  overflow: hidden;
-  display: grid;
-  place-items: center;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.35s ease;
-  }
-  @media (hover: hover) and (pointer: fine) {
-    .card:hover & img {
-      transform: scale(1.03);
-    }
-  }
-
-  &.placeholder {
-    display: grid;
-    place-items: center;
-    color: var(--muted, #94a3b8);
-    font-size: 12px;
-  }
-}
-
+/* ─── Card body — text above gradient ─── */
 .body {
-  flex: 1;
-  padding: 12px;
+  position: relative;
+  z-index: 2;
+  margin-top: auto;
+  padding: 16px;
   display: flex;
   flex-direction: column;
 }
-h3 {
-  margin: 0 0 6px;
-  font-size: 18px;
-  color: var(--ink, #111);
+
+.body h3 {
+  margin: 0 0 5px;
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
 }
+
 .tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin: 6px 0 10px;
+  gap: 5px;
+  margin: 4px 0 10px;
 }
-.pill {
-  background: var(--chip, #f2f4f7);
-  color: var(--ink, #111);
-  padding: 2px 8px;
+
+.body .pill {
+  background: rgba(255, 255, 255, 0.13);
+  color: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 999px;
-  font-size: 12px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 500;
 }
+
 .link {
-  margin-top: auto;
-  color: var(--link, #2563eb);
+  margin-top: 2px;
+  color: rgba(255, 255, 255, 0.6);
   background: transparent;
   border: 0;
   padding: 0;
   cursor: pointer;
   font-weight: 600;
+  font-size: 13px;
   text-align: left;
+  transition: color 0.15s;
+
+  &:hover { color: rgba(255, 255, 255, 0.9); }
+}
+
+/* ─── Login toast ─── */
+.login-toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(14, 14, 22, 0.96);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 12px 16px 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 8px 36px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(14px);
+  z-index: 1000;
+  white-space: nowrap;
+  animation: toastIn 0.28s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+
+  .toast-icon {
+    font-size: 16px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .toast-login-btn {
+    background: rgba(255, 255, 255, 0.13);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #fff;
+    border-radius: 8px;
+    padding: 6px 13px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s;
+
+    &:hover { background: rgba(255, 255, 255, 0.22); }
+  }
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(14px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
 @media (max-width: 768px) {
@@ -326,34 +414,10 @@ h3 {
     padding: 2px;
     font-size: 14px;
   }
-}
 
-.fav-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #444;
-  opacity: 0.9;
-  transition: transform 0.15s ease, color 0.2s ease;
-  z-index: 3;
-
-  svg {
-    width: 22px;
-    height: 22px;
-    stroke: #444;
-    fill: transparent;
-    transition: fill 0.25s ease, stroke 0.25s ease;
-  }
-
-  &.active svg {
-    fill: #e63946;
-    stroke: #e63946;
-  }
-
-  &:hover {
-    transform: scale(1.15);
+  .login-toast {
+    bottom: 16px;
+    white-space: normal;
+    max-width: calc(100vw - 32px);
   }
 }

@@ -3,6 +3,7 @@ export interface Recipe {
   name: string;           // Card title
   image: string;          // Image URL (storage or external)
   category: string;       // Breakfast, Sides, etc.
+  time?: string;          // Cook/prep time, e.g. "25 mins"
   notes?: string;         // Free text (tips, ingredients, small write-up)
   sourceUrl?: string;     // Optional external link (YouTube/blog)
   createdAt?: any;        // serverTimestamp

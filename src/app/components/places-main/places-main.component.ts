@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   GoogleMap,
@@ -38,6 +38,9 @@ export class PlacesMainComponent implements OnInit {
 
   // --- state ---
   menuOpenFor: Place | null = null;
+  showLoginPrompt = false;
+  skipAnim = false;
+  private loginPromptTimer: ReturnType<typeof setTimeout> | null = null;
 
   private favs = inject(FavoritesService);
   private auth = inject(AuthService);
@@ -79,6 +82,11 @@ export class PlacesMainComponent implements OnInit {
   private svc = inject(PlacesService);
   private router = inject(Router);
 
+  constructor() {
+    this.skipAnim = this.svc.homeAnimated;
+    this.svc.homeAnimated = true;
+  }
+
   async ngOnInit(): Promise<void> {
     const loader = new Loader({
       apiKey: environment.googleMapsKey,
@@ -107,11 +115,17 @@ export class PlacesMainComponent implements OnInit {
 
   async toggleFavorite(p: Place) {
     if (!this.auth.user()) {
-      alert('Please log in to save favorites.');
+      this.showLoginPrompt = true;
+      if (this.loginPromptTimer) clearTimeout(this.loginPromptTimer);
+      this.loginPromptTimer = setTimeout(() => (this.showLoginPrompt = false), 3000);
       return;
     }
     await this.favs.toggleFavorite(p);
     this.favorites = await this.favs.getFavorites();
+  }
+
+  goToLogin() {
+    this.router.navigate(['/login']);
   }
 
   // ---------- Admin menu ----------
@@ -133,6 +147,7 @@ export class PlacesMainComponent implements OnInit {
     this.menuOpenFor = null;
   }
 
+  @HostListener('document:click')
   closeMenu() {
     this.menuOpenFor = null;
   }

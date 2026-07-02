@@ -25,7 +25,7 @@ import {
   getDownloadURL,
   updateMetadata,
 } from '@angular/fire/storage';
-import { Observable } from 'rxjs';
+import { Observable, concat, of, shareReplay, tap } from 'rxjs';
 import { Place } from '../models/places';
 
 type ImageMeta = { url: string; tags: string[]; weight?: number };
@@ -35,6 +35,12 @@ type TagDoc = { name: string; color?: string | null; createdAt: any };
 export class PlacesService {
   private placesRef!: CollectionReference<DocumentData>;
   private tagsRef!: CollectionReference<DocumentData>;
+
+  private _places$: Observable<Place[]> | null = null;
+  private readonly LS_KEY = 'dodi_places_v1';
+  private readonly LS_TTL = 10 * 60 * 1000; // 10 minutes
+
+  homeAnimated = false;
 
   constructor(
     private db: Firestore,
@@ -55,10 +61,37 @@ export class PlacesService {
   // =========================
 
   getPlaces(): Observable<Place[]> {
-    return this.inCtx(
-      () =>
-        collectionData(this.placesRef, { idField: 'id' }) as Observable<Place[]>
+    if (this._places$) return this._places$;
+
+    const live$ = this.inCtx(
+      () => collectionData(this.placesRef, { idField: 'id' }) as Observable<Place[]>
+    ).pipe(
+      tap(places => {
+        try {
+          localStorage.setItem(this.LS_KEY, JSON.stringify({ t: Date.now(), data: places }));
+        } catch {}
+      }),
+      shareReplay(1),
     );
+
+    const cached = this.loadCachedPlaces();
+    this._places$ = cached
+      ? concat(of(cached), live$).pipe(shareReplay(1))
+      : live$;
+
+    return this._places$;
+  }
+
+  private loadCachedPlaces(): Place[] | null {
+    try {
+      const raw = localStorage.getItem(this.LS_KEY);
+      if (!raw) return null;
+      const { t, data } = JSON.parse(raw);
+      if (!Array.isArray(data) || Date.now() - t > this.LS_TTL) return null;
+      return data;
+    } catch {
+      return null;
+    }
   }
 
   getPlacesByTags(tags: string[]): Observable<Place[]> {
@@ -70,6 +103,10 @@ export class PlacesService {
       );
       return collectionData(qRef, { idField: 'id' }) as Observable<Place[]>;
     });
+  }
+
+  private bustCache() {
+    try { localStorage.removeItem(this.LS_KEY); } catch {}
   }
 
   async addPlace(p: Place): Promise<string> {
@@ -92,6 +129,7 @@ export class PlacesService {
     );
 
     const docRef = await this.inCtx(() => addDoc(this.placesRef, payload));
+    this.bustCache();
     return docRef.id;
   }
 
@@ -116,10 +154,12 @@ export class PlacesService {
     );
 
     await this.inCtx(() => updateDoc(ref, cleaned));
+    this.bustCache();
   }
 
   async deletePlace(id: string): Promise<void> {
     await this.inCtx(() => deleteDoc(doc(this.db, 'places', id)));
+    this.bustCache();
   }
 
   async bulkAdd(places: Place[]): Promise<void> {

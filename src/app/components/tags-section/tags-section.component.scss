@@ -185,6 +185,15 @@
   }
 }
 
+/* Skip entrance animations on return visits */
+.tag-list.skip-anim {
+  animation: none;
+
+  .tag {
+    animation: none;
+  }
+}
+
 /* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .tag-list,

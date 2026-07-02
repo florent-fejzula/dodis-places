@@ -1,58 +1,28 @@
-<div class="recipes-layout" [class.menu-open]="mobileMenuOpen()">
-  <!-- Mobile top bar (shown only on mobile via CSS) -->
-  <div class="mobile-topbar">
-    <button
-      class="hamburger"
-      (click)="mobileMenuOpen.set(!mobileMenuOpen())"
-      aria-label="Toggle categories"
-    >
-      <span></span><span></span><span></span>
-    </button>
-    <div class="mobile-title">
-      {{ selectedCategory() || "All Recipes" }}
-    </div>
-    <button
-      *ngIf="isAdmin()"
-      class="mobile-add"
-      (click)="showAddForm.set(true); mobileMenuOpen.set(false)"
-      aria-label="Add recipe"
-    >
-      +
+<div class="recipes-page">
+  <!-- Page header -->
+  <div class="page-header">
+    <h1 class="page-title">Recipes</h1>
+    <button *ngIf="isAdmin()" class="add-btn" (click)="showAddForm.set(true)">
+      + Add Recipe
     </button>
   </div>
 
-  <!-- Sidebar -->
-  <div class="sidebar">
-    <div
-      class="menu-header"
-      (click)="selectCategory(''); mobileMenuOpen.set(false)"
-    >
-      Menu
-    </div>
-    <ul>
-      <li
+  <!-- Horizontal category filter bar -->
+  <div class="cat-bar-wrap">
+    <div class="cat-bar">
+      <button
+        class="cat-chip"
+        [class.active]="!selectedCategory()"
+        (click)="selectCategory('')"
+      >All</button>
+      <button
+        class="cat-chip"
         *ngFor="let c of categories()"
-        (click)="selectCategory(c); mobileMenuOpen.set(false)"
-        [ngClass]="{ active: selectedCategory() === c }"
-      >
-        {{ c }}
-      </li>
-    </ul>
-
-    <!-- Admin-only add button (desktop) -->
-    <div class="admin-tools" *ngIf="isAdmin()">
-      <button class="add-btn" (click)="showAddForm.set(true)">
-        Add Recipe
-      </button>
+        [class.active]="selectedCategory() === c"
+        (click)="selectCategory(c)"
+      >{{ c }}</button>
     </div>
   </div>
-
-  <!-- Backdrop for mobile menu -->
-  <div
-    class="mobile-backdrop"
-    *ngIf="mobileMenuOpen()"
-    (click)="mobileMenuOpen.set(false)"
-  ></div>
 
   <!-- Cards grid -->
   <div class="recipes-container">
@@ -73,11 +43,10 @@
             (click)="deleteRecipe(recipe, $event)"
             aria-label="Delete recipe"
             title="Delete"
-          >
-            ×
-          </button>
+          >×</button>
 
           <div class="overlay">
+            <span class="card-time" *ngIf="recipe.time">{{ recipe.time }}</span>
             <h2>{{ recipe.name }}</h2>
           </div>
         </div>
@@ -167,6 +136,11 @@
         </label>
 
         <label>
+          Time (optional, e.g. 30 mins, 1 hr)
+          <input [(ngModel)]="newRecipe.time" name="time" placeholder="e.g. 30 mins" />
+        </label>
+
+        <label>
           Notes (tips / ingredients)
           <textarea
             [(ngModel)]="newRecipe.notes"
@@ -191,39 +165,60 @@
   </div>
 </div>
 
-<!-- Detail modal -->
-<div class="modal" *ngIf="showDetail()" (click)="closeDetails()">
-  <div class="modal-card" (click)="$event.stopPropagation()">
-    <button class="close" (click)="closeDetails()" aria-label="Close">×</button>
+<!-- Detail page (full-screen) -->
+<div class="detail-page" *ngIf="showDetail()">
+  <div class="detail-pg-header">
+    <div class="detail-pg-topbar">
+      <button class="detail-back" (click)="closeDetails()">← Back</button>
+      <button *ngIf="isAdmin() && !editMode()" class="detail-edit-btn" (click)="startEdit()">Edit</button>
+      <span *ngIf="editMode()" class="detail-editing-label">Editing</span>
+    </div>
+    <h1 class="detail-pg-title">{{ detailRecipe()?.name }}</h1>
+    <div class="detail-pg-meta">
+      <span class="detail-pg-tag">{{ detailRecipe()?.category }}</span>
+      <span class="detail-pg-time" *ngIf="detailRecipe()?.time && !editMode()">{{ detailRecipe()?.time }}</span>
+    </div>
+  </div>
 
-    <img
-      class="hero"
-      [src]="detailRecipe()?.image"
-      [alt]="detailRecipe()?.name"
-    />
+  <div class="detail-pg-image">
+    <img [src]="detailRecipe()?.image" [alt]="detailRecipe()?.name" />
+  </div>
 
-    <div class="modal-content">
-      <h3>{{ detailRecipe()?.name }}</h3>
-
-      <div class="meta">
-        <span class="pill">{{ detailRecipe()?.category }}</span>
-      </div>
-
-      <div class="notes" *ngIf="detailRecipe()?.notes">
-        <h4>Notes</h4>
+  <div class="detail-pg-content">
+    <!-- view mode -->
+    <ng-container *ngIf="!editMode()">
+      <div class="detail-notes" *ngIf="detailRecipe()?.notes">
+        <div class="detail-notes-label">Notes</div>
         <p>{{ detailRecipe()?.notes }}</p>
       </div>
 
       <a
-        class="source"
+        class="detail-source"
         *ngIf="detailRecipe()?.sourceUrl"
         [href]="detailRecipe()?.sourceUrl!"
         target="_blank"
         rel="noopener"
       >
-        Open source link →
+        <span>View full recipe</span>
+        <span class="detail-source-arrow">→</span>
       </a>
-    </div>
+    </ng-container>
+
+    <!-- edit mode (admin) -->
+    <ng-container *ngIf="editMode()">
+      <label class="detail-edit-label">
+        Time
+        <input class="detail-edit-input" [(ngModel)]="editTimeText" placeholder="e.g. 30 mins, 1 hr" />
+      </label>
+      <label class="detail-edit-label">
+        Notes
+        <textarea class="detail-edit-textarea" [(ngModel)]="editNotesText" rows="6"></textarea>
+      </label>
+      <div class="detail-edit-actions">
+        <button class="detail-edit-cancel" (click)="cancelEdit()">Cancel</button>
+        <button class="detail-edit-save" (click)="saveEdit()">Save</button>
+      </div>
+    </ng-container>
   </div>
 </div>
 

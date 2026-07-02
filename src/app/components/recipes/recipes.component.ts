@@ -31,8 +31,9 @@ export class RecipesComponent implements OnInit {
   showAddForm = signal<boolean>(false);
   showDetail = signal<boolean>(false);
   detailRecipe = signal<Recipe | null>(null);
-
-  mobileMenuOpen = signal(false);
+  editMode = signal(false);
+  editNotesText = '';
+  editTimeText = '';
 
   // data
   recipes = signal<Recipe[]>([]);
@@ -103,6 +104,7 @@ export class RecipesComponent implements OnInit {
     name: '',
     image: '',
     category: '',
+    time: '',
     notes: '',
     sourceUrl: '',
   };
@@ -135,10 +137,33 @@ export class RecipesComponent implements OnInit {
   openDetails(r: Recipe) {
     this.detailRecipe.set(r);
     this.showDetail.set(true);
+    document.body.style.overflow = 'hidden';
   }
   closeDetails() {
     this.showDetail.set(false);
     this.detailRecipe.set(null);
+    this.editMode.set(false);
+    document.body.style.overflow = '';
+  }
+
+  // inline edit (admin)
+  startEdit() {
+    const r = this.detailRecipe();
+    this.editNotesText = r?.notes ?? '';
+    this.editTimeText = r?.time ?? '';
+    this.editMode.set(true);
+  }
+  cancelEdit() { this.editMode.set(false); }
+  async saveEdit() {
+    const recipe = this.detailRecipe();
+    if (!recipe?.id) return;
+    const updates: Partial<Recipe> = {
+      notes: this.editNotesText,
+      time: this.editTimeText,
+    };
+    await this.recipesSvc.updateRecipe(recipe.id, updates);
+    this.detailRecipe.set({ ...recipe, ...updates });
+    this.editMode.set(false);
   }
 
   // categories for dropdown
@@ -280,6 +305,7 @@ export class RecipesComponent implements OnInit {
       name: '',
       image: '',
       category: '',
+      time: '',
       notes: '',
       sourceUrl: '',
     };

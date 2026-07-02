@@ -1,4 +1,4 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, Injector, inject, runInInjectionContext, signal } from '@angular/core';
 import {
   Auth,
   signInWithPopup,
@@ -26,6 +26,7 @@ export class AuthService {
   private auth = inject(Auth);
   private db = inject(Firestore);
   private router = inject(Router);
+  private injector = inject(Injector);
 
   // 🔹 Firebase Auth user
   user = signal<User | null>(null);
@@ -55,9 +56,9 @@ export class AuthService {
         }
 
         // 🔁 Live Firestore sync
-        onSnapshot(ref, (snapshot) => {
-          this.userData.set(snapshot.data());
-        });
+        runInInjectionContext(this.injector, () =>
+          onSnapshot(ref, (snapshot) => this.userData.set(snapshot.data()))
+        );
       } else {
         this.userData.set(null);
       }

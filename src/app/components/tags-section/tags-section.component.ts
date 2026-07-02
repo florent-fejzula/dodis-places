@@ -9,6 +9,7 @@ import { CommonModule, NgClass } from '@angular/common';
   styleUrls: ['./tags-section.component.scss'],
 })
 export class TagsSectionComponent {
+  @Input() skipAnimation = false;
   @Input() locationTags: string[] = [];
   @Input() vibeTags: string[] = [];
   @Input() stuffTags: string[] = [];
