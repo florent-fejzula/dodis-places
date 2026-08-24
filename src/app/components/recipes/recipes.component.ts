@@ -3,6 +3,7 @@ import {
   OnInit,
   OnDestroy,
   inject,
+  effect,
   signal,
   computed,
   ViewChild,
@@ -15,6 +16,7 @@ import { ImageCropperComponent, ImageCroppedEvent } from 'ngx-image-cropper';
 import { RecipesService } from 'src/app/services/recipes.service';
 import { Recipe } from 'src/app/models/recipes';
 import { AdminService } from 'src/app/services/admin.service';
+import { MobileNavService } from 'src/app/services/mobile-nav.service';
 
 @Component({
   selector: 'app-recipes',
@@ -25,7 +27,7 @@ import { AdminService } from 'src/app/services/admin.service';
 })
 export class RecipesComponent implements OnInit, OnDestroy {
   private static readonly CATEGORY_ORDER = [
-    'Breakfast', 'Appetizers', 'Dips', 'Salads', 'Sides',
+    'Breakfast', 'Soups', 'Appetizers', 'Dips', 'Salads', 'Sides',
     'Sandwich', 'Sandwiches', 'Pastas', 'Pasta', 'Mains', 'Snacks', 'Desserts',
   ];
 
@@ -37,6 +39,7 @@ export class RecipesComponent implements OnInit, OnDestroy {
   ];
   private recipesSvc = inject(RecipesService);
   private adminSvc = inject(AdminService);
+  private mobileNav = inject(MobileNavService);
 
   // UI state
   selectedCategory = signal<string>('');
@@ -56,6 +59,16 @@ export class RecipesComponent implements OnInit, OnDestroy {
 
   cropFile: File | null = null;
   lockAspectRatio = true;
+
+  /** On mobile the header collapses into the top bar + side menu. */
+  private mobileNavSync = effect(() => {
+    this.mobileNav.setPage(
+      'Recipes',
+      this.isAdmin()
+        ? [{ label: '+ Add Recipe', run: () => this.showAddForm.set(true) }]
+        : []
+    );
+  });
 
   groupedRecipes = computed(() => {
     const catFilter = this.selectedCategory();
@@ -125,6 +138,7 @@ export class RecipesComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     document.body.style.overflow = '';
+    this.mobileNav.clear();
   }
 
   selectCategory(cat: string) {

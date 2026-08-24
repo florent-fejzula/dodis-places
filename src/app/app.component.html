@@ -1,41 +1,148 @@
 <!-- 🌐 Main Navigation -->
 <nav class="topnav" role="navigation" aria-label="Main">
-  <!-- Public navigation -->
-  <div class="nav-left">
+  <div class="nav-groups">
+    <!-- Public navigation -->
+    <div class="nav-left">
+      <a
+        routerLink="/"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        >Home</a
+      >
+      <a routerLink="/my-lists" routerLinkActive="active">My Lists</a>
+      <a routerLink="/recipes" routerLinkActive="active">Recipes</a>
+    </div>
+
+    <!-- Admin-only links -->
+    <div class="nav-admin" *ngIf="isAdmin()">
+      <a routerLink="/tag-manager" routerLinkActive="active">Tag Manager</a>
+      <a routerLink="/add-place" routerLinkActive="active">Add Place</a>
+    </div>
+
+    <!-- User actions -->
+    <div class="nav-right" *ngIf="!auth.user(); else loggedIn">
+      <a routerLink="/login" routerLinkActive="active">Login</a>
+    </div>
+
+    <ng-template #loggedIn>
+      <div class="nav-right logged-in">
+        <span class="user-display">
+          {{
+            auth.userData()?.username ||
+              auth.user()?.displayName ||
+              auth.user()?.email
+          }}
+        </span>
+        <button class="logout-btn" (click)="logout()">Logout</button>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- 📱 Mobile: page title in the middle -->
+  <span class="nav-page-title">{{ mobileNav.title() }}</span>
+
+  <!-- 📱 Mobile: 3-line menu button on the right -->
+  <button
+    class="nav-toggle"
+    [class.open]="menuOpen()"
+    (click)="toggleMenu()"
+    [attr.aria-expanded]="menuOpen()"
+    aria-controls="mobile-drawer"
+    aria-label="Menu"
+    type="button"
+  >
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- 📱 Mobile side menu -->
+<div class="nav-scrim" *ngIf="menuOpen()" (click)="closeMenu()"></div>
+
+<aside
+  id="mobile-drawer"
+  class="nav-drawer"
+  [class.open]="menuOpen()"
+  role="dialog"
+  aria-label="Menu"
+  [attr.aria-hidden]="!menuOpen()"
+>
+  <div class="drawer-head">
+    <span class="drawer-title">{{ mobileNav.title() || 'Menu' }}</span>
+    <button
+      class="drawer-close"
+      (click)="closeMenu()"
+      aria-label="Close menu"
+      type="button"
+    >
+      ×
+    </button>
+  </div>
+
+  <!-- Page-specific actions (e.g. + Add Recipe) -->
+  <div class="drawer-actions" *ngIf="mobileNav.actions().length">
+    <button
+      class="drawer-action"
+      *ngFor="let action of mobileNav.actions()"
+      (click)="runAction(action)"
+      type="button"
+    >
+      {{ action.label }}
+    </button>
+  </div>
+
+  <div class="drawer-links">
     <a
       routerLink="/"
       routerLinkActive="active"
       [routerLinkActiveOptions]="{ exact: true }"
+      (click)="closeMenu()"
       >Home</a
     >
-    <a routerLink="/my-lists" routerLinkActive="active">My Lists</a>
+    <a routerLink="/my-lists" routerLinkActive="active" (click)="closeMenu()"
+      >My Lists</a
+    >
+    <a routerLink="/recipes" routerLinkActive="active" (click)="closeMenu()"
+      >Recipes</a
+    >
+
+    <ng-container *ngIf="isAdmin()">
+      <a
+        routerLink="/tag-manager"
+        routerLinkActive="active"
+        (click)="closeMenu()"
+        >Tag Manager</a
+      >
+      <a routerLink="/add-place" routerLinkActive="active" (click)="closeMenu()"
+        >Add Place</a
+      >
+    </ng-container>
   </div>
 
-  <!-- Admin-only links -->
-  <div class="nav-admin" *ngIf="isAdmin()">
-    <a routerLink="/recipes" routerLinkActive="active">Recipes</a>
-    <a routerLink="/tag-manager" routerLinkActive="active">Tag Manager</a>
-    <a routerLink="/add-place" routerLinkActive="active">Add Place</a>
-  </div>
-
-  <!-- User actions -->
-  <div class="nav-right" *ngIf="!auth.user(); else loggedIn">
-    <a routerLink="/login" routerLinkActive="active">Login</a>
-  </div>
-
-  <ng-template #loggedIn>
-    <div class="nav-right logged-in">
-      <span class="user-display">
+  <div class="drawer-user">
+    <ng-container *ngIf="auth.user(); else drawerLoggedOut">
+      <span class="drawer-user-name">
         {{
           auth.userData()?.username ||
             auth.user()?.displayName ||
             auth.user()?.email
         }}
       </span>
-      <button class="logout-btn" (click)="logout()">Logout</button>
-    </div>
-  </ng-template>
-</nav>
+      <button class="drawer-logout" (click)="logoutFromMenu()" type="button">
+        Logout
+      </button>
+    </ng-container>
+
+    <ng-template #drawerLoggedOut>
+      <a
+        class="drawer-login"
+        routerLink="/login"
+        routerLinkActive="active"
+        (click)="closeMenu()"
+        >Login</a
+      >
+    </ng-template>
+  </div>
+</aside>
 
 <!-- Main content -->
 <router-outlet></router-outlet>

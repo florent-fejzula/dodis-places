@@ -824,10 +824,9 @@
     height: 100dvh;
   }
 
+  /* Title moves to the top bar, "+ Add Recipe" moves into the side menu */
   .page-header {
-    padding: 14px 14px 8px;
-
-    .page-title { font-size: 1.3rem; }
+    display: none;
   }
 
   .cat-bar {
