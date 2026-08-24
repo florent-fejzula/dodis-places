@@ -1,4 +1,11 @@
-import { Component, HostListener, OnInit, ViewChild, inject } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   GoogleMap,
@@ -23,6 +30,7 @@ import { TagsSectionComponent } from '../tags-section/tags-section.component';
 import { AdminService } from 'src/app/services/admin.service';
 import { FavoritesService } from 'src/app/services/favorites.service';
 import { AuthService } from 'src/app/auth/auth.service';
+import { MobileNavService } from 'src/app/services/mobile-nav.service';
 
 @Component({
   selector: 'app-places-main',
@@ -31,7 +39,7 @@ import { AuthService } from 'src/app/auth/auth.service';
   templateUrl: './places-main.component.html',
   styleUrls: ['./places-main.component.scss'],
 })
-export class PlacesMainComponent implements OnInit {
+export class PlacesMainComponent implements OnInit, OnDestroy {
   // --- admin ---
   // ✅ use the signal directly (template can do isAdmin())
   isAdmin = inject(AdminService).isAdmin;
@@ -81,10 +89,17 @@ export class PlacesMainComponent implements OnInit {
   // --- inject dependencies ---
   private svc = inject(PlacesService);
   private router = inject(Router);
+  private mobileNav = inject(MobileNavService);
 
   constructor() {
     this.skipAnim = this.svc.homeAnimated;
     this.svc.homeAnimated = true;
+    // On mobile the page header is hidden and the title shows in the top bar
+    this.mobileNav.setPage('Dodi’s Places');
+  }
+
+  ngOnDestroy(): void {
+    this.mobileNav.clear();
   }
 
   async ngOnInit(): Promise<void> {

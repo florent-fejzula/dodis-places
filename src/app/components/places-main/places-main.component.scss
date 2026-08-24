@@ -36,15 +36,9 @@
     max-width: 620px;
   }
 
+  /* Mobile: the title lives in the top bar instead (see MobileNavService) */
   @media (max-width: 768px) {
-    padding: 2.2rem 1rem 1.5rem;
-    .title { font-size: 1.9rem; }
-    .tagline { font-size: 0.95rem; max-width: 90%; }
-  }
-  @media (max-width: 480px) {
-    padding: 1.8rem 1rem 1.2rem;
-    .title { font-size: 1.6rem; }
-    .tagline { font-size: 0.9rem; line-height: 1.4; }
+    display: none;
   }
 }
 
@@ -411,7 +405,7 @@
 @media (max-width: 768px) {
   .container {
     width: 100%;
-    padding: 2px;
+    padding: 10px 2px 2px;
     font-size: 14px;
   }
 
