@@ -32,24 +32,17 @@ So the remaining work is narrower than the note suggests: it is mostly
 
 ---
 
-## Decisions I need from Florent
+## Decisions — settled 2026-08-25
 
-These block work that is otherwise ready to go.
-
-1. **Brand.** Rebrand to KajDaJademe, or keep Dodi's Places? Is
-   `kajdajademe.mk` bought, and are the IG/TikTok handles free? Everything in
-   §7 waits on this. Cheap either way — the name lives in a handful of places.
-2. **Recipes.** The note calls it an internal tool. Last week we made it a
-   public nav link. Which is it for launch? (My take: keep the page public but
-   drop it from the main nav until it has enough content to stand next to
-   Explore — it reads as a different product right now.)
-3. **Firestore rules.** There is no `firestore.rules` in the repo, so whatever
-   is live was set in the console and nobody here can see it. I need to look at
-   the current rules before writing new ones, and rules deploys are the one
-   thing I will not push without you confirming — a bad rule locks out reads
-   for everyone.
-
----
+1. **Brand: KajDaJademe.** Domain `kajdajademe.mk` is free but not bought yet.
+   The app is rebranded; connecting the domain is the only piece still waiting,
+   and buying it is now the top to-do outside the code.
+2. **Recipes: admin only.** It is personal. Lives at `/admin/recipes` behind the
+   guard, out of the public nav, and admin-only in the Firestore rules too.
+3. **Firestore rules: ship them.** Written, wired into `firebase.json`, deployed.
+   Worth recording why this mattered: before them, an unauthenticated read of
+   `/users` and `/recipes` returned `200` — every user's favourites, and the
+   recipe collection, were readable by anyone who knew the project id.
 
 ## Now — must be true before showing this to the public
 
@@ -89,13 +82,13 @@ favourites; Explore and Favourites cards open it; loading and not-found states.
 **Done when:** ~~I can send you a link to one place and it opens on that
 place.~~ Yes — try one from the preview link.
 
-### 3. Explore states
+### 3. Explore states — done
 The screen currently has no loading, empty or error state — the page is simply
 blank until Firestore answers.
 
-- Skeleton cards while places load.
-- Friendly empty state: "No places match all these filters yet. Try removing one."
-- Error state with a retry.
+Shipped: skeleton cards, "No places match all these filters yet" with a clear
+button, empty-catalog state, and an error state whose retry actually refetches.
+Cards now also load before the Google Maps script rather than after it.
 
 ### 4. Analytics from day one
 Nothing is measured right now, so there is no way to tell whether any of this
@@ -121,9 +114,11 @@ them, and it is what makes sharing actually look good.
 - `index.html` title and description that aren't "DodiPlaces".
 - Prerender or SSR so crawlers and chat apps see them.
 
-### 7. Rebrand and domain (blocked on decision 1)
-Name, logo/wordmark, favicon, `index.html` title, nav, footer, custom domain on
-Firebase Hosting, redirect from `dodi-s-places.web.app`.
+### 7. Rebrand and domain — half done
+Done: name in the Explore header, mobile top bar, `index.html` title,
+description and fallback OG tags.
+Left: **buy `kajdajademe.mk`**, connect it in Firebase Hosting, redirect
+`dodi-s-places.web.app`, and a favicon/wordmark that isn't the Angular default.
 
 ### 8. PWA
 `@angular/pwa`: manifest, icons, offline shell, add-to-home-screen. Small job,
@@ -168,9 +163,11 @@ coverage. Same list as the note, and I agree with it.
 - ✅ Roadmap written (this file)
 - ✅ 1. Admin guarded and moved to `/admin` (rules written, not deployed)
 - ✅ 2. Place pages at `/place/:slug`
-- ⬜ 3. Explore states — next
-- ⬜ 4. Analytics
+- ✅ 3. Explore loading / empty / error states
+- ✅ Rebrand to KajDaJademe in-app; Recipes moved behind the admin guard
+- ⬜ 4. Analytics — next
 - ⬜ 5. Search
+- ⬜ Buy and connect `kajdajademe.mk`
 
 ## Order I'm working in
 
