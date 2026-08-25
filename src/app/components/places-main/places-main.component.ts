@@ -25,7 +25,7 @@ import {
 } from 'src/app/models/tags';
 import { PlacesService } from 'src/app/services/places.service';
 import { environment } from 'src/environments/environment';
-import { selectCardImage } from 'src/app/utils/general.util';
+import { selectCardImage, slugify } from 'src/app/utils/general.util';
 import { TagsSectionComponent } from '../tags-section/tags-section.component';
 import { AdminService } from 'src/app/services/admin.service';
 import { FavoritesService } from 'src/app/services/favorites.service';
@@ -137,6 +137,13 @@ export class PlacesMainComponent implements OnInit, OnDestroy {
     }
     await this.favs.toggleFavorite(p);
     this.favorites = await this.favs.getFavorites();
+  }
+
+  /** Card tap opens the place page; taps on a button or link inside do their own thing. */
+  openPlace(p: Place, ev: MouseEvent) {
+    ev.stopPropagation();
+    if ((ev.target as HTMLElement | null)?.closest('button, a')) return;
+    this.router.navigate(['/place', slugify(p.name)]);
   }
 
   goToLogin() {

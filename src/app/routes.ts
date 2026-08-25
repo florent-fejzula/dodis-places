@@ -1,6 +1,7 @@
 // src/app/routes.ts
 import { Routes } from '@angular/router';
 import { PlacesMainComponent } from './components/places-main/places-main.component';
+import { PlaceDetailComponent } from './components/place-detail/place-detail.component';
 import { RecipesComponent } from './components/recipes/recipes.component';
 import { AddPlaceComponent } from './admin/add-place/add-place.component';
 import { EditPlaceComponent } from './admin/edit-place/edit-place.component';
@@ -25,6 +26,9 @@ export const routes: Routes = [
 
   // Main map page
   { path: 'places', component: PlacesMainComponent },
+
+  // Public, shareable page for a single place
+  { path: 'place/:slug', component: PlaceDetailComponent },
 
   // Easter egg
   { path: 'recipes', component: RecipesComponent },

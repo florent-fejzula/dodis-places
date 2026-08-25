@@ -1,0 +1,228 @@
+.detail-page {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 12px 16px 40px;
+}
+
+/* ── Top bar ── */
+.detail-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ghost-btn {
+  background: var(--chip);
+  color: var(--ink);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+
+  &:hover { filter: brightness(0.97); }
+}
+
+/* ── Photos ── */
+.hero {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--chip);
+  box-shadow: var(--shadow);
+
+  img {
+    display: block;
+    width: 100%;
+    height: clamp(220px, 46vw, 420px);
+    object-fit: cover;
+  }
+
+  &.placeholder {
+    display: grid;
+    place-items: center;
+    height: 220px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+}
+
+.fav-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  color: #444;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+
+  svg { width: 22px; height: 22px; }
+
+  &.active {
+    color: var(--brand);
+    svg { fill: currentColor; }
+  }
+}
+
+.thumbs {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+
+  .thumb {
+    flex: 0 0 auto;
+    width: 84px;
+    height: 62px;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--chip);
+    cursor: pointer;
+
+    img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    &.active { border-color: var(--brand); }
+  }
+}
+
+/* ── Info ── */
+.detail-body { padding-top: 18px; }
+
+.place-name {
+  font-size: clamp(1.5rem, 5vw, 2.1rem);
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  margin: 0 0 6px;
+  color: var(--ink);
+}
+
+.meta-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 0.92rem;
+  margin-bottom: 12px;
+
+  .neighborhood {
+    text-transform: capitalize;
+    font-weight: 600;
+    color: var(--ink);
+  }
+}
+
+.description {
+  line-height: 1.6;
+  color: var(--ink);
+  margin: 0 0 14px;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 20px;
+
+  .pill {
+    background: var(--chip);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 5px 12px;
+    font-size: 0.85rem;
+    color: var(--ink);
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.primary,
+.secondary {
+  border-radius: 12px;
+  padding: 11px 18px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.primary {
+  background: var(--action);
+  color: var(--action-ink);
+  border: none;
+}
+
+.secondary {
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--border);
+}
+
+/* ── States ── */
+.detail-skeleton {
+  .sk-hero,
+  .sk-line {
+    background: linear-gradient(90deg, var(--chip) 25%, #ffffff80 50%, var(--chip) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.2s linear infinite;
+    border-radius: 12px;
+  }
+  .sk-hero { height: clamp(220px, 46vw, 420px); }
+  .sk-line { height: 18px; margin-top: 14px; width: 45%; }
+  .sk-line.wide { width: 70%; height: 26px; margin-top: 20px; }
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+.detail-empty {
+  text-align: center;
+  padding: 60px 20px;
+
+  h1 { font-size: 1.4rem; margin-bottom: 8px; }
+  p { color: var(--muted); margin-bottom: 18px; }
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  max-width: calc(100vw - 32px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  z-index: 1300;
+}
+
+@media (max-width: 768px) {
+  .detail-page { padding: 10px 12px 32px; }
+  .actions .primary,
+  .actions .secondary { flex: 1 1 auto; }
+}

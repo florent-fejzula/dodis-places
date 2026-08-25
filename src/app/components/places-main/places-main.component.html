@@ -32,7 +32,7 @@
       class="card"
       *ngFor="let p of filteredPlaces; let i = index"
       [style.--i]="i"
-      (click)="$event.stopPropagation()"
+      (click)="openPlace(p, $event)"
     >
       <button
         class="fav-btn"

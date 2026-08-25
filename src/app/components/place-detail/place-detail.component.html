@@ -1,0 +1,83 @@
+<div class="detail-page">
+  <!-- Loading -->
+  <div class="detail-skeleton" *ngIf="loading()">
+    <div class="sk-hero"></div>
+    <div class="sk-line wide"></div>
+    <div class="sk-line"></div>
+  </div>
+
+  <!-- Not found -->
+  <div class="detail-empty" *ngIf="!loading() && notFound()">
+    <h1>We can’t find that place</h1>
+    <p>It may have been renamed or removed.</p>
+    <button class="primary" (click)="back()">Back to Explore</button>
+  </div>
+
+  <ng-container *ngIf="!loading() && place() as p">
+    <div class="detail-topbar">
+      <button class="ghost-btn" (click)="back()" aria-label="Back">← Back</button>
+      <button *ngIf="isAdmin()" class="ghost-btn" (click)="goEdit()">Edit</button>
+    </div>
+
+    <!-- Photos -->
+    <div class="hero" *ngIf="activeImage() as img; else noPhoto">
+      <img [src]="img" [alt]="p.name" />
+      <button
+        class="fav-btn"
+        [class.active]="isFavorite()"
+        (click)="toggleFavorite()"
+        [attr.aria-pressed]="isFavorite()"
+        aria-label="Save to favourites"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z" />
+        </svg>
+      </button>
+    </div>
+
+    <ng-template #noPhoto>
+      <div class="hero placeholder">No photo yet</div>
+    </ng-template>
+
+    <div class="thumbs" *ngIf="gallery().length > 1">
+      <button
+        class="thumb"
+        *ngFor="let url of gallery()"
+        [class.active]="url === activeImage()"
+        (click)="activeImage.set(url)"
+        type="button"
+      >
+        <img [src]="url" [alt]="p.name" loading="lazy" />
+      </button>
+    </div>
+
+    <!-- Info -->
+    <div class="detail-body">
+      <h1 class="place-name">{{ p.name }}</h1>
+
+      <div class="meta-row">
+        <span class="neighborhood" *ngIf="neighborhood()">{{ neighborhood() }}</span>
+        <span class="photo-count" *ngIf="gallery().length > 1">
+          {{ gallery().length }} photos
+        </span>
+      </div>
+
+      <p class="description" *ngIf="p.description">{{ p.description }}</p>
+
+      <div class="tags" *ngIf="otherTags().length">
+        <span class="pill" *ngFor="let t of otherTags()">{{ t }}</span>
+      </div>
+
+      <div class="actions">
+        <a class="primary" [href]="directionsUrl()" target="_blank" rel="noopener">
+          Directions
+        </a>
+        <button class="secondary" (click)="openInMaps()">Open in Google Maps</button>
+        <button class="secondary" (click)="share()">Share</button>
+      </div>
+    </div>
+  </ng-container>
+
+  <div class="toast" *ngIf="toast()">{{ toast() }}</div>
+</div>

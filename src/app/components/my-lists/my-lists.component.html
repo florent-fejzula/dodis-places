@@ -9,7 +9,7 @@
   </div>
 
   <div class="cards" *ngIf="favorites.length">
-    <div class="card" *ngFor="let p of favorites">
+    <div class="card" *ngFor="let p of favorites" (click)="openPlace(p, $event)">
       <div class="image-wrap">
         <img [src]="p.imagePrimaryUrl" [alt]="p.name" />
         <button

@@ -36,6 +36,7 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    cursor: pointer;
     transition: transform 0.15s ease, box-shadow 0.15s ease;
 
     &:hover {
