@@ -416,3 +416,71 @@
     max-width: calc(100vw - 32px);
   }
 }
+
+/* ─── Loading / empty / error states ─── */
+.card.skeleton {
+  cursor: default;
+  background: var(--chip);
+  border: 1px solid var(--border);
+  box-shadow: none;
+  min-height: 280px;
+
+  .sk-media {
+    flex: 1;
+    background: linear-gradient(90deg, var(--chip) 25%, rgba(255, 255, 255, 0.5) 50%, var(--chip) 75%);
+    background-size: 200% 100%;
+    animation: skShimmer 1.2s linear infinite;
+  }
+
+  .sk-body {
+    padding: 12px;
+    background: var(--surface);
+  }
+
+  .sk-line {
+    height: 12px;
+    width: 55%;
+    border-radius: 6px;
+    background: linear-gradient(90deg, var(--chip) 25%, rgba(255, 255, 255, 0.5) 50%, var(--chip) 75%);
+    background-size: 200% 100%;
+    animation: skShimmer 1.2s linear infinite;
+
+    & + .sk-line { margin-top: 8px; }
+    &.wide { width: 80%; height: 16px; }
+  }
+}
+
+@keyframes skShimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+.state-box {
+  text-align: center;
+  padding: 48px 20px;
+  margin: 14px 0 24px;
+  border: 1px dashed var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+
+  h3 {
+    font-size: 1.15rem;
+    margin: 0 0 6px;
+    color: var(--ink);
+  }
+
+  p {
+    margin: 0 0 16px;
+    color: var(--muted);
+  }
+
+  .state-action {
+    background: var(--action);
+    color: var(--action-ink);
+    border: none;
+    border-radius: 12px;
+    padding: 10px 18px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+}

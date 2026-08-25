@@ -65,6 +65,9 @@ export class PlacesMainComponent implements OnInit, OnDestroy {
   // --- data ---
   places: Place[] = [];
   filteredPlaces: Place[] = [];
+  loading = true;
+  loadError = false;
+  readonly skeletons = [0, 1, 2, 3, 4, 5];
 
   // --- map ---
   @ViewChild(GoogleMap) map?: GoogleMap;
@@ -103,21 +106,39 @@ export class PlacesMainComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
+    // Cards first: they are the product, and they should not wait on the
+    // Google Maps script to finish downloading.
+    this.loadPlaces();
+    this.loadFavorites();
+
     const loader = new Loader({
       apiKey: environment.googleMapsKey,
       libraries: ['marker', 'places'],
     });
     await loader.load();
     this.apiReady = true;
+    this.fitToMarkers();
+  }
 
-    this.svc.getPlaces().subscribe((list) => {
-      this.places = list ?? [];
-      this.applyFilters();
-      this.recomputeDisabledTags();
-      this.fitToMarkers();
+  /** @param retry re-fetches instead of reusing the cached stream */
+  loadPlaces(retry = false) {
+    this.loading = true;
+    this.loadError = false;
+
+    const source = retry ? this.svc.refreshPlaces() : this.svc.getPlaces();
+    source.subscribe({
+      next: (list) => {
+        this.places = list ?? [];
+        this.loading = false;
+        this.applyFilters();
+        this.recomputeDisabledTags();
+        this.fitToMarkers();
+      },
+      error: () => {
+        this.loading = false;
+        this.loadError = true;
+      },
     });
-
-    await this.loadFavorites();
   }
 
   async loadFavorites() {

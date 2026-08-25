@@ -20,14 +20,58 @@
     (clearClicked)="clearSelectedTags()"
   ></app-tags-section>
 
-  <!-- Results bar / Empty state -->
-  <div class="results-bar" *ngIf="filteredPlaces.length > 0" aria-live="polite">
+  <!-- Results bar -->
+  <div
+    class="results-bar"
+    *ngIf="filteredPlaces.length > 0 && !loading"
+    aria-live="polite"
+  >
     {{ filteredPlaces.length }}
     {{ filteredPlaces.length === 1 ? "place" : "places" }} found
   </div>
 
+  <!-- Loading -->
+  <div class="cards" *ngIf="loading">
+    <div class="card skeleton" *ngFor="let s of skeletons">
+      <div class="sk-media"></div>
+      <div class="sk-body">
+        <div class="sk-line wide"></div>
+        <div class="sk-line"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Could not load -->
+  <div class="state-box" *ngIf="!loading && loadError">
+    <h3>We couldn’t load the places</h3>
+    <p>Check your connection and try again.</p>
+    <button class="state-action" (click)="loadPlaces(true)">Try again</button>
+  </div>
+
+  <!-- Nothing matches the filters -->
+  <div
+    class="state-box"
+    *ngIf="!loading && !loadError && !filteredPlaces.length && places.length"
+  >
+    <h3>No places match all these filters yet</h3>
+    <p>Try removing one.</p>
+    <button class="state-action" (click)="clearSelectedTags()">
+      Clear filters
+    </button>
+  </div>
+
+  <!-- Nothing in the catalog at all -->
+  <div
+    class="state-box"
+    *ngIf="!loading && !loadError && !places.length"
+    aria-live="polite"
+  >
+    <h3>Nothing here yet</h3>
+    <p>The first places are on their way.</p>
+  </div>
+
   <!-- Cards -->
-  <div class="cards" (click)="closeMenu()">
+  <div class="cards" *ngIf="!loading && !loadError" (click)="closeMenu()">
     <div
       class="card"
       *ngFor="let p of filteredPlaces; let i = index"
@@ -112,7 +156,7 @@
   </div>
 
   <!-- Map -->
-  <div class="map-wrap" *ngIf="apiReady">
+  <div class="map-wrap" *ngIf="apiReady && filteredPlaces.length">
     <google-map
       height="60vh"
       width="100%"

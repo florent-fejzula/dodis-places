@@ -82,6 +82,12 @@ export class PlacesService {
     return this._places$;
   }
 
+  /** Drops the cached stream so a failed load can genuinely be retried. */
+  refreshPlaces(): Observable<Place[]> {
+    this._places$ = null;
+    return this.getPlaces();
+  }
+
   private loadCachedPlaces(): Place[] | null {
     try {
       const raw = localStorage.getItem(this.LS_KEY);
