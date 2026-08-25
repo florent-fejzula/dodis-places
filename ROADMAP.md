@@ -53,7 +53,7 @@ These block work that is otherwise ready to go.
 
 ## Now — must be true before showing this to the public
 
-### 1. Lock the admin down for real
+### 1. Lock the admin down for real — code done, rules pending
 Admin is currently one boolean derived from an email address, checked only in
 templates. Every admin route is directly reachable by URL for anyone, and the
 writes behind them are only as safe as the (unseen) Firestore rules.
@@ -65,10 +65,15 @@ writes behind them are only as safe as the (unseen) Firestore rules.
   for admin, `users/{uid}` readable and writable only by that user.
 - Storage rules the same shape.
 
+Shipped: `adminGuard`, everything moved under `/admin/*` with redirects from
+the old URLs, `firestore.rules` + `storage.rules` written. Still open: admin
+identity from a claim rather than an email, and actually deploying the rules
+(decision 3).
+
 **Done when:** pasting `/admin/add-place` while logged out redirects to Explore,
 and a non-admin write is rejected by rules, not just hidden in the UI.
 
-### 2. Place detail pages with real URLs
+### 2. Place detail pages with real URLs — done
 Today a card goes straight to Google Maps. There is no page to share, nothing
 for Google to index, and the extra photos we already store are never shown.
 
@@ -78,7 +83,11 @@ for Google to index, and the extra photos we already store are never shown.
 - Card tap opens the detail page; "Open in Google Maps" stays as a direct action.
 - Back returns to Explore with filters intact.
 
-**Done when:** I can send you a link to one place and it opens on that place.
+Shipped: `/place/:slug` with gallery, description, tags, directions, share and
+favourites; Explore and Favourites cards open it; loading and not-found states.
+
+**Done when:** ~~I can send you a link to one place and it opens on that
+place.~~ Yes — try one from the preview link.
 
 ### 3. Explore states
 The screen currently has no loading, empty or error state — the page is simply
@@ -153,6 +162,15 @@ reservations, delivery, AI recommendations, follower system, Macedonia-wide
 coverage. Same list as the note, and I agree with it.
 
 ---
+
+## Progress
+
+- ✅ Roadmap written (this file)
+- ✅ 1. Admin guarded and moved to `/admin` (rules written, not deployed)
+- ✅ 2. Place pages at `/place/:slug`
+- ⬜ 3. Explore states — next
+- ⬜ 4. Analytics
+- ⬜ 5. Search
 
 ## Order I'm working in
 
