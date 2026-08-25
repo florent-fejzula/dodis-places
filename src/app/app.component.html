@@ -10,11 +10,11 @@
         >Home</a
       >
       <a routerLink="/my-lists" routerLinkActive="active">My Lists</a>
-      <a routerLink="/recipes" routerLinkActive="active">Recipes</a>
     </div>
 
     <!-- Admin-only links -->
     <div class="nav-admin" *ngIf="isAdmin()">
+      <a routerLink="/admin/recipes" routerLinkActive="active">Recipes</a>
       <a routerLink="/admin/tag-manager" routerLinkActive="active">Tag Manager</a>
       <a routerLink="/admin/add-place" routerLinkActive="active">Add Place</a>
     </div>
@@ -101,11 +101,10 @@
     <a routerLink="/my-lists" routerLinkActive="active" (click)="closeMenu()"
       >My Lists</a
     >
-    <a routerLink="/recipes" routerLinkActive="active" (click)="closeMenu()"
-      >Recipes</a
-    >
-
     <ng-container *ngIf="isAdmin()">
+      <a routerLink="/admin/recipes" routerLinkActive="active" (click)="closeMenu()"
+        >Recipes</a
+      >
       <a
         routerLink="/admin/tag-manager"
         routerLinkActive="active"

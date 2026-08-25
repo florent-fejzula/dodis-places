@@ -1,18 +1,10 @@
 rules_version = '2';
 
-// PROPOSAL — not deployed yet, and deliberately not wired into firebase.json.
+// Live rules for Firestore. Deploy on their own, never bundled with hosting:
+//   npx firebase-tools deploy --only firestore:rules
 //
-// Before deploying:
-//   1. Copy the rules currently live in the Firebase console and diff them
-//      against this file — nobody here can read them, so this is written from
-//      what the app does, not from what is live.
-//   2. Add to firebase.json:
-//        "firestore": { "rules": "firestore.rules" }
-//   3. Test in the console's Rules Playground, then:
-//        npx firebase-tools deploy --only firestore:rules
-//
-// A wrong rule here breaks reads for every visitor, so it deploys on its own,
-// never bundled with a hosting deploy.
+// A wrong rule here breaks reads for every visitor, so after deploying, check
+// that an unauthenticated read of /places still returns documents.
 
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -21,8 +13,7 @@ service cloud.firestore {
     // check ever gets in the way — the uid is in Firebase console > Auth.
     function isAdmin() {
       return request.auth != null
-        && request.auth.token.email == 'fejzula.florent@hotmail.com'
-        && request.auth.token.email_verified == true;
+        && request.auth.token.email == 'fejzula.florent@hotmail.com';
     }
 
     // Public catalog: anyone can browse without an account, only admin writes.
@@ -36,9 +27,9 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Recipes are a personal tool, not part of the public product.
     match /recipes/{recipeId} {
-      allow read: if true;
-      allow write: if isAdmin();
+      allow read, write: if isAdmin();
     }
 
     // A user owns their own document (favorites live here).

@@ -1,15 +1,13 @@
 rules_version = '2';
 
-// PROPOSAL — see the header of firestore.rules. Wire up with
-//   "storage": { "rules": "storage.rules" }
-// in firebase.json and deploy with `--only storage` once reviewed.
+// Live rules for Cloud Storage. Deploy with:
+//   npx firebase-tools deploy --only storage
 
 service firebase.storage {
   match /b/{bucket}/o {
     function isAdmin() {
       return request.auth != null
-        && request.auth.token.email == 'fejzula.florent@hotmail.com'
-        && request.auth.token.email_verified == true;
+        && request.auth.token.email == 'fejzula.florent@hotmail.com';
     }
 
     // Place and recipe photos are public to read, admin-only to write.

@@ -95,7 +95,7 @@ export class PlacesMainComponent implements OnInit, OnDestroy {
     this.skipAnim = this.svc.homeAnimated;
     this.svc.homeAnimated = true;
     // On mobile the page header is hidden and the title shows in the top bar
-    this.mobileNav.setPage('Dodi’s Places');
+    this.mobileNav.setPage('KajDaJademe');
   }
 
   ngOnDestroy(): void {

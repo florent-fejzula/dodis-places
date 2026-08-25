@@ -30,9 +30,6 @@ export const routes: Routes = [
   // Public, shareable page for a single place
   { path: 'place/:slug', component: PlaceDetailComponent },
 
-  // Easter egg
-  { path: 'recipes', component: RecipesComponent },
-
   // Admin area — guarded, and the only place internal tools live
   {
     path: 'admin',
@@ -40,6 +37,7 @@ export const routes: Routes = [
     canActivateChild: [adminGuard],
     children: [
       { path: 'add-place', component: AddPlaceComponent },
+      { path: 'recipes', component: RecipesComponent },
       { path: 'add-place/:id', component: EditPlaceComponent },
       { path: 'tag-manager', component: BulkTagComponent },
       { path: '', redirectTo: 'add-place', pathMatch: 'full' },
@@ -47,6 +45,7 @@ export const routes: Routes = [
   },
 
   // Old admin URLs (bookmarks, old links)
+  { path: 'recipes', redirectTo: 'admin/recipes', pathMatch: 'full' },
   { path: 'add-place', redirectTo: 'admin/add-place', pathMatch: 'full' },
   { path: 'add-place/:id', redirectTo: 'admin/add-place/:id' },
   { path: 'tag-manager', redirectTo: 'admin/tag-manager', pathMatch: 'full' },
