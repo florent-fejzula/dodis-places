@@ -15,8 +15,8 @@
 
     <!-- Admin-only links -->
     <div class="nav-admin" *ngIf="isAdmin()">
-      <a routerLink="/tag-manager" routerLinkActive="active">Tag Manager</a>
-      <a routerLink="/add-place" routerLinkActive="active">Add Place</a>
+      <a routerLink="/admin/tag-manager" routerLinkActive="active">Tag Manager</a>
+      <a routerLink="/admin/add-place" routerLinkActive="active">Add Place</a>
     </div>
 
     <!-- User actions -->
@@ -107,12 +107,12 @@
 
     <ng-container *ngIf="isAdmin()">
       <a
-        routerLink="/tag-manager"
+        routerLink="/admin/tag-manager"
         routerLinkActive="active"
         (click)="closeMenu()"
         >Tag Manager</a
       >
-      <a routerLink="/add-place" routerLinkActive="active" (click)="closeMenu()"
+      <a routerLink="/admin/add-place" routerLinkActive="active" (click)="closeMenu()"
         >Add Place</a
       >
     </ng-container>

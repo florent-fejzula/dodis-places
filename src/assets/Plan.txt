@@ -1,0 +1,857 @@
+Dodi’s Places → Public Product Plan
+Current Product
+
+The app currently exists as a personal tool for discovering my own favorite places in Skopje.
+
+It is built around a simple idea: instead of searching restaurants by ratings, reviews, or generic categories, I browse visually through actual food/drink/place photos and filter using tags.
+
+Examples of current tags include:
+
+Neighborhoods: cair, carshi, centar, karposh, aerodrom, gjorche-saraj
+Ambience/mood: luxury, chill, Sunday, restaurant, food, coffee
+Food & drink: bread, breakfast, simitPogaca, burek, sandwich, corba, salad, cigKofte, lahmacun, pizza, pasta, sushi, fish, burger, kebab, meats, doner, croissant, pancake, dessert, baklava, iceCream, specialty, juices, cocktails, fullCake, etc.
+
+Each place is represented by a strong visual card with a large photograph, place name and tags.
+
+At the moment the app is private/personal:
+
+No user authentication.
+Only my own favorite places exist in the database.
+I manually add and maintain them.
+The navigation still contains private/admin functionality such as:
+Recipes
+Tag Manager
+Add Place
+The current name is Dodi’s Places, where Dodi is my nickname.
+Current temporary Firebase URL is something like dodi-s-places.web.app.
+
+The goal now is to turn it into an MVP that is genuinely useful and attractive to the general public in Skopje.
+
+Product Positioning
+Core value proposition
+
+This should not become another restaurant directory, Google Maps clone, TripAdvisor clone or ratings app.
+
+The distinctive value is:
+
+Visual cravings on demand.
+
+The user should be able to think:
+
+“I want dessert.”
+
+or:
+
+“I want coffee and a really good-looking croissant in Karposh.”
+
+…and immediately see actual appealing examples of what different places offer.
+
+The app should help people choose based on what visually attracts them, rather than forcing them to read dozens of reviews or open restaurant profiles one by one.
+
+Possible positioning:
+
+Cravings made visual. Pick by what looks good, not just what’s near you.
+
+Another possible description:
+
+A visual guide to Skopje’s best food, coffee and places.
+
+The product should feel like a visual craving engine.
+
+Its advantages should be:
+
+Faster than Google Maps.
+Prettier and more curated than TripAdvisor.
+Much more structured and useful than browsing Instagram.
+More suitable for dine-in discovery than Wolt/Glovo.
+Problems the App Should Solve
+1. Decision fatigue
+
+People often spend 15–30 minutes deciding:
+
+Where should we eat?
+Where should we go for dessert?
+Which café looks nice?
+Where should I take someone?
+What do I actually feel like eating?
+
+The app should reduce this decision to a few minutes.
+
+2. Fragmented discovery
+
+Currently people jump between:
+
+Google Maps
+Instagram
+TikTok
+Wolt
+Glovo
+TripAdvisor
+Friends’ recommendations
+
+The app should provide one clean, curated visual discovery experience.
+
+3. Poor visual discovery elsewhere
+
+Google Maps and review platforms contain inconsistent photos, menus, customer images and irrelevant content.
+
+Dodi’s Places should instead emphasize curated, attractive photography that immediately communicates:
+
+“This is what you could eat/drink here.”
+
+The photos themselves should trigger appetite and help make the decision.
+
+Product Identity
+
+The brand should feel:
+
+Warm
+Modern
+Urban
+Food-focused
+Visual
+Local
+Attractive rather than corporate
+
+It should not feel like a huge generic global restaurant platform.
+
+At least initially, the product should be strongly focused on Skopje.
+
+The working public brand direction is:
+
+KajDaJademe
+
+Potential domain:
+
+kajdajademe.mk
+
+Possible positioning:
+
+KajDaJademe — Visual guide to Skopje’s best food & cafés.
+
+The local name has advantages because people naturally ask some variation of “kaj da jademe?” / “where should we eat?” in everyday conversation.
+
+Before finalizing the brand, availability should be checked for:
+
+kajdajademe.mk
+Instagram: @kajdajademe
+TikTok: @kajdajademe
+
+The current Dodi’s Places name and Firebase URL should disappear from the public version.
+
+Firebase can remain behind the scenes while a proper custom domain is connected.
+
+MVP Philosophy
+
+The public MVP should remain simple.
+
+The goal is not to immediately build:
+
+Reviews
+Ratings
+Comments
+Restaurant accounts
+Complicated recommendation algorithms
+Huge social networking features
+Massive restaurant databases
+Full monetization infrastructure
+
+The first public version should mainly prove that people enjoy using the core experience:
+
+Open app → visually browse → filter cravings/mood/location → discover appealing place → save/share/go there.
+
+Phase 1 — Separate Public App from Admin Tools
+Public navigation
+
+Remove/hide all private functionality from normal users.
+
+Public interface should contain only things such as:
+
+Explore / Home
+Favorites
+Lists, if implemented
+Possibly About later
+
+Private/admin functionality should remain available only to me:
+
+Add Place
+Edit Place
+Delete Place
+Tag Manager
+Recipes
+Other internal tools
+
+Do not simply expose admin tools and hide buttons cosmetically.
+
+Prefer a real /admin area protected through Firebase Authentication and authorization.
+
+For example:
+
+Normal visitors: public app
+My account: admin privileges
+Admin routes protected using Angular guards
+Firestore rules should also prevent unauthorized writes
+
+Do not rely only on an adminMode frontend boolean for security.
+
+Phase 2 — Improve the Core Explore Experience
+
+The Explore screen is the main product and should receive most of the attention.
+
+Filters
+
+Keep the strong tag-filtering concept, but improve organization and naming.
+
+Possible filter groups:
+
+Location
+Centar
+Karposh
+Aerodrom
+Čair
+Čaršija
+Gjorče Petrov
+etc.
+What do you want?
+Coffee
+Breakfast
+Pizza
+Pasta
+Burger
+Sushi
+Burek
+Dessert
+Ice cream
+Baklava
+Croissant
+Meat
+Fish
+etc.
+Mood / occasion
+Chill
+Luxury
+Date
+Sunday
+Family friendly
+Work & Coffee
+Cheap but good
+Quick bite
+Special occasion
+etc.
+
+Users often think in terms of mood or situation, not cuisine alone, so these filters could become an important differentiator.
+
+Selected filters
+
+Make selected filters extremely clear visually.
+
+Keep:
+
+Clear all
+Easy deselection
+Immediate results
+No results
+
+Create a friendly empty-state message rather than simply showing nothing.
+
+Example:
+
+No places match all these filters yet. Try removing one.
+
+Mobile-first
+
+The public product must be properly optimized for phones.
+
+Testing should include:
+
+Small Android screens
+iPhone sizes
+Tablets
+Desktop
+
+The current desktop interface should not simply shrink down.
+
+Filtering especially needs to be comfortable on mobile.
+
+Phase 3 — Place Detail Experience
+
+Clicking a place card should open either a dedicated route or polished detail view.
+
+Prefer a real URL such as:
+
+/place/cafe-paname
+
+rather than only a temporary modal, because individual URLs allow sharing and SEO.
+
+The place page should contain:
+
+Place name
+Main image
+Additional 3–5 strong photos
+Short description
+Neighborhood
+Relevant tags
+Address
+Google Maps / directions button
+Save to favorites
+Share button
+
+Optional useful information later:
+
+Opening hours
+Price level
+Instagram
+Phone
+Website
+Outdoor seating
+Kids friendly
+Parking
+Reservations
+
+But do not overload the MVP.
+
+Phase 4 — Authentication
+
+Browsing should not require an account.
+
+Anyone should be able to open the site and immediately explore.
+
+Authentication is useful mainly for personalization.
+
+Use Firebase Authentication.
+
+For MVP, prioritize very simple login methods, especially:
+
+Google Sign-In
+Possibly email/password or magic link later
+
+Logging in should unlock:
+
+Favorites
+
+Users can heart/save places.
+
+Possible Firestore structure:
+
+users/{uid}/favorites/...
+
+or another normalized model depending on architecture.
+
+Lists
+
+Potentially allow users to create lists such as:
+
+Date Night
+Desserts
+Places to Try
+Coffee
+My Favorites
+
+However, generic Favorites alone may be enough for version 1.
+
+Lists can follow shortly after if they add too much implementation complexity.
+
+Phase 5 — Social and Sharing
+
+Sharing is very important because restaurant decisions are often group decisions.
+
+Users should be able to share:
+
+Individual places
+Potentially collections/lists later
+Potentially filtered searches later
+
+Example:
+
+“Here are the dessert places I found.”
+
+Instead of sending multiple Google Maps pins, people could send one KajDaJademe link.
+
+Every public place needs a stable shareable URL.
+
+Add proper Open Graph metadata so links shared in apps such as WhatsApp, Messenger and similar platforms display:
+
+Image
+Place name
+Short description
+KajDaJademe branding
+Phase 6 — Search and Discovery Sections
+Search
+
+Add basic search for:
+
+Place name
+Potentially food keywords/tags
+
+The main discovery mechanism should still be visual filtering, not search.
+
+Recently Added
+
+Show recently added places based on creation/publish timestamp.
+
+This gives users a reason to return.
+
+Possible homepage section:
+
+New in KajDaJademe
+
+New This Week
+
+Potentially highlight:
+
+New places
+New menu photos
+Newly added recommendations
+
+This creates ongoing freshness.
+
+Trending
+
+Later, calculate trending based on signals such as:
+
+Favorites
+Place opens/views
+Map clicks
+Shares
+
+For MVP, avoid fake popularity.
+
+Only display Trending once enough activity exists.
+
+Phase 7 — Curated Collections
+
+Create editorial collections because they are both practical and highly shareable.
+
+Examples:
+
+First dates in Skopje
+Best breakfast vibes
+Desserts worth trying
+Sunday coffee
+Best croissants
+Late-night food
+Cheap but good
+Fancy dinner
+Family lunch
+Places with nice terraces
+
+These collections should be curated rather than generated automatically at first.
+
+This can become one of the major advantages of the platform.
+
+Phase 8 — “Surprise Me”
+
+A simple optional stickiness feature:
+
+Surprise Me
+
+The user picks some constraints, for example:
+
+Karposh
+Dessert
+Chill
+
+Then the app randomly chooses one matching place.
+
+This solves the classic problem of endless indecision.
+
+It should be lightweight and fun rather than a major feature.
+
+Phase 9 — Photo-First Browsing
+
+The visual content is the strongest part of the concept.
+
+The app should continue emphasizing large photography rather than turning into a text-heavy restaurant directory.
+
+Possible later browsing mode:
+
+Gallery/grid
+Swipe-based exploration
+Large food photography
+Tap → place details
+
+Conceptually it can feel a little like Instagram, but structured around useful discovery rather than feeds and influencers.
+
+The photography quality matters enormously.
+
+Avoid filling the database with poor-quality or irrelevant photos merely to increase volume.
+
+Initial Content Requirements
+
+Before public launch, the app should feel useful immediately.
+
+Target approximately:
+
+30–50 genuinely good places minimum
+
+But quality matters more than arbitrary quantity.
+
+Ensure variety across:
+
+Neighborhoods
+Cafés
+Desserts
+Breakfast
+Pizza
+Pasta
+Burgers
+Traditional food
+More premium restaurants
+Casual places
+
+Each listing should ideally have multiple strong photos.
+
+The initial catalog should make the app feel curated, not empty.
+
+Content Strategy
+
+Initially, continue manually curating the places.
+
+That is actually part of the value proposition.
+
+Do not immediately allow restaurants or random users to upload everything themselves.
+
+The product can initially communicate:
+
+These are selected places worth considering.
+
+That keeps image quality, tags and recommendations consistent.
+
+Later, restaurants can potentially submit information for review, but I should remain editorially in control.
+
+PWA / Installation
+
+The app should work perfectly as a normal website first.
+
+Also make it installable as a Progressive Web App.
+
+Users should be able to:
+
+Visit kajdajademe.mk
+Use it immediately
+Optionally “Add to Home Screen”
+
+Do not make an App Store / Play Store native application a requirement for the MVP unless there is a strong reason later.
+
+A good PWA removes download friction.
+
+SEO
+
+The custom domain and individual place pages should be search-engine friendly.
+
+Examples of possible search discovery:
+
+best croissant Skopje
+dessert Skopje
+coffee Karposh
+sushi Skopje
+where to eat Skopje
+
+Each place should ideally have:
+
+Unique URL slug
+Page title
+Meta description
+Open Graph metadata
+Semantic content Google can index
+
+Later, curated collection pages can also target search traffic.
+
+Example:
+
+kajdajademe.mk/collections/best-croissants-skopje
+
+Analytics
+
+Install analytics from day one.
+
+Track meaningful product actions such as:
+
+App/page visits
+Place card clicks
+Place detail opens
+Filters selected
+Search terms
+Favorite actions
+Share actions
+Google Maps/directions clicks
+Most viewed places
+Returning users
+
+These analytics will help determine:
+
+Whether people actually use the app
+Which categories matter
+Which neighborhoods matter
+Which places get attention
+Whether restaurants could eventually justify paying
+
+This is also essential for monetization pitches later.
+
+Admin Dashboard
+
+Build an internal admin dashboard gradually.
+
+It should eventually show:
+
+Total visits
+Active users
+Most viewed places
+Most favorited places
+Most shared places
+Most common filters
+Google Maps clicks
+Recently added places
+Place performance
+
+The admin area should also remain the place where I:
+
+Add places
+Edit places
+Manage images
+Manage tags
+Publish/unpublish places
+Possibly mark sponsored listings later
+Launch Strategy
+
+The product should initially be positioned as something like:
+
+Skopje’s food guide made visual.
+
+Or:
+
+Don’t search where to eat. See what you want.
+
+Main launch channels:
+
+Instagram
+TikTok
+Personal network
+Local food communities
+Word of mouth
+
+Content examples:
+
+Best-looking croissants in Skopje 🥐
+
+Where to get dessert tonight
+
+3 places for a Sunday coffee in Karposh
+
+Looking for pasta? Here’s what these Skopje places actually serve.
+
+Every social post should lead back into the app.
+
+Initial Hook Strategy
+
+It may be useful to dominate one visually attractive category first.
+
+Desserts are a strong example because they are:
+
+Highly visual
+Highly shareable
+Easy to browse casually
+Good social media content
+
+Possible initial hook:
+
+Find the best-looking desserts in Skopje.
+
+Once people discover the product through desserts, they see that the same system works for:
+
+Coffee
+Breakfast
+Pasta
+Pizza
+Burgers
+Restaurants
+Date-night places
+etc.
+Retention / Why People Return
+
+The product should create reasons to reopen it.
+
+Possible mechanisms:
+
+Recently Added
+New This Week
+Curated collections
+Seasonal recommendations
+New photos
+New places
+Favorites
+Lists
+Surprise Me
+Trending once enough usage exists
+
+However, do not add artificial gamification simply for retention.
+
+The strongest retention should come from the app becoming the user’s default tool whenever they think:
+
+“Where should we go?”
+
+Monetization
+
+Do not prioritize monetization before the product has meaningful usage.
+
+Initially keep recommendations trustworthy and curated.
+
+Primary eventual monetization model should be restaurants/cafés paying for additional exposure rather than generic display advertising.
+
+Possible paid products later:
+
+Featured placement
+
+Restaurant appears in a clearly marked Featured section.
+
+Sponsored listing
+
+Higher visibility inside relevant searches/categories.
+
+Must be visibly labeled as sponsored.
+
+Highlighted content
+
+Possibly additional promotional photos, campaign placement or featured collection inclusion.
+
+Today’s Special
+
+Restaurants could potentially promote a temporary offer/menu item later.
+
+However, paid exposure should never destroy the credibility of the recommendations.
+
+Users need to trust that the normal discovery results are genuinely useful.
+
+Advertising Revenue
+
+Generic banner/programmatic advertising is probably not the most attractive business model for Macedonia because CPMs are relatively low and ads could damage the clean experience.
+
+Restaurant partnerships are likely a stronger monetization path.
+
+Monetization Threshold
+
+Do not approach restaurants aggressively before demonstrating real usage.
+
+A rough milestone could be around:
+
+1,000+ meaningful active users
+
+At that point, analytics can support a pitch such as:
+
+X people viewed dessert places this month.
+X users opened your restaurant.
+X clicked directions.
+X saved your place.
+X users searched your neighborhood/category.
+
+That is much stronger than simply selling “advertising space.”
+
+Longer-Term Social Features
+
+Potential later functionality:
+
+Share favorites
+Share personal lists
+Public collections
+Collaborative lists between friends
+
+Example:
+
+A couple creates:
+
+Friday Night Options
+
+and both add places.
+
+These are growth features, not launch requirements.
+
+Important Things NOT Needed for MVP
+
+Avoid scope creep.
+
+Do not initially build:
+
+Public reviews
+Star ratings
+User comments
+Restaurant owner dashboards
+Restaurant self-service uploads
+Complex AI recommendations
+Native iOS/Android apps
+Loyalty points
+Reservations
+Delivery
+Restaurant ordering
+Social follower system
+Full influencer functionality
+Huge Macedonia-wide coverage
+
+First prove the core loop.
+
+Recommended MVP Core Loop
+
+The ideal public experience should be:
+
+User opens kajdajademe.mk.
+No login wall.
+User immediately sees appealing food/place photography.
+User filters by craving, neighborhood or mood.
+Results update immediately.
+User sees something visually attractive.
+User opens the place.
+User sees several curated photos and key information.
+User either:
+Opens Google Maps,
+Shares the place,
+Saves it.
+Later the user returns because KajDaJademe has become their quickest way of deciding where to go.
+
+That loop is the product.
+
+Recommended Development Priority
+Must-have before launch
+Rebrand from Dodi’s Places to KajDaJademe or final public name.
+Connect custom domain.
+Separate/protect admin functionality.
+Clean public navigation.
+Mobile-responsive Explore page.
+Improve tag/filter UX.
+Public place detail pages with unique URLs.
+Multiple good photos per place.
+Google Maps directions button.
+Share functionality.
+Basic SEO and Open Graph metadata.
+Analytics.
+Populate approximately 30–50 strong places.
+Proper loading, error and empty states.
+Basic PWA support.
+Strong additions shortly after launch
+Firebase Auth.
+Favorites.
+My Favorites page.
+Search.
+Recently Added.
+Curated Collections.
+Mood/occasion filters.
+Surprise Me.
+Lists.
+Trending based on real usage data.
+Later
+Advanced analytics/admin dashboard.
+Sponsored/featured restaurant placements.
+Restaurant partnerships.
+More cities in Macedonia.
+Potential regional expansion.
+Product Rule to Preserve
+
+Whenever deciding whether to add a feature, ask:
+
+Does this make deciding where to eat faster, more visual, or more enjoyable?
+
+If not, it probably does not belong in the early product.
+
+The key is not to build the most feature-rich restaurant app.
+
+The goal is to build the fastest and most attractive answer to:
+
+“Kaj da jademe?”

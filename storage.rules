@@ -1,0 +1,34 @@
+rules_version = '2';
+
+// PROPOSAL — see the header of firestore.rules. Wire up with
+//   "storage": { "rules": "storage.rules" }
+// in firebase.json and deploy with `--only storage` once reviewed.
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email == 'fejzula.florent@hotmail.com'
+        && request.auth.token.email_verified == true;
+    }
+
+    // Place and recipe photos are public to read, admin-only to write.
+    match /places/{placeId}/{fileName} {
+      allow read: if true;
+      allow write: if isAdmin()
+        && request.resource.size < 10 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    match /recipes/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin()
+        && request.resource.size < 10 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

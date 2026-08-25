@@ -150,7 +150,7 @@ export class PlacesMainComponent implements OnInit, OnDestroy {
   }
 
   goEdit(p: Place) {
-    this.router.navigate(['/add-place', p.id]);
+    this.router.navigate(['/admin/add-place', p.id]);
   }
 
   async confirmDelete(p: Place) {
