@@ -2,9 +2,25 @@
   <!-- Page header -->
   <div class="page-header">
     <h1 class="page-title">Recipes</h1>
-    <button *ngIf="isAdmin()" class="add-btn" (click)="showAddForm.set(true)">
-      + Add Recipe
-    </button>
+
+    <div class="header-actions">
+      <button
+        class="copy-btn"
+        (click)="copyRecipes()"
+        title="Copy the recipes shown, with their notes"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="9" y="9" width="12" height="12" rx="2" />
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+        </svg>
+        Copy
+      </button>
+
+      <button *ngIf="isAdmin()" class="add-btn" (click)="showAddForm.set(true)">
+        + Add Recipe
+      </button>
+    </div>
   </div>
 
   <!-- Horizontal category filter bar -->
@@ -71,6 +87,9 @@
     </div>
   </div>
 </div>
+
+<!-- Copy feedback -->
+<div class="copy-toast" *ngIf="copyToast()">{{ copyToast() }}</div>
 
 <!-- Add Recipe modal (now a proper modal instead of inline in sidebar) -->
 <div

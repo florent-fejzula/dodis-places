@@ -16,7 +16,10 @@ import { ImageCropperComponent, ImageCroppedEvent } from 'ngx-image-cropper';
 import { RecipesService } from 'src/app/services/recipes.service';
 import { Recipe } from 'src/app/models/recipes';
 import { AdminService } from 'src/app/services/admin.service';
-import { MobileNavService } from 'src/app/services/mobile-nav.service';
+import {
+  MobileNavAction,
+  MobileNavService,
+} from 'src/app/services/mobile-nav.service';
 
 @Component({
   selector: 'app-recipes',
@@ -60,14 +63,21 @@ export class RecipesComponent implements OnInit, OnDestroy {
   cropFile: File | null = null;
   lockAspectRatio = true;
 
+  copyToast = signal<string>('');
+  private copyToastTimer: ReturnType<typeof setTimeout> | null = null;
+
   /** On mobile the header collapses into the top bar + side menu. */
   private mobileNavSync = effect(() => {
-    this.mobileNav.setPage(
-      'Recipes',
-      this.isAdmin()
-        ? [{ label: '+ Add Recipe', run: () => this.showAddForm.set(true) }]
-        : []
-    );
+    const actions: MobileNavAction[] = [
+      { label: 'Copy recipes', run: () => this.copyRecipes() },
+    ];
+    if (this.isAdmin()) {
+      actions.unshift({
+        label: '+ Add Recipe',
+        run: () => this.showAddForm.set(true),
+      });
+    }
+    this.mobileNav.setPage('Recipes', actions);
   });
 
   groupedRecipes = computed(() => {
@@ -139,6 +149,88 @@ export class RecipesComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     document.body.style.overflow = '';
     this.mobileNav.clear();
+    if (this.copyToastTimer) clearTimeout(this.copyToastTimer);
+  }
+
+  // ---------- Copy to clipboard ----------
+
+  /** Everything currently on screen, as plain text: whatever the filters show. */
+  buildRecipesText(): string {
+    const sections = this.groupedRecipes();
+    const blocks: string[] = [];
+
+    for (const section of sections) {
+      const lines = [section.category.toUpperCase()];
+
+      for (const r of section.items) {
+        lines.push('');
+        lines.push(r.time ? `${r.name} (${r.time})` : r.name);
+
+        if (r.notes?.trim()) {
+          for (const line of r.notes.trim().split(/\r?\n/)) {
+            lines.push(`  ${line.trim()}`);
+          }
+        }
+        if (r.sourceUrl?.trim()) lines.push(`  ${r.sourceUrl.trim()}`);
+      }
+
+      blocks.push(lines.join('\n'));
+    }
+
+    return blocks.join('\n\n');
+  }
+
+  private countVisible(): number {
+    return this.groupedRecipes().reduce((sum, s) => sum + s.items.length, 0);
+  }
+
+  async copyRecipes() {
+    const count = this.countVisible();
+    if (!count) {
+      this.showCopyToast('Nothing to copy');
+      return;
+    }
+
+    const text = this.buildRecipesText();
+
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      // Safari/iOS outside a user gesture, or an insecure context
+      if (!this.copyViaTextarea(text)) {
+        this.showCopyToast('Couldn’t copy — check clipboard permissions');
+        return;
+      }
+    }
+
+    this.showCopyToast(
+      count === 1 ? 'Copied 1 recipe' : `Copied ${count} recipes`
+    );
+  }
+
+  private copyViaTextarea(text: string): boolean {
+    const area = document.createElement('textarea');
+    area.value = text;
+    area.setAttribute('readonly', '');
+    area.style.position = 'fixed';
+    area.style.opacity = '0';
+    document.body.appendChild(area);
+    area.select();
+
+    let ok = false;
+    try {
+      ok = document.execCommand('copy');
+    } catch {
+      ok = false;
+    }
+    document.body.removeChild(area);
+    return ok;
+  }
+
+  private showCopyToast(message: string) {
+    this.copyToast.set(message);
+    if (this.copyToastTimer) clearTimeout(this.copyToastTimer);
+    this.copyToastTimer = setTimeout(() => this.copyToast.set(''), 2500);
   }
 
   selectCategory(cat: string) {
