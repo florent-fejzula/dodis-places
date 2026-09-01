@@ -6,6 +6,7 @@
     <div class="header-actions">
       <button
         class="copy-btn"
+        *ngIf="recipes().length"
         (click)="copyRecipes()"
         title="Copy the recipes shown, with their notes"
       >
@@ -17,14 +18,36 @@
         Copy
       </button>
 
-      <button *ngIf="isAdmin()" class="add-btn" (click)="showAddForm.set(true)">
+      <button *ngIf="canEdit()" class="add-btn" (click)="showAddForm.set(true)">
         + Add Recipe
       </button>
     </div>
   </div>
 
+  <!-- Signed out: nothing to show until we know whose recipes these are -->
+  <div class="account-state" *ngIf="signedOut()">
+    <h2>Your recipes, your account</h2>
+    <p>
+      Log in to see your own collection — everyone who signs in keeps their own
+      recipes, private to them.
+    </p>
+    <button class="account-action" (click)="goToLogin()">Log in</button>
+  </div>
+
+  <!-- Signed in, nothing added yet -->
+  <div
+    class="account-state"
+    *ngIf="!signedOut() && recipesLoaded() && !recipes().length"
+  >
+    <h2>No recipes yet</h2>
+    <p>Add your first one and it will show up here, grouped by category.</p>
+    <button class="account-action" *ngIf="canEdit()" (click)="showAddForm.set(true)">
+      + Add Recipe
+    </button>
+  </div>
+
   <!-- Horizontal category filter bar -->
-  <div class="cat-bar-wrap">
+  <div class="cat-bar-wrap" *ngIf="recipes().length">
     <div class="cat-bar">
       <button
         class="cat-chip"
@@ -41,7 +64,7 @@
   </div>
 
   <!-- Time filter bar -->
-  <div class="time-bar-wrap" *ngIf="timeBuckets().length > 0">
+  <div class="time-bar-wrap" *ngIf="recipes().length && timeBuckets().length > 0">
     <div class="time-bar">
       <button
         class="time-chip"
@@ -58,7 +81,7 @@
   </div>
 
   <!-- Cards grid -->
-  <div class="recipes-container">
+  <div class="recipes-container" *ngIf="recipes().length">
     <div class="recipes-section" *ngFor="let section of groupedRecipes()">
       <div class="section-title">{{ section.category }}</div>
 
@@ -72,7 +95,7 @@
         >
           <button
             class="delete-x"
-            *ngIf="isAdmin()"
+            *ngIf="canEdit()"
             (click)="deleteRecipe(recipe, $event)"
             aria-label="Delete recipe"
             title="Delete"
@@ -94,7 +117,7 @@
 <!-- Add Recipe modal (now a proper modal instead of inline in sidebar) -->
 <div
   class="modal"
-  *ngIf="showAddForm() && isAdmin()"
+  *ngIf="showAddForm() && canEdit()"
   (click)="showAddForm.set(false)"
 >
   <div class="modal-card form-card" (click)="$event.stopPropagation()">
@@ -206,7 +229,7 @@
   <div class="detail-pg-header">
     <div class="detail-pg-topbar">
       <button class="detail-back" (click)="closeDetails()">← Back</button>
-      <button *ngIf="isAdmin() && !editMode()" class="detail-edit-btn" (click)="startEdit()">Edit</button>
+      <button *ngIf="canEdit() && !editMode()" class="detail-edit-btn" (click)="startEdit()">Edit</button>
       <span *ngIf="editMode()" class="detail-editing-label">Editing</span>
     </div>
     <h1 class="detail-pg-title">{{ detailRecipe()?.name }}</h1>

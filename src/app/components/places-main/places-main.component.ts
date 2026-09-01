@@ -103,13 +103,8 @@ export class PlacesMainComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    const loader = new Loader({
-      apiKey: environment.googleMapsKey,
-      libraries: ['marker', 'places'],
-    });
-    await loader.load();
-    this.apiReady = true;
-
+    // Cards first: they are the product, and they should not wait on the
+    // Google Maps script to finish downloading.
     this.svc.getPlaces().subscribe((list) => {
       this.places = list ?? [];
       this.applyFilters();
@@ -117,7 +112,15 @@ export class PlacesMainComponent implements OnInit, OnDestroy {
       this.fitToMarkers();
     });
 
-    await this.loadFavorites();
+    this.loadFavorites();
+
+    const loader = new Loader({
+      apiKey: environment.googleMapsKey,
+      libraries: ['marker', 'places'],
+    });
+    await loader.load();
+    this.apiReady = true;
+    this.fitToMarkers();
   }
 
   async loadFavorites() {

@@ -1,0 +1,53 @@
+rules_version = '2';
+
+// Deploy on their own, never bundled with a hosting deploy:
+//   npx firebase-tools deploy --only firestore:rules
+//
+// A wrong rule here breaks reads for every visitor, so after deploying check
+// that an unauthenticated read of /places still returns documents.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // The Places admin. Swap for `request.auth.uid == '<uid>'` if the email
+    // check ever gets in the way — the uid is in Firebase console > Auth.
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email == 'fejzula.florent@hotmail.com';
+    }
+
+    // Public catalog: anyone can browse without an account, only admin writes.
+    match /places/{placeId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /tags/{tagId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Recipes belong to whoever added them. Everyone keeps their own
+    // collection, private to them — including from the Places admin.
+    match /recipes/{recipeId} {
+      allow read, update, delete: if request.auth != null
+        && resource.data.ownerId == request.auth.uid;
+      allow create: if request.auth != null
+        && request.resource.data.ownerId == request.auth.uid;
+    }
+
+    // A user owns their own document (favorites live here).
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+
+      match /{sub=**} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+    }
+
+    // Anything not named above is closed.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,35 @@
+rules_version = '2';
+
+// Deploy with:
+//   npx firebase-tools deploy --only storage
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email == 'fejzula.florent@hotmail.com';
+    }
+
+    function isImageUpload() {
+      return request.resource.size < 10 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    // Place photos: public to read, admin to write.
+    match /places/{placeId}/{fileName} {
+      allow read: if true;
+      allow write: if isAdmin() && isImageUpload();
+    }
+
+    // Recipe photos: any signed-in cook can upload their own. Reads stay open
+    // because the app renders them from long-lived download URLs.
+    match /recipes/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null && isImageUpload();
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

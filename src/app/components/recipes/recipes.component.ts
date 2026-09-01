@@ -10,12 +10,16 @@ import {
   ElementRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
+import { Subscription, of, switchMap } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { ImageCropperComponent, ImageCroppedEvent } from 'ngx-image-cropper';
 
 import { RecipesService } from 'src/app/services/recipes.service';
 import { Recipe } from 'src/app/models/recipes';
 import { AdminService } from 'src/app/services/admin.service';
+import { AuthService } from 'src/app/auth/auth.service';
 import {
   MobileNavAction,
   MobileNavService,
@@ -42,6 +46,8 @@ export class RecipesComponent implements OnInit, OnDestroy {
   ];
   private recipesSvc = inject(RecipesService);
   private adminSvc = inject(AdminService);
+  private router = inject(Router);
+  auth = inject(AuthService);
   private mobileNav = inject(MobileNavService);
 
   // UI state
@@ -57,8 +63,17 @@ export class RecipesComponent implements OnInit, OnDestroy {
   // data
   recipes = signal<Recipe[]>([]);
 
-  // admin flag
+  // admin flag (Places tools; recipes are owned per user, see canEdit)
   isAdmin = this.adminSvc.isAdmin;
+
+  /** Every recipe on screen belongs to the signed-in user, so signed in = can edit. */
+  canEdit = computed(() => !!this.auth.user());
+  signedOut = computed(() => !this.auth.loading() && !this.auth.user());
+
+  private user$ = toObservable(this.auth.user);
+  private recipesSub?: Subscription;
+  private claimedLegacy = false;
+  recipesLoaded = signal(false);
 
   cropFile: File | null = null;
   lockAspectRatio = true;
@@ -71,7 +86,7 @@ export class RecipesComponent implements OnInit, OnDestroy {
     const actions: MobileNavAction[] = [
       { label: 'Copy recipes', run: () => this.copyRecipes() },
     ];
-    if (this.isAdmin()) {
+    if (this.canEdit()) {
       actions.unshift({
         label: '+ Add Recipe',
         run: () => this.showAddForm.set(true),
@@ -141,12 +156,32 @@ export class RecipesComponent implements OnInit, OnDestroy {
   private croppedBlob: Blob | null = null;
 
   ngOnInit() {
-    this.recipesSvc.getRecipes().subscribe((list) => {
-      this.recipes.set(list || []);
-    });
+    this.recipesSub = this.user$
+      .pipe(
+        switchMap(async (user) => {
+          if (user && this.isAdmin() && !this.claimedLegacy) {
+            this.claimedLegacy = true;
+            // Recipes added before ownership existed are the original owner's
+            await this.recipesSvc.claimUnownedRecipes(user.uid).catch(() => 0);
+          }
+          return user;
+        }),
+        switchMap((user) =>
+          user ? this.recipesSvc.getRecipes(user.uid) : of([] as Recipe[])
+        )
+      )
+      .subscribe((list) => {
+        this.recipes.set(list || []);
+        this.recipesLoaded.set(true);
+      });
+  }
+
+  goToLogin() {
+    this.router.navigate(['/login']);
   }
 
   ngOnDestroy() {
+    this.recipesSub?.unsubscribe();
     document.body.style.overflow = '';
     this.mobileNav.clear();
     if (this.copyToastTimer) clearTimeout(this.copyToastTimer);
@@ -410,7 +445,6 @@ export class RecipesComponent implements OnInit, OnDestroy {
     this.croppedBlob = null;
   }
 
-  // admin: add recipe
   async addRecipe() {
     const category =
       this.categoryChoice === this.NEW_OPT
@@ -422,7 +456,10 @@ export class RecipesComponent implements OnInit, OnDestroy {
     const { name, image, category: cat } = this.newRecipe;
     if (!name || !image || !cat) return;
 
-    await this.recipesSvc.addRecipe(this.newRecipe);
+    const uid = this.auth.user()?.uid;
+    if (!uid) return;
+
+    await this.recipesSvc.addRecipe(this.newRecipe, uid);
 
     // reset form
     this.newRecipe = {

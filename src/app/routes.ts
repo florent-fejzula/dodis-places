@@ -1,42 +1,79 @@
 // src/app/routes.ts
 import { Routes } from '@angular/router';
-import { PlacesMainComponent } from './components/places-main/places-main.component';
-import { RecipesComponent } from './components/recipes/recipes.component';
-import { AddPlaceComponent } from './admin/add-place/add-place.component';
-import { EditPlaceComponent } from './admin/edit-place/edit-place.component';
-import BulkTagComponent from './admin/bulk-tag/bulk-tag.component';
-import { LoginComponent } from './auth/login/login.component';
-import { MyListsComponent } from './components/my-lists/my-lists.component';
-import { SignupComponent } from './auth/signup/signup.component';
-import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
 
+// Every route is lazy: a visitor who only browses places should not download
+// the recipe app, the image cropper or the admin tools.
 export const routes: Routes = [
   // Login page
-  { path: 'login', component: LoginComponent },
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./auth/login/login.component').then((m) => m.LoginComponent),
+  },
 
   // Signup page
-  { path: 'signup', component: SignupComponent },
+  {
+    path: 'signup',
+    loadComponent: () =>
+      import('./auth/signup/signup.component').then((m) => m.SignupComponent),
+  },
 
-  { path: 'forgot-password', component: ForgotPasswordComponent },
+  {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import('./auth/forgot-password/forgot-password.component').then(
+        (m) => m.ForgotPasswordComponent
+      ),
+  },
 
   // My lists page
-  { path: 'my-lists', component: MyListsComponent },
+  {
+    path: 'my-lists',
+    loadComponent: () =>
+      import('./components/my-lists/my-lists.component').then(
+        (m) => m.MyListsComponent
+      ),
+  },
 
   // Main map page
-  { path: 'places', component: PlacesMainComponent },
+  {
+    path: 'places',
+    loadComponent: () =>
+      import('./components/places-main/places-main.component').then(
+        (m) => m.PlacesMainComponent
+      ),
+  },
 
-  // Easter egg
-  { path: 'recipes', component: RecipesComponent },
+  // Recipes — each signed-in cook sees only their own
+  {
+    path: 'recipes',
+    loadComponent: () =>
+      import('./components/recipes/recipes.component').then(
+        (m) => m.RecipesComponent
+      ),
+  },
 
   // Admin
-  { path: 'add-place', component: AddPlaceComponent },
+  {
+    path: 'add-place',
+    loadComponent: () =>
+      import('./admin/add-place/add-place.component').then(
+        (m) => m.AddPlaceComponent
+      ),
+  },
 
   // Admin Edit
-  { path: 'add-place/:id', component: EditPlaceComponent },
+  {
+    path: 'add-place/:id',
+    loadComponent: () =>
+      import('./admin/edit-place/edit-place.component').then(
+        (m) => m.EditPlaceComponent
+      ),
+  },
 
   {
     path: 'tag-manager',
-    component: BulkTagComponent,
+    loadComponent: () => import('./admin/bulk-tag/bulk-tag.component'),
   },
 
   // Default redirect

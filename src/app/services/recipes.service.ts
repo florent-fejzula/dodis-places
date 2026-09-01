@@ -10,6 +10,10 @@ import {
   updateDoc,
   deleteDoc,
   serverTimestamp,
+  query,
+  where,
+  getDocs,
+  writeBatch,
 } from '@angular/fire/firestore';
 import {
   Storage,
@@ -32,32 +36,64 @@ export class RecipesService {
   }
 
   private _recipes$: Observable<Recipe[]> | null = null;
-  private readonly LS_KEY = 'dodi_recipes_v1';
+  private _ownerId: string | null = null;
+  private readonly LS_PREFIX = 'dodi_recipes_v1';
   private readonly LS_TTL = 10 * 60 * 1000;
 
-  // ---- Recipes collection
-  getRecipes(): Observable<Recipe[]> {
-    if (this._recipes$) return this._recipes$;
+  private lsKey(ownerId: string) {
+    return `${this.LS_PREFIX}_${ownerId}`;
+  }
 
-    const live$ = this.inCtx(() =>
-      collectionData(collection(this.firestore, 'recipes'), { idField: 'id' }) as Observable<Recipe[]>
-    ).pipe(
+  // ---- Recipes collection (one cook's own recipes)
+  getRecipes(ownerId: string): Observable<Recipe[]> {
+    if (this._recipes$ && this._ownerId === ownerId) return this._recipes$;
+    this._ownerId = ownerId;
+
+    const live$ = this.inCtx(() => {
+      const qRef = query(
+        collection(this.firestore, 'recipes'),
+        where('ownerId', '==', ownerId)
+      );
+      return collectionData(qRef, { idField: 'id' }) as Observable<Recipe[]>;
+    }).pipe(
       tap(recipes => {
         try {
-          localStorage.setItem(this.LS_KEY, JSON.stringify({ t: Date.now(), data: recipes }));
+          localStorage.setItem(this.lsKey(ownerId), JSON.stringify({ t: Date.now(), data: recipes }));
         } catch {}
       }),
       shareReplay(1),
     );
 
-    const cached = this.loadCached();
+    const cached = this.loadCached(ownerId);
     this._recipes$ = cached ? concat(of(cached), live$).pipe(shareReplay(1)) : live$;
     return this._recipes$;
   }
 
-  private loadCached(): Recipe[] | null {
+  /**
+   * One-off migration: recipes added before ownership existed have no ownerId,
+   * so they belong to nobody and nobody would see them. Stamps them with the
+   * original owner's uid. Safe to call repeatedly - it no-ops once they are
+   * all claimed.
+   */
+  async claimUnownedRecipes(ownerId: string): Promise<number> {
+    const snap = await this.inCtx(() =>
+      getDocs(collection(this.firestore, 'recipes'))
+    );
+    const orphans = snap.docs.filter((d) => !d.data()['ownerId']);
+    if (!orphans.length) return 0;
+
+    const batch = writeBatch(this.firestore);
+    for (const d of orphans) {
+      batch.update(d.ref, { ownerId, updatedAt: serverTimestamp() });
+    }
+    await batch.commit();
+    this.bustCache(ownerId);
+    return orphans.length;
+  }
+
+  private loadCached(ownerId: string): Recipe[] | null {
     try {
-      const raw = localStorage.getItem(this.LS_KEY);
+      const raw = localStorage.getItem(this.lsKey(ownerId));
       if (!raw) return null;
       const { t, data } = JSON.parse(raw);
       if (!Array.isArray(data) || Date.now() - t > this.LS_TTL) return null;
@@ -67,13 +103,16 @@ export class RecipesService {
     }
   }
 
-  private bustCache() {
-    try { localStorage.removeItem(this.LS_KEY); } catch {}
+  private bustCache(ownerId?: string) {
+    try {
+      localStorage.removeItem(this.lsKey(ownerId ?? this._ownerId ?? ''));
+    } catch {}
   }
 
-  async addRecipe(recipe: Partial<Recipe>) {
+  async addRecipe(recipe: Partial<Recipe>, ownerId: string) {
     const ref = collection(this.firestore, 'recipes');
     const payload: Partial<Recipe> = {
+      ownerId,
       name: recipe.name?.trim() || 'Untitled',
       image: recipe.image?.trim() || '',
       category: recipe.category?.trim() || 'Other',

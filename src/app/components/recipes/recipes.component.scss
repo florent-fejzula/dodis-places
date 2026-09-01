@@ -961,3 +961,42 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* Signed-out / empty states */
+.account-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 24px;
+  gap: 6px;
+
+  h2 {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 1.35rem;
+    color: #1f1f1f;
+    margin: 0;
+  }
+
+  p {
+    color: #6b6b6b;
+    margin: 0 0 14px;
+    max-width: 420px;
+    line-height: 1.5;
+  }
+
+  .account-action {
+    background: #388659;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 11px 22px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+
+    &:hover { background: #2e6e48; }
+  }
+}

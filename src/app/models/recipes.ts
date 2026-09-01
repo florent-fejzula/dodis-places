@@ -1,5 +1,6 @@
 export interface Recipe {
   id?: string;            // Firestore doc id
+  ownerId?: string;       // uid of whoever added it; each cook sees only their own
   name: string;           // Card title
   image: string;          // Image URL (storage or external)
   category: string;       // Breakfast, Sides, etc.
