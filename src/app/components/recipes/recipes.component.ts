@@ -12,7 +12,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { Subscription, of, switchMap } from 'rxjs';
+import { Subscription, filter, of, switchMap } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { ImageCropperComponent, ImageCroppedEvent } from 'ngx-image-cropper';
 
@@ -70,7 +70,13 @@ export class RecipesComponent implements OnInit, OnDestroy {
   canEdit = computed(() => !!this.auth.user());
   signedOut = computed(() => !this.auth.loading() && !this.auth.user());
 
-  private user$ = toObservable(this.auth.user);
+  /**
+   * Emits undefined until Firebase has restored the session, so we never
+   * decide "no recipes" before we know who is signed in.
+   */
+  private user$ = toObservable(
+    computed(() => (this.auth.loading() ? undefined : this.auth.user()))
+  );
   private recipesSub?: Subscription;
   private claimedLegacy = false;
   recipesLoaded = signal(false);
@@ -158,14 +164,7 @@ export class RecipesComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.recipesSub = this.user$
       .pipe(
-        switchMap(async (user) => {
-          if (user && this.isAdmin() && !this.claimedLegacy) {
-            this.claimedLegacy = true;
-            // Recipes added before ownership existed are the original owner's
-            await this.recipesSvc.claimUnownedRecipes(user.uid).catch(() => 0);
-          }
-          return user;
-        }),
+        filter((user) => user !== undefined),
         switchMap((user) =>
           user ? this.recipesSvc.getRecipes(user.uid) : of([] as Recipe[])
         )
@@ -173,7 +172,21 @@ export class RecipesComponent implements OnInit, OnDestroy {
       .subscribe((list) => {
         this.recipes.set(list || []);
         this.recipesLoaded.set(true);
+        this.claimLegacyIfEmpty(list ?? []);
       });
+  }
+
+  /**
+   * Recipes added before ownership existed have no ownerId, so they match
+   * nobody's query. Only worth a round trip when the original owner actually
+   * sees an empty page - never on a normal load.
+   */
+  private claimLegacyIfEmpty(list: Recipe[]) {
+    const user = this.auth.user();
+    if (!user || !this.isAdmin() || this.claimedLegacy || list.length) return;
+
+    this.claimedLegacy = true;
+    this.recipesSvc.claimUnownedRecipes(user.uid).catch(() => 0);
   }
 
   goToLogin() {

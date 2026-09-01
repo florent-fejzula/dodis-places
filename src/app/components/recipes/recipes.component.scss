@@ -1000,3 +1000,28 @@
     &:hover { background: #2e6e48; }
   }
 }
+
+/* Loading placeholder for the cards grid */
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.skeleton-card {
+  height: 200px;
+  border-radius: 14px;
+  background: linear-gradient(90deg, #efe9e0 25%, #f8f5f0 50%, #efe9e0 75%);
+  background-size: 200% 100%;
+  animation: recipeShimmer 1.2s linear infinite;
+}
+
+@keyframes recipeShimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+@media (max-width: 768px) {
+  .skeleton-grid { grid-template-columns: 1fr; }
+  .skeleton-card { height: 200px; }
+}
