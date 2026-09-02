@@ -116,6 +116,7 @@ export class RecipesService {
       name: recipe.name?.trim() || 'Untitled',
       image: recipe.image?.trim() || '',
       category: recipe.category?.trim() || 'Other',
+      cuisine: recipe.cuisine?.trim() || '',
       time: recipe.time?.trim() || '',
       notes: recipe.notes?.trim() || '',
       sourceUrl: recipe.sourceUrl?.trim() || '',

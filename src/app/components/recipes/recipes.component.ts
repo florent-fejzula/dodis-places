@@ -38,6 +38,24 @@ export class RecipesComponent implements OnInit, OnDestroy {
     'Sandwich', 'Sandwiches', 'Pastas', 'Pasta', 'Mains', 'Snacks', 'Desserts',
   ];
 
+  /**
+   * One colour per cuisine, picked deterministically from the name, so a new
+   * cuisine gets its own colour without anyone choosing one. Tuned to read
+   * against the dark gradient at the bottom of a card photo.
+   */
+  private static readonly CUISINE_COLORS = [
+    '#f0b429', // amber
+    '#7ec8e3', // sky
+    '#f4728c', // rose
+    '#7ed6a5', // mint
+    '#c9a0f0', // violet
+    '#ff9269', // coral
+    '#9fd356', // lime
+    '#4fc3c3', // teal
+    '#e8a0c0', // blush
+    '#d4b483', // sand
+  ];
+
   private static readonly TIME_BUCKETS = [
     { label: '15 mins', minMinutes: 1,   maxMinutes: 15  },
     { label: '30 mins', minMinutes: 16,  maxMinutes: 30  },
@@ -59,6 +77,8 @@ export class RecipesComponent implements OnInit, OnDestroy {
   editMode = signal(false);
   editNotesText = '';
   editTimeText = '';
+  editCuisineChoice = '';
+  editNewCuisine = '';
 
   // data
   recipes = signal<Recipe[]>([]);
@@ -83,6 +103,16 @@ export class RecipesComponent implements OnInit, OnDestroy {
 
   cropFile: File | null = null;
   lockAspectRatio = true;
+
+  /** Detail view, add form and cropper all count as "a modal is open". */
+  anyModalOpen = computed(
+    () => this.showDetail() || this.showAddForm() || this.showCropper()
+  );
+
+  /** Nothing behind a modal should scroll — phones especially. */
+  private scrollLock = effect(() => {
+    document.body.style.overflow = this.anyModalOpen() ? 'hidden' : '';
+  });
 
   copyToast = signal<string>('');
   private copyToastTimer: ReturnType<typeof setTimeout> | null = null;
@@ -142,6 +172,7 @@ export class RecipesComponent implements OnInit, OnDestroy {
     name: '',
     image: '',
     category: '',
+    cuisine: '',
     time: '',
     notes: '',
     sourceUrl: '',
@@ -150,13 +181,15 @@ export class RecipesComponent implements OnInit, OnDestroy {
   // category selection (dropdown + new)
   categoryChoice = '';
   newCategory = '';
+  cuisineChoice = '';
+  newCuisine = '';
   readonly NEW_OPT = '__new__';
 
   // file input reference
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   // ---- Cropper state (upload-before-save)
-  showCropper = false;
+  showCropper = signal(false);
   imageChangedEvent: Event | null = null;
   private pendingRawFileName = 'recipe-image';
   private croppedBlob: Blob | null = null;
@@ -289,13 +322,11 @@ export class RecipesComponent implements OnInit, OnDestroy {
   openDetails(r: Recipe) {
     this.detailRecipe.set(r);
     this.showDetail.set(true);
-    document.body.style.overflow = 'hidden';
   }
   closeDetails() {
     this.showDetail.set(false);
     this.detailRecipe.set(null);
     this.editMode.set(false);
-    document.body.style.overflow = '';
   }
 
   // inline edit (admin)
@@ -303,15 +334,32 @@ export class RecipesComponent implements OnInit, OnDestroy {
     const r = this.detailRecipe();
     this.editNotesText = r?.notes ?? '';
     this.editTimeText = r?.time ?? '';
+
+    const cuisine = (r?.cuisine ?? '').trim();
+    // A cuisine that no other recipe uses still has to be selectable
+    this.editCuisineChoice =
+      cuisine && !this.cuisines().includes(cuisine) ? this.NEW_OPT : cuisine;
+    this.editNewCuisine =
+      this.editCuisineChoice === this.NEW_OPT ? cuisine : '';
+
     this.editMode.set(true);
   }
   cancelEdit() { this.editMode.set(false); }
+
+  private resolvedEditCuisine(): string {
+    return (
+      this.editCuisineChoice === this.NEW_OPT
+        ? this.editNewCuisine
+        : this.editCuisineChoice
+    ).trim();
+  }
   async saveEdit() {
     const recipe = this.detailRecipe();
     if (!recipe?.id) return;
     const updates: Partial<Recipe> = {
       notes: this.editNotesText,
       time: this.editTimeText,
+      cuisine: this.resolvedEditCuisine(),
     };
     await this.recipesSvc.updateRecipe(recipe.id, updates);
     this.detailRecipe.set({ ...recipe, ...updates });
@@ -326,6 +374,42 @@ export class RecipesComponent implements OnInit, OnDestroy {
     const rest = [...set].filter((c) => !order.includes(c)).sort();
     return found.concat(rest);
   });
+
+  // every cuisine already in use, for the dropdowns
+  cuisines = computed(() => {
+    const set = new Set<string>(
+      this.recipes()
+        .map((r) => (r.cuisine || '').trim())
+        .filter(Boolean)
+    );
+    return [...set].sort((a, b) => a.localeCompare(b));
+  });
+
+  /** Stable colour for a cuisine name — same name always gets the same one. */
+  cuisineColor(cuisine: string | undefined | null): string {
+    const name = (cuisine || '').trim().toLowerCase();
+    if (!name) return RecipesComponent.CUISINE_COLORS[0];
+
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = (hash * 31 + name.charCodeAt(i)) | 0;
+    }
+    const palette = RecipesComponent.CUISINE_COLORS;
+    return palette[Math.abs(hash) % palette.length];
+  }
+
+  /**
+   * Same colour, darkened — the palette is tuned for white text over a photo,
+   * so it needs more weight on the light detail page.
+   */
+  cuisineInk(cuisine: string | undefined | null): string {
+    const hex = this.cuisineColor(cuisine).replace('#', '');
+    const darker = [0, 2, 4]
+      .map((i) => Math.round(parseInt(hex.slice(i, i + 2), 16) * 0.62))
+      .map((v) => v.toString(16).padStart(2, '0'))
+      .join('');
+    return `#${darker}`;
+  }
 
   timeBuckets = computed(() => {
     const recipes = this.recipes();
@@ -375,9 +459,14 @@ export class RecipesComponent implements OnInit, OnDestroy {
     }
   }
 
+  onCuisineChange(val: string) {
+    this.cuisineChoice = val;
+    this.newRecipe.cuisine = val === this.NEW_OPT ? '' : val;
+  }
+
   // ---- Image from clipboard (kept simple: direct upload, no crop)
   async onPasteImage(e: ClipboardEvent) {
-    if (this.showCropper) return;
+    if (this.showCropper()) return;
     const items = e.clipboardData?.items;
     if (!items) return;
 
@@ -398,7 +487,7 @@ export class RecipesComponent implements OnInit, OnDestroy {
     this.pendingRawFileName = 'pasted-recipe';
     this.cropFile = file;
     this.croppedBlob = null;
-    this.showCropper = true;
+    this.showCropper.set(true);
 
     // Optional: prevent the pasted image from also being inserted into inputs
     e.preventDefault();
@@ -419,7 +508,7 @@ export class RecipesComponent implements OnInit, OnDestroy {
 
     this.cropFile = file; // ✅ pass file directly
     this.croppedBlob = null;
-    this.showCropper = true;
+    this.showCropper.set(true);
 
     input.value = ''; // ✅ safe now
   }
@@ -453,7 +542,7 @@ export class RecipesComponent implements OnInit, OnDestroy {
   }
 
   closeCropper() {
-    this.showCropper = false;
+    this.showCropper.set(false);
     this.cropFile = null;
     this.croppedBlob = null;
   }
@@ -465,6 +554,11 @@ export class RecipesComponent implements OnInit, OnDestroy {
         : (this.categoryChoice || this.newRecipe.category || '').trim();
 
     this.newRecipe.category = category;
+    this.newRecipe.cuisine = (
+      this.cuisineChoice === this.NEW_OPT
+        ? this.newCuisine || ''
+        : this.cuisineChoice || this.newRecipe.cuisine || ''
+    ).trim();
 
     const { name, image, category: cat } = this.newRecipe;
     if (!name || !image || !cat) return;
@@ -479,12 +573,15 @@ export class RecipesComponent implements OnInit, OnDestroy {
       name: '',
       image: '',
       category: '',
+      cuisine: '',
       time: '',
       notes: '',
       sourceUrl: '',
     };
     this.categoryChoice = '';
     this.newCategory = '';
+    this.cuisineChoice = '';
+    this.newCuisine = '';
     this.showAddForm.set(false);
   }
 

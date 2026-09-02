@@ -1,4 +1,4 @@
-<div class="recipes-page">
+<div class="recipes-page" [class.modal-open]="anyModalOpen()">
   <!-- Page header -->
   <div class="page-header">
     <h1 class="page-title">Recipes</h1>
@@ -109,7 +109,16 @@
           >×</button>
 
           <div class="overlay">
-            <span class="card-time" *ngIf="recipe.time">{{ recipe.time }}</span>
+            <div class="card-meta" *ngIf="recipe.time || recipe.cuisine">
+              <span class="card-time" *ngIf="recipe.time">{{ recipe.time }}</span>
+              <span
+                class="card-cuisine"
+                *ngIf="recipe.cuisine"
+                [style.color]="cuisineColor(recipe.cuisine)"
+                [style.borderColor]="cuisineColor(recipe.cuisine)"
+                >{{ recipe.cuisine }}</span
+              >
+            </div>
             <h2>{{ recipe.name }}</h2>
           </div>
         </div>
@@ -201,6 +210,25 @@
           <input [(ngModel)]="newCategory" name="newCategory" />
         </label>
 
+        <!-- Cuisine dropdown -->
+        <label>
+          Cuisine
+          <select
+            [ngModel]="cuisineChoice"
+            (ngModelChange)="onCuisineChange($event)"
+            name="cuisineSel"
+          >
+            <option value="">No cuisine</option>
+            <option *ngFor="let c of cuisines()" [value]="c">{{ c }}</option>
+            <option [value]="NEW_OPT">+ New cuisine…</option>
+          </select>
+        </label>
+
+        <label *ngIf="cuisineChoice === NEW_OPT">
+          New cuisine
+          <input [(ngModel)]="newCuisine" name="newCuisine" placeholder="e.g. Turkish" />
+        </label>
+
         <label>
           Time (optional, e.g. 30 mins, 1 hr)
           <input [(ngModel)]="newRecipe.time" name="time" placeholder="e.g. 30 mins" />
@@ -242,6 +270,13 @@
     <h1 class="detail-pg-title">{{ detailRecipe()?.name }}</h1>
     <div class="detail-pg-meta">
       <span class="detail-pg-tag">{{ detailRecipe()?.category }}</span>
+      <span
+        class="detail-pg-cuisine"
+        *ngIf="detailRecipe()?.cuisine && !editMode()"
+        [style.color]="cuisineInk(detailRecipe()?.cuisine)"
+        [style.borderColor]="cuisineColor(detailRecipe()?.cuisine)"
+        >{{ detailRecipe()?.cuisine }}</span
+      >
       <span class="detail-pg-time" *ngIf="detailRecipe()?.time && !editMode()">{{ detailRecipe()?.time }}</span>
     </div>
   </div>
@@ -277,6 +312,27 @@
         <input class="detail-edit-input" [(ngModel)]="editTimeText" placeholder="e.g. 30 mins, 1 hr" />
       </label>
       <label class="detail-edit-label">
+        Cuisine
+        <select
+          class="detail-edit-input"
+          [(ngModel)]="editCuisineChoice"
+          name="editCuisineSel"
+        >
+          <option value="">No cuisine</option>
+          <option *ngFor="let c of cuisines()" [value]="c">{{ c }}</option>
+          <option [value]="NEW_OPT">+ New cuisine…</option>
+        </select>
+      </label>
+      <label class="detail-edit-label" *ngIf="editCuisineChoice === NEW_OPT">
+        New cuisine
+        <input
+          class="detail-edit-input"
+          [(ngModel)]="editNewCuisine"
+          name="editNewCuisine"
+          placeholder="e.g. Turkish"
+        />
+      </label>
+      <label class="detail-edit-label">
         Notes
         <textarea class="detail-edit-textarea" [(ngModel)]="editNotesText" rows="6"></textarea>
       </label>
@@ -289,7 +345,7 @@
 </div>
 
 <!-- Cropper modal (for upload-before-save cropping) -->
-<div class="modal" *ngIf="showCropper" (click)="closeCropper()">
+<div class="modal" *ngIf="showCropper()" (click)="closeCropper()">
   <div class="modal-card cropper-card" (click)="$event.stopPropagation()">
     <button class="close" (click)="closeCropper()" aria-label="Close">×</button>
 

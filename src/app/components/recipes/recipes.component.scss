@@ -324,13 +324,33 @@
 
     background: linear-gradient(to top, #000000db, #00000069, #00000000);
 
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 5px;
+      flex-wrap: wrap;
+    }
+
     .card-time {
-      display: block;
       font-size: 0.72rem;
       color: rgba(255, 255, 255, 0.72);
       font-weight: 600;
-      margin-bottom: 3px;
       letter-spacing: 0.2px;
+    }
+
+    .card-cuisine {
+      font-size: 0.66rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 2px 9px;
+      border-radius: 999px;
+      border: 1.5px solid currentColor;
+      background: rgba(0, 0, 0, 0.28);
+      backdrop-filter: blur(2px);
+      white-space: nowrap;
+      line-height: 1.5;
     }
 
     h2 {
@@ -1024,4 +1044,22 @@
 @media (max-width: 768px) {
   .skeleton-grid { grid-template-columns: 1fr; }
   .skeleton-card { height: 200px; }
+}
+
+/* Cuisine pill on the detail header */
+.detail-pg-cuisine {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 3px 11px;
+  border-radius: 999px;
+  border: 1.5px solid currentColor;
+  background: rgba(0, 0, 0, 0.04);
+  white-space: nowrap;
+}
+
+/* Nothing behind an open modal scrolls */
+.recipes-page.modal-open .recipes-container {
+  overflow: hidden;
 }

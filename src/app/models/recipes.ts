@@ -5,6 +5,7 @@ export interface Recipe {
   image: string;          // Image URL (storage or external)
   category: string;       // Breakfast, Sides, etc.
   time?: string;          // Cook/prep time, e.g. "25 mins"
+  cuisine?: string;       // Italian, Turkish, Mexican... shown as a colored pill
   notes?: string;         // Free text (tips, ingredients, small write-up)
   sourceUrl?: string;     // Optional external link (YouTube/blog)
   createdAt?: any;        // serverTimestamp
