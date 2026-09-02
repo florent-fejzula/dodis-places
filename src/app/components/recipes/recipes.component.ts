@@ -6,6 +6,7 @@ import {
   effect,
   signal,
   computed,
+  HostListener,
   ViewChild,
   ElementRef,
 } from '@angular/core';
@@ -316,6 +317,24 @@ export class RecipesComponent implements OnInit, OnDestroy {
 
   selectCategory(cat: string) {
     this.selectedCategory.set(cat);
+  }
+
+  /** Esc closes the topmost thing that is open, one layer at a time. */
+  @HostListener('document:keydown.escape')
+  onEscape() {
+    if (this.showCropper()) {
+      this.closeCropper();
+      return;
+    }
+    if (this.showAddForm()) {
+      this.showAddForm.set(false);
+      return;
+    }
+    if (this.showDetail()) {
+      // step back out of editing first, rather than losing the edits outright
+      if (this.editMode()) this.cancelEdit();
+      else this.closeDetails();
+    }
   }
 
   // details
