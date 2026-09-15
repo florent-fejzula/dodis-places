@@ -179,10 +179,16 @@
 .nav-groups {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 16px;
   flex: 1;
   min-width: 0;
+
+  /* Pinned right regardless of how many sibling groups are hidden
+     (e.g. the installed Recipes app hides nav-left/nav-admin — see isStandalone) */
+  .nav-right {
+    margin-left: auto;
+  }
 }
 
 /* Hidden on desktop — the full nav is already visible there */
