@@ -308,16 +308,35 @@
   align-items: stretch;
 
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
 
-  &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  /* The photo lives here so it can zoom while the card itself stays put */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-image: inherit;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: transform 0.45s cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      border-color: #d9c4a9;
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
+    }
+
+    &:hover::before {
+      transform: scale(1.05);
+    }
   }
 
   .overlay {
+    position: relative;
+    z-index: 1;
     margin-top: auto;
     width: 100%;
     padding: 12px 12px 10px;
@@ -378,6 +397,7 @@
   }
 
   .delete-x {
+    z-index: 3;
     position: absolute;
     top: 8px;
     right: 8px;
