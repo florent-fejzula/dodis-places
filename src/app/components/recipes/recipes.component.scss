@@ -339,6 +339,14 @@
       letter-spacing: 0.2px;
     }
 
+    .card-made {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.82);
+      letter-spacing: 0.3px;
+      padding-left: 1px;
+    }
+
     .card-cuisine {
       font-size: 0.66rem;
       font-weight: 700;
@@ -1065,4 +1073,100 @@
 /* Nothing behind an open modal scrolls */
 .recipes-page.modal-open .recipes-container {
   overflow: hidden;
+}
+
+/* +1, revealed on hover so the card stays uncluttered */
+.recipe-card {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.made-btn {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 3;
+  min-width: 34px;
+  height: 30px;
+  padding: 0 10px;
+  border: 1.5px solid rgba(255, 255, 255, 0.55);
+  border-radius: 999px;
+  background: rgba(20, 20, 20, 0.55);
+  backdrop-filter: blur(3px);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.82rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease;
+
+  &:hover {
+    background: #388659;
+    border-color: #388659;
+  }
+}
+
+.recipe-card:hover .made-btn,
+.made-btn:focus-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Touch devices get the long-press gesture instead - no sticky hover button */
+@media (hover: none) {
+  .made-btn { display: none; }
+}
+
+/* Cooked counter on the detail view */
+.detail-made {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+
+  .detail-made-count {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: #6b6b6b;
+  }
+
+  .detail-made-btn {
+    background: #fff;
+    color: #33613f;
+    border: 1.5px solid #cfe3d6;
+    border-radius: 999px;
+    padding: 5px 14px;
+    font-weight: 800;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+
+    &:hover {
+      background: #f0f7f3;
+      border-color: #b8dcc8;
+    }
+  }
+}
+
+/* Toast can carry an action now */
+.copy-toast {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  .toast-action {
+    background: none;
+    border: none;
+    color: #8fd3a8;
+    font-weight: 800;
+    font-size: 0.85rem;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    padding: 0;
+  }
 }

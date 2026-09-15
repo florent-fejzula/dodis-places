@@ -115,8 +115,17 @@ export class RecipesComponent implements OnInit, OnDestroy {
     document.body.style.overflow = this.anyModalOpen() ? 'hidden' : '';
   });
 
-  copyToast = signal<string>('');
-  private copyToastTimer: ReturnType<typeof setTimeout> | null = null;
+  toast = signal<{ message: string; actionLabel?: string; action?: () => void } | null>(
+    null
+  );
+  private toastTimer: ReturnType<typeof setTimeout> | null = null;
+
+  // long-press state for the "+1 made" gesture on touch
+  private pressTimer: ReturnType<typeof setTimeout> | null = null;
+  private pressOrigin: { x: number; y: number } | null = null;
+  private suppressClickTimer: ReturnType<typeof setTimeout> | null = null;
+  private suppressNextClick = false;
+  private lastPointerType: string = 'mouse';
 
   /** On mobile the header collapses into the top bar + side menu. */
   private mobileNavSync = effect(() => {
@@ -231,7 +240,9 @@ export class RecipesComponent implements OnInit, OnDestroy {
     this.recipesSub?.unsubscribe();
     document.body.style.overflow = '';
     this.mobileNav.clear();
-    if (this.copyToastTimer) clearTimeout(this.copyToastTimer);
+    if (this.toastTimer) clearTimeout(this.toastTimer);
+    if (this.suppressClickTimer) clearTimeout(this.suppressClickTimer);
+    this.cancelPress();
   }
 
   // ---------- Copy to clipboard ----------
@@ -269,7 +280,7 @@ export class RecipesComponent implements OnInit, OnDestroy {
   async copyRecipes() {
     const count = this.countVisible();
     if (!count) {
-      this.showCopyToast('Nothing to copy');
+      this.showToast('Nothing to copy');
       return;
     }
 
@@ -280,12 +291,12 @@ export class RecipesComponent implements OnInit, OnDestroy {
     } catch {
       // Safari/iOS outside a user gesture, or an insecure context
       if (!this.copyViaTextarea(text)) {
-        this.showCopyToast('Couldn’t copy — check clipboard permissions');
+        this.showToast('Couldn’t copy — check clipboard permissions');
         return;
       }
     }
 
-    this.showCopyToast(
+    this.showToast(
       count === 1 ? 'Copied 1 recipe' : `Copied ${count} recipes`
     );
   }
@@ -309,10 +320,139 @@ export class RecipesComponent implements OnInit, OnDestroy {
     return ok;
   }
 
-  private showCopyToast(message: string) {
-    this.copyToast.set(message);
-    if (this.copyToastTimer) clearTimeout(this.copyToastTimer);
-    this.copyToastTimer = setTimeout(() => this.copyToast.set(''), 2500);
+  private showToast(
+    message: string,
+    action?: { label: string; run: () => void },
+    ms = 2500
+  ) {
+    this.toast.set({
+      message,
+      actionLabel: action?.label,
+      action: action?.run,
+    });
+    if (this.toastTimer) clearTimeout(this.toastTimer);
+    this.toastTimer = setTimeout(() => this.toast.set(null), ms);
+  }
+
+  runToastAction() {
+    const action = this.toast()?.action;
+    this.toast.set(null);
+    if (this.toastTimer) clearTimeout(this.toastTimer);
+    action?.();
+  }
+
+  // ---------- Cooked counter ----------
+
+  madeCount(recipe: Recipe | null | undefined): number {
+    return Math.max(0, recipe?.madeCount ?? 0);
+  }
+
+  madeLabel(recipe: Recipe | null | undefined): string {
+    const n = this.madeCount(recipe);
+    if (!n) return 'Not made yet';
+    return n === 1 ? 'Made once' : `Made ${n} times`;
+  }
+
+  /** One gesture, no confirmation - the toast offers an undo instead. */
+  async addMade(recipe: Recipe, ev?: Event) {
+    ev?.stopPropagation();
+    if (!recipe?.id || !this.canEdit()) return;
+
+    const next = this.madeCount(recipe) + 1;
+    this.patchLocalRecipe(recipe.id, { madeCount: next });
+
+    this.showToast(
+      next === 1 ? 'Made once' : `Made ${next} times`,
+      { label: 'Undo', run: () => this.undoMade(recipe) },
+      4000
+    );
+
+    try {
+      await this.recipesSvc.bumpMade(recipe.id, 1);
+    } catch {
+      this.patchLocalRecipe(recipe.id, { madeCount: next - 1 });
+      this.showToast('Couldn’t save that');
+    }
+  }
+
+  private async undoMade(recipe: Recipe) {
+    if (!recipe?.id) return;
+    const current = this.madeCount(this.recipes().find((r) => r.id === recipe.id));
+    if (current <= 0) return;
+
+    this.patchLocalRecipe(recipe.id, { madeCount: current - 1 });
+    await this.recipesSvc.bumpMade(recipe.id, -1).catch(() => {});
+  }
+
+  /** Keeps the grid and the open detail in step before Firestore answers. */
+  private patchLocalRecipe(id: string, patch: Partial<Recipe>) {
+    this.recipes.update((list) =>
+      list.map((r) => (r.id === id ? { ...r, ...patch } : r))
+    );
+    const open = this.detailRecipe();
+    if (open?.id === id) this.detailRecipe.set({ ...open, ...patch });
+  }
+
+  // ---------- Long press (touch) = +1 ----------
+
+  onCardPointerDown(recipe: Recipe, ev: PointerEvent) {
+    this.lastPointerType = ev.pointerType;
+    // Desktop has the hover button; a long mouse press should not fire too
+    if (ev.pointerType === 'mouse' || !this.canEdit()) return;
+
+    this.cancelPress();
+    this.pressOrigin = { x: ev.clientX, y: ev.clientY };
+    this.pressTimer = setTimeout(() => {
+      this.pressTimer = null;
+      this.holdClickSuppression();
+      navigator.vibrate?.(18);
+      this.addMade(recipe);
+    }, 500);
+  }
+
+  onCardPointerMove(ev: PointerEvent) {
+    if (!this.pressTimer || !this.pressOrigin) return;
+    // A finger travelling this far is scrolling the grid, not holding a card
+    if (
+      Math.abs(ev.clientX - this.pressOrigin.x) > 10 ||
+      Math.abs(ev.clientY - this.pressOrigin.y) > 10
+    ) {
+      this.cancelPress();
+    }
+  }
+
+  onCardPointerUp() {
+    this.cancelPress();
+  }
+
+  onCardContextMenu(ev: Event) {
+    // Stop the iOS/Android press-and-hold menu stealing the gesture
+    if (this.lastPointerType !== 'mouse') ev.preventDefault();
+  }
+
+  /** The card's click fires right after a long press - swallow that one. */
+  openDetailsFromCard(recipe: Recipe) {
+    if (this.suppressNextClick) {
+      this.suppressNextClick = false;
+      return;
+    }
+    this.openDetails(recipe);
+  }
+
+  private holdClickSuppression() {
+    this.suppressNextClick = true;
+    if (this.suppressClickTimer) clearTimeout(this.suppressClickTimer);
+    // Some browsers swallow the click entirely; do not strand the flag
+    this.suppressClickTimer = setTimeout(
+      () => (this.suppressNextClick = false),
+      700
+    );
+  }
+
+  private cancelPress() {
+    if (this.pressTimer) clearTimeout(this.pressTimer);
+    this.pressTimer = null;
+    this.pressOrigin = null;
   }
 
   selectCategory(cat: string) {

@@ -14,6 +14,7 @@ import {
   where,
   getDocs,
   writeBatch,
+  increment,
 } from '@angular/fire/firestore';
 import {
   Storage,
@@ -134,6 +135,22 @@ export class RecipesService {
     Object.keys(patch).forEach(
       (k) => patch[k] === undefined && delete patch[k]
     );
+    await updateDoc(ref, patch);
+    this.bustCache();
+  }
+
+  /**
+   * Adds to (or subtracts from) the cooked counter. Uses an atomic increment
+   * so two quick taps cannot overwrite each other.
+   */
+  async bumpMade(id: string, delta: number): Promise<void> {
+    const ref = doc(this.firestore, `recipes/${id}`);
+    const patch: any = {
+      madeCount: increment(delta),
+      updatedAt: serverTimestamp(),
+    };
+    if (delta > 0) patch.lastMadeAt = serverTimestamp();
+
     await updateDoc(ref, patch);
     this.bustCache();
   }

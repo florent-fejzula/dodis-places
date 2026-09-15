@@ -96,9 +96,15 @@
         <div
           class="recipe-card"
           *ngFor="let recipe of section.items"
-          (click)="openDetails(recipe)"
+          (click)="openDetailsFromCard(recipe)"
+          (pointerdown)="onCardPointerDown(recipe, $event)"
+          (pointermove)="onCardPointerMove($event)"
+          (pointerup)="onCardPointerUp()"
+          (pointercancel)="onCardPointerUp()"
+          (pointerleave)="onCardPointerUp()"
+          (contextmenu)="onCardContextMenu($event)"
           [style.backgroundImage]="'url(' + recipe.image + ')'"
-          title="Click for details"
+          title="Click for details — hold to count a cook"
         >
           <button
             class="delete-x"
@@ -108,8 +114,19 @@
             title="Delete"
           >×</button>
 
+          <button
+            class="made-btn"
+            *ngIf="canEdit()"
+            (click)="addMade(recipe, $event)"
+            [attr.aria-label]="'Count a cook of ' + recipe.name"
+            title="I made this"
+          >+1</button>
+
           <div class="overlay">
-            <div class="card-meta" *ngIf="recipe.time || recipe.cuisine">
+            <div
+              class="card-meta"
+              *ngIf="recipe.time || recipe.cuisine || madeCount(recipe)"
+            >
               <span class="card-time" *ngIf="recipe.time">{{ recipe.time }}</span>
               <span
                 class="card-cuisine"
@@ -117,6 +134,12 @@
                 [style.color]="cuisineColor(recipe.cuisine)"
                 [style.borderColor]="cuisineColor(recipe.cuisine)"
                 >{{ recipe.cuisine }}</span
+              >
+              <span
+                class="card-made"
+                *ngIf="madeCount(recipe)"
+                [title]="madeLabel(recipe)"
+                >{{ madeCount(recipe) }}×</span
               >
             </div>
             <h2>{{ recipe.name }}</h2>
@@ -128,7 +151,12 @@
 </div>
 
 <!-- Copy feedback -->
-<div class="copy-toast" *ngIf="copyToast()">{{ copyToast() }}</div>
+<div class="copy-toast" *ngIf="toast() as t">
+  <span>{{ t.message }}</span>
+  <button class="toast-action" *ngIf="t.actionLabel" (click)="runToastAction()">
+    {{ t.actionLabel }}
+  </button>
+</div>
 
 <!-- Add Recipe modal (now a proper modal instead of inline in sidebar) -->
 <div
@@ -288,6 +316,17 @@
   <div class="detail-pg-content">
     <!-- view mode -->
     <ng-container *ngIf="!editMode()">
+      <div class="detail-made">
+        <span class="detail-made-count">{{ madeLabel(detailRecipe()) }}</span>
+        <button
+          class="detail-made-btn"
+          *ngIf="canEdit()"
+          (click)="addMade(detailRecipe()!, $event)"
+        >
+          +1
+        </button>
+      </div>
+
       <div class="detail-notes" *ngIf="detailRecipe()?.notes">
         <div class="detail-notes-label">Notes</div>
         <p>{{ detailRecipe()?.notes }}</p>
