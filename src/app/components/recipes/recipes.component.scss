@@ -320,7 +320,7 @@
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    transition: transform 0.45s cubic-bezier(0.2, 0.7, 0.3, 1);
+    transition: transform 1.1s cubic-bezier(0.22, 0.61, 0.36, 1);
   }
 
   @media (hover: hover) and (pointer: fine) {
@@ -330,7 +330,7 @@
     }
 
     &:hover::before {
-      transform: scale(1.05);
+      transform: scale(1.022);
     }
   }
 
@@ -1104,35 +1104,41 @@
 
 .made-btn {
   position: absolute;
-  top: 10px;
-  left: 10px;
+  top: 9px;
+  left: 9px;
   z-index: 3;
-  min-width: 34px;
-  height: 30px;
-  padding: 0 10px;
-  border: 1.5px solid rgba(255, 255, 255, 0.55);
+  min-width: 28px;
+  height: 25px;
+  padding: 0 9px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 999px;
-  background: rgba(20, 20, 20, 0.55);
-  backdrop-filter: blur(3px);
-  color: #fff;
-  font-weight: 800;
-  font-size: 0.82rem;
+  background: rgba(20, 20, 20, 0.3);
+  backdrop-filter: blur(2px);
+  color: rgba(255, 255, 255, 0.88);
+  font-weight: 600;
+  font-size: 0.72rem;
+  letter-spacing: 0.2px;
   line-height: 1;
   cursor: pointer;
   opacity: 0;
-  transform: translateY(-4px);
-  transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease;
+  transition: opacity 0.35s ease, background 0.2s ease, border-color 0.2s ease,
+    color 0.2s ease;
 
+  /* Only commits to a colour once you are actually on it */
   &:hover {
-    background: #388659;
-    border-color: #388659;
+    background: rgba(56, 134, 89, 0.85);
+    border-color: rgba(56, 134, 89, 0.9);
+    color: #fff;
   }
 }
 
-.recipe-card:hover .made-btn,
+.recipe-card:hover .made-btn {
+  opacity: 0.55;
+}
+
+.recipe-card .made-btn:hover,
 .made-btn:focus-visible {
   opacity: 1;
-  transform: translateY(0);
 }
 
 /* Touch devices get the long-press gesture instead - no sticky hover button */
