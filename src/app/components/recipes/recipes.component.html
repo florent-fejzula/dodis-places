@@ -117,17 +117,14 @@
           <button
             class="made-btn"
             *ngIf="canEdit()"
+            [class.has-count]="madeCount(recipe) > 0"
             (click)="addMade(recipe, $event)"
             [attr.aria-label]="'Count a cook of ' + recipe.name"
-            title="I made this"
-          >+1</button>
+            [title]="madeLabel(recipe)"
+          >{{ madeBadgeText(recipe) }}</button>
 
           <div class="overlay">
-            <div
-              class="card-meta"
-              *ngIf="recipe.time || recipe.cuisine || madeCount(recipe)"
-            >
-              <span class="card-time" *ngIf="recipe.time">{{ recipe.time }}</span>
+            <div class="card-meta" *ngIf="recipe.time || recipe.cuisine">
               <span
                 class="card-cuisine"
                 *ngIf="recipe.cuisine"
@@ -135,12 +132,7 @@
                 [style.borderColor]="cuisineColor(recipe.cuisine)"
                 >{{ recipe.cuisine }}</span
               >
-              <span
-                class="card-made"
-                *ngIf="madeCount(recipe)"
-                [title]="madeLabel(recipe)"
-                >{{ madeCount(recipe) }}×</span
-              >
+              <span class="card-time" *ngIf="recipe.time">{{ recipe.time }}</span>
             </div>
             <h2>{{ recipe.name }}</h2>
           </div>

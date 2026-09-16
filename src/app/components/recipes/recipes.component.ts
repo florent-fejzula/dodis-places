@@ -353,6 +353,12 @@ export class RecipesComponent implements OnInit, OnDestroy {
     return n === 1 ? 'Made once' : `Made ${n} times`;
   }
 
+  /** What the corner badge itself says: the count once there is one, "+1" as an invite before that. */
+  madeBadgeText(recipe: Recipe | null | undefined): string {
+    const n = this.madeCount(recipe);
+    return n > 0 ? `${n}×` : '+1';
+  }
+
   /** One gesture, no confirmation - the toast offers an undo instead. */
   async addMade(recipe: Recipe, ev?: Event) {
     ev?.stopPropagation();

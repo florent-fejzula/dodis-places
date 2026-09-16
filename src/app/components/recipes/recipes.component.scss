@@ -358,14 +358,6 @@
       letter-spacing: 0.2px;
     }
 
-    .card-made {
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: rgba(255, 255, 255, 0.82);
-      letter-spacing: 0.3px;
-      padding-left: 1px;
-    }
-
     .card-cuisine {
       font-size: 0.66rem;
       font-weight: 700;
@@ -1124,26 +1116,38 @@
   transition: opacity 0.35s ease, background 0.2s ease, border-color 0.2s ease,
     color 0.2s ease;
 
-  /* Only commits to a colour once you are actually on it */
+  /* Already made at least once: a quiet, always-on badge in the corner -
+     the same "present but calm" idea as the delete button on the other side */
+  &.has-count {
+    opacity: 0.68;
+  }
+
+  /* Only commits to the green "add one" colour once you are actually on it */
   &:hover {
     background: rgba(56, 134, 89, 0.85);
     border-color: rgba(56, 134, 89, 0.9);
     color: #fff;
+    opacity: 1;
   }
 }
 
-.recipe-card:hover .made-btn {
+/* Nothing made yet: reveal the "+1" invite only while the card is hovered.
+   :where() keeps this out of the specificity fight with .has-count above,
+   so an existing count is never dimmed back down by merely hovering the card. */
+:where(.recipe-card:hover) .made-btn:where(:not(.has-count)) {
   opacity: 0.55;
 }
 
-.recipe-card .made-btn:hover,
 .made-btn:focus-visible {
   opacity: 1;
 }
 
-/* Touch devices get the long-press gesture instead - no sticky hover button */
+/* Touch has no hover to reveal the "+1" invite, so that stays hidden there;
+   an existing count is still worth showing regardless of input method. */
 @media (hover: none) {
-  .made-btn { display: none; }
+  .made-btn:not(.has-count) {
+    display: none;
+  }
 }
 
 /* Cooked counter on the detail view */
