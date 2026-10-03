@@ -13,6 +13,6 @@ export const environment = {
   // Project settings -> Cloud Messaging -> Web Push certificates.
   // Public by design (same trust level as the Firebase apiKey above) -
   // it only lets a browser register for push, nothing more.
-  vapidKey: '',
+  vapidKey: 'BCt7b1jykFc6jiaGH89jLSPnLoA25Ztd3aEUI2J1rJpwSatD5tkjUg62w8xdwIObtarZglhTtpIEJP3DjjUf3uc',
   googleMapsKey: 'AIzaSyDnyZ8J5fuAlurIOyvmCUdRwuWS3u9fAX8'
 };
