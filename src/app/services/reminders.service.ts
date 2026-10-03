@@ -6,6 +6,7 @@ import {
   collectionData,
   doc,
   getDoc,
+  getDocs,
   setDoc,
   updateDoc,
   serverTimestamp,
@@ -42,6 +43,11 @@ export class RemindersService {
   private messagingReady: Promise<Messaging | null> = isSupported()
     .then((supported) => (supported ? getMessaging(this.app) : null))
     .catch(() => null);
+
+  async countRegisteredDevices(uid: string): Promise<number> {
+    const snap = await getDocs(collection(this.firestore, `users/${uid}/fcmTokens`));
+    return snap.size;
+  }
 
   permissionState(): 'unsupported' | NotificationPermission {
     if (typeof Notification === 'undefined') return 'unsupported';

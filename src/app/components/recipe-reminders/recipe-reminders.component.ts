@@ -39,6 +39,8 @@ export class RecipeRemindersComponent implements OnInit, OnDestroy {
   loaded = signal(false);
 
   permission = signal(this.remindersSvc.permissionState());
+  /** At least one device has actually completed registration (a token is on file) - not just OS permission. */
+  deviceRegistered = signal(false);
   enabling = signal(false);
   /** Per-category "sending a test" state, keyed by category */
   testingCategory = signal<string | null>(null);
@@ -81,6 +83,11 @@ export class RecipeRemindersComponent implements OnInit, OnDestroy {
     this.subs.add(
       this.remindersSvc.settings$(uid).subscribe((list) => this.settings.set(list ?? []))
     );
+
+    this.remindersSvc
+      .countRegisteredDevices(uid)
+      .then((n) => this.deviceRegistered.set(n > 0))
+      .catch(() => {});
   }
 
   ngOnDestroy() {
@@ -110,11 +117,18 @@ export class RecipeRemindersComponent implements OnInit, OnDestroy {
     this.enabling.set(true);
     try {
       await this.remindersSvc.enableForDevice(uid);
+      // Only now - after a token has actually been written - is this device
+      // really done. Setting this from OS permission alone (previously the
+      // bug here) showed "on" even when registration itself had failed.
       this.permission.set(this.remindersSvc.permissionState());
+      this.deviceRegistered.set(true);
       this.showToast('Notifications enabled on this device');
     } catch (err) {
-      this.showToast(err instanceof Error ? err.message : 'Something went wrong');
       this.permission.set(this.remindersSvc.permissionState());
+      console.error('Failed to enable notifications', err);
+      const code = (err as any)?.code;
+      const message = err instanceof Error ? err.message : 'Something went wrong';
+      this.showToast(code ? `${message} (${code})` : message, 6000);
     } finally {
       this.enabling.set(false);
     }
@@ -133,9 +147,9 @@ export class RecipeRemindersComponent implements OnInit, OnDestroy {
     }
   }
 
-  private showToast(message: string) {
+  private showToast(message: string, ms = 3500) {
     this.toast.set(message);
     if (this.toastTimer) clearTimeout(this.toastTimer);
-    this.toastTimer = setTimeout(() => this.toast.set(''), 3500);
+    this.toastTimer = setTimeout(() => this.toast.set(''), ms);
   }
 }

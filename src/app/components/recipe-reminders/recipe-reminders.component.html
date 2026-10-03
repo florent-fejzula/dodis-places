@@ -6,34 +6,43 @@
 
   <!-- Device notification state -->
   <div class="device-card">
-    <ng-container [ngSwitch]="permission()">
-      <ng-container *ngSwitchCase="'granted'">
-        <div class="device-status granted">
-          <span class="dot"></span> Notifications are on for this device
-        </div>
-      </ng-container>
+    <!-- Permission granted AND a token is actually on file - the only truly "done" state -->
+    <ng-container *ngIf="permission() === 'granted' && deviceRegistered()">
+      <div class="device-status granted">
+        <span class="dot"></span> Notifications are on for this device
+      </div>
+    </ng-container>
 
-      <ng-container *ngSwitchCase="'denied'">
-        <div class="device-status denied">
-          Notifications are blocked for this site. Allow them from your
-          browser's site settings, then reload this page.
-        </div>
-      </ng-container>
+    <!-- Permission granted but registration didn't finish (or hasn't been tried on this device) -->
+    <ng-container *ngIf="permission() === 'granted' && !deviceRegistered()">
+      <button class="enable-btn" [disabled]="enabling()" (click)="enableNotifications()">
+        {{ enabling() ? 'Enabling…' : 'Finish enabling notifications' }}
+      </button>
+      <p class="device-hint">
+        This browser allowed notifications, but this device hasn't registered yet.
+      </p>
+    </ng-container>
 
-      <ng-container *ngSwitchCase="'unsupported'">
-        <div class="device-status unsupported">
-          This browser can't receive notifications.
-        </div>
-      </ng-container>
+    <ng-container *ngIf="permission() === 'denied'">
+      <div class="device-status denied">
+        Notifications are blocked for this site. Allow them from your
+        browser's site settings, then reload this page.
+      </div>
+    </ng-container>
 
-      <ng-container *ngSwitchDefault>
-        <button class="enable-btn" [disabled]="enabling()" (click)="enableNotifications()">
-          {{ enabling() ? 'Enabling…' : 'Enable notifications on this device' }}
-        </button>
-        <p class="device-hint">
-          Needed once per device/browser before any reminder below can reach you.
-        </p>
-      </ng-container>
+    <ng-container *ngIf="permission() === 'unsupported'">
+      <div class="device-status unsupported">
+        This browser can't receive notifications.
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="permission() === 'default'">
+      <button class="enable-btn" [disabled]="enabling()" (click)="enableNotifications()">
+        {{ enabling() ? 'Enabling…' : 'Enable notifications on this device' }}
+      </button>
+      <p class="device-hint">
+        Needed once per device/browser before any reminder below can reach you.
+      </p>
     </ng-container>
   </div>
 
