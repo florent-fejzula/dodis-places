@@ -53,6 +53,14 @@ export const routes: Routes = [
       ),
   },
 
+  {
+    path: 'recipes/settings',
+    loadComponent: () =>
+      import('./components/recipe-reminders/recipe-reminders.component').then(
+        (m) => m.RecipeRemindersComponent
+      ),
+  },
+
   // Admin
   {
     path: 'add-place',

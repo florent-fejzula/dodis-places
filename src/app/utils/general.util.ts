@@ -46,3 +46,18 @@ export function selectCardImage(
 
   return scored[0]?.score ? scored[0].img.url : (place.imagePrimaryUrl || imgs[0]?.url || null);
 }
+/** Latin/Macedonian-friendly slug: "Kafe Čaršija" -> "kafe-carsija" */
+export function slugify(value: string): string {
+  const map: Record<string, string> = {
+    č: 'c', ć: 'c', š: 's', ž: 'z', đ: 'dj',
+    ѓ: 'g', ќ: 'k', ј: 'j', љ: 'lj', њ: 'nj', џ: 'dz',
+  };
+
+  return (value || '')
+    .toLowerCase()
+    .replace(/[čćšžđѓќјљњџ]/g, (ch) => map[ch] ?? ch)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // strip remaining accents
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}

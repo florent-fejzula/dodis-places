@@ -9,5 +9,10 @@ export const environment = {
     messagingSenderId: "514987896059",
     appId: "1:514987896059:web:54dedb8f20f766584a545e"
   },
+  // Web Push certificate key pair, from Firebase console ->
+  // Project settings -> Cloud Messaging -> Web Push certificates.
+  // Public by design (same trust level as the Firebase apiKey above) -
+  // it only lets a browser register for push, nothing more.
+  vapidKey: '',
   googleMapsKey: 'AIzaSyDnyZ8J5fuAlurIOyvmCUdRwuWS3u9fAX8'
 };

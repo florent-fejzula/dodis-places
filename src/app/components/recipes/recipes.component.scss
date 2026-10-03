@@ -51,6 +51,29 @@
     }
   }
 
+  .settings-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: #fff;
+    color: #6b6456;
+    border: 1.5px solid #e0d8cc;
+    border-radius: 10px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+
+    svg { width: 17px; height: 17px; }
+
+    &:hover {
+      background: #f7f3ec;
+      border-color: #cfc3b0;
+      color: #33613f;
+    }
+  }
+
   .add-btn {
     background: #388659;
     color: #fff;

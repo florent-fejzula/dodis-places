@@ -54,6 +54,14 @@ export class AppComponent {
     window
       .matchMedia?.('(display-mode: standalone)')
       .addEventListener?.('change', () => this.isStandalone.set(this.detectStandalone()));
+
+    // When a reminder notification is tapped while a tab is already open,
+    // combined-sw.js focuses it and posts this instead of opening a new one.
+    navigator.serviceWorker?.addEventListener('message', (event) => {
+      if (event.data?.type === 'open-recipe' && event.data.url) {
+        this.router.navigateByUrl(event.data.url);
+      }
+    });
   }
 
   private detectStandalone(): boolean {

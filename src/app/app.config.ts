@@ -12,6 +12,12 @@ import { provideStorage, getStorage } from '@angular/fire/storage';
 import { provideAuth, getAuth } from '@angular/fire/auth';
 import { environment } from '../environments/environment';
 
+// Messaging and Functions are deliberately NOT provided here: every route
+// shares this file, and importing those SDKs here would pull their weight
+// into the main bundle for every visitor, including ones who never open
+// Recipes. RemindersService constructs them itself, lazily, from the
+// already-initialized FirebaseApp — see src/app/services/reminders.service.ts.
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),

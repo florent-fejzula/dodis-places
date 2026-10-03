@@ -32,6 +32,11 @@
             "assets": [
               "src/favicon.ico",
               "src/manifest.webmanifest",
+              {
+                "glob": "combined-sw.js",
+                "input": "src",
+                "output": "/"
+              },
               "src/assets"
             ],
             "styles": [
@@ -101,6 +106,11 @@
             "assets": [
               "src/favicon.ico",
               "src/manifest.webmanifest",
+              {
+                "glob": "combined-sw.js",
+                "input": "src",
+                "output": "/"
+              },
               "src/assets"
             ],
             "styles": [

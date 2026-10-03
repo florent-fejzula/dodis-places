@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subscription, filter, of, switchMap } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { ImageCropperComponent, ImageCroppedEvent } from 'ngx-image-cropper';
@@ -25,11 +25,12 @@ import {
   MobileNavAction,
   MobileNavService,
 } from 'src/app/services/mobile-nav.service';
+import { RemindersService } from 'src/app/services/reminders.service';
 
 @Component({
   selector: 'app-recipes',
   standalone: true,
-  imports: [CommonModule, FormsModule, ImageCropperComponent],
+  imports: [CommonModule, FormsModule, RouterLink, ImageCropperComponent],
   templateUrl: './recipes.component.html',
   styleUrls: ['./recipes.component.scss'],
 })
@@ -66,8 +67,10 @@ export class RecipesComponent implements OnInit, OnDestroy {
   private recipesSvc = inject(RecipesService);
   private adminSvc = inject(AdminService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   auth = inject(AuthService);
   private mobileNav = inject(MobileNavService);
+  private remindersSvc = inject(RemindersService);
 
   // UI state
   selectedCategory = signal<string>('');
@@ -99,8 +102,22 @@ export class RecipesComponent implements OnInit, OnDestroy {
     computed(() => (this.auth.loading() ? undefined : this.auth.user()))
   );
   private recipesSub?: Subscription;
+  private queryParamSub?: Subscription;
   private claimedLegacy = false;
   recipesLoaded = signal(false);
+
+  /** "/recipes?open=<id>" - how a tapped reminder notification lands here. */
+  private pendingOpenId = signal<string | null>(null);
+  private autoOpenFromLink = effect(() => {
+    const id = this.pendingOpenId();
+    if (!id) return;
+    const match = this.recipes().find((r) => r.id === id);
+    if (!match) return; // recipes may not have loaded yet - reruns when they do
+
+    this.pendingOpenId.set(null);
+    this.openDetails(match);
+    this.router.navigate([], { relativeTo: this.route, queryParams: {}, replaceUrl: true });
+  });
 
   cropFile: File | null = null;
   lockAspectRatio = true;
@@ -133,6 +150,10 @@ export class RecipesComponent implements OnInit, OnDestroy {
       { label: 'Copy recipes', run: () => this.copyRecipes() },
     ];
     if (this.canEdit()) {
+      actions.push({
+        label: 'Reminders',
+        run: () => this.router.navigate(['/recipes/settings']),
+      });
       actions.unshift({
         label: '+ Add Recipe',
         run: () => this.showAddForm.set(true),
@@ -205,6 +226,12 @@ export class RecipesComponent implements OnInit, OnDestroy {
   private croppedBlob: Blob | null = null;
 
   ngOnInit() {
+    this.remindersSvc.listenForForegroundPushes();
+
+    this.queryParamSub = this.route.queryParamMap.subscribe((params) => {
+      this.pendingOpenId.set(params.get('open'));
+    });
+
     this.recipesSub = this.user$
       .pipe(
         filter((user) => user !== undefined),
@@ -238,6 +265,7 @@ export class RecipesComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.recipesSub?.unsubscribe();
+    this.queryParamSub?.unsubscribe();
     document.body.style.overflow = '';
     this.mobileNav.clear();
     if (this.toastTimer) clearTimeout(this.toastTimer);

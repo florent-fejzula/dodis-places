@@ -1,0 +1,88 @@
+<div class="reminders-page">
+  <div class="page-header">
+    <button class="back-btn" (click)="back()">← Back</button>
+    <h1 class="page-title">Recipe Reminders</h1>
+  </div>
+
+  <!-- Device notification state -->
+  <div class="device-card">
+    <ng-container [ngSwitch]="permission()">
+      <ng-container *ngSwitchCase="'granted'">
+        <div class="device-status granted">
+          <span class="dot"></span> Notifications are on for this device
+        </div>
+      </ng-container>
+
+      <ng-container *ngSwitchCase="'denied'">
+        <div class="device-status denied">
+          Notifications are blocked for this site. Allow them from your
+          browser's site settings, then reload this page.
+        </div>
+      </ng-container>
+
+      <ng-container *ngSwitchCase="'unsupported'">
+        <div class="device-status unsupported">
+          This browser can't receive notifications.
+        </div>
+      </ng-container>
+
+      <ng-container *ngSwitchDefault>
+        <button class="enable-btn" [disabled]="enabling()" (click)="enableNotifications()">
+          {{ enabling() ? 'Enabling…' : 'Enable notifications on this device' }}
+        </button>
+        <p class="device-hint">
+          Needed once per device/browser before any reminder below can reach you.
+        </p>
+      </ng-container>
+    </ng-container>
+  </div>
+
+  <!-- Per-category frequency -->
+  <div class="rows" *ngIf="loaded(); else loading">
+    <p class="intro" *ngIf="rows().length">
+      Pick how often you'd like a nudge for each category. We'll pick a
+      random recipe from it each time.
+    </p>
+
+    <div class="empty" *ngIf="!rows().length">
+      <p>Add a few recipes first — reminders are set up per category.</p>
+    </div>
+
+    <div class="row" *ngFor="let row of rows()">
+      <div class="row-main">
+        <span class="row-category">{{ row.category }}</span>
+        <span class="row-count">{{ row.recipeCount }} recipe{{ row.recipeCount === 1 ? '' : 's' }}</span>
+      </div>
+
+      <div class="row-actions">
+        <select
+          class="freq-select"
+          [ngModel]="row.frequencyDays ?? ''"
+          (ngModelChange)="onFrequencyChange(row.category, $event)"
+        >
+          <option *ngFor="let f of frequencies" [value]="f.days ?? ''">
+            {{ f.label }}
+          </option>
+        </select>
+
+        <button
+          class="test-btn"
+          *ngIf="permission() === 'granted'"
+          [disabled]="testingCategory() === row.category"
+          (click)="sendTest(row.category)"
+          title="Send a test reminder for this category right now"
+        >
+          {{ testingCategory() === row.category ? 'Sending…' : 'Test' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #loading>
+    <div class="rows">
+      <div class="row skeleton" *ngFor="let s of [0, 1, 2]"></div>
+    </div>
+  </ng-template>
+</div>
+
+<div class="reminders-toast" *ngIf="toast()">{{ toast() }}</div>
