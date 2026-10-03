@@ -31,9 +31,6 @@ initializeApp();
 const db = getFirestore();
 const messaging = getMessaging();
 
-/** Keep in sync with the frequency options the Settings page offers. */
-const APP_URL = 'https://dodi-s-places.web.app';
-
 interface ReminderSettings {
   category: string;
   frequencyDays: number | null;
@@ -95,15 +92,23 @@ async function pushToUser(
   if (tokensSnap.empty) return false;
 
   const tokens = tokensSnap.docs.map((d) => d.data()['token'] as string);
+  // Data-only on purpose. With a `notification` block the Firebase SDK in
+  // the service worker displays it by itself, and combined-sw.js then shows
+  // its own as well - two notifications per reminder, one without an icon.
+  // Data-only leaves exactly one place that draws it: combined-sw.js.
   const result = await messaging.sendEachForMulticast({
     tokens,
-    notification: {
+    data: {
       title: `Long time no ${category}!`,
       body: `How about making ${recipe.name} again?`,
+      recipeId: recipe.id,
+      category,
+      url: `/recipes?open=${recipe.id}`,
     },
-    data: { recipeId: recipe.id, category },
     webpush: {
-      fcmOptions: { link: `${APP_URL}/recipes?open=${recipe.id}` },
+      // Data-only pushes default to normal priority, which Android can hold
+      // back while the phone is idle; a reminder should arrive on time.
+      headers: { Urgency: 'high', TTL: String(24 * 60 * 60) },
     },
   });
 

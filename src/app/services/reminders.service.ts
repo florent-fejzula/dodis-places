@@ -138,15 +138,18 @@ export class RemindersService {
 
     onMessage(messaging, async (payload) => {
       const registration = await navigator.serviceWorker.ready;
-      const recipeId = payload.data?.['recipeId'];
+      const data = payload.data ?? {};
+      const recipeId = data['recipeId'];
       await registration.showNotification(
-        payload.notification?.title ?? 'Recipe reminder',
+        data['title'] ?? payload.notification?.title ?? 'Recipe reminder',
         {
-          body: payload.notification?.body,
+          body: data['body'] ?? payload.notification?.body,
           icon: 'assets/icons/icon-192x192.png',
           badge: 'assets/icons/icon-72x72.png',
           tag: recipeId ? `recipe-${recipeId}` : 'recipe-reminder',
-          data: { url: recipeId ? `/recipes?open=${recipeId}` : '/recipes' },
+          data: {
+            url: data['url'] ?? (recipeId ? `/recipes?open=${recipeId}` : '/recipes'),
+          },
         }
       );
     });

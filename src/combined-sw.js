@@ -27,19 +27,25 @@ const messaging = firebase.messaging();
 
 // Fires when a push arrives and no tab has the app focused - the normal
 // case for a "long time no X" reminder.
+// Reminders arrive as data-only messages (see functions/src/index.ts), so
+// this is the only code that draws them - the SDK shows nothing on its own.
 messaging.onBackgroundMessage((payload) => {
-  const title = payload.notification?.title ?? 'Recipe reminder';
-  const recipeId = payload.data?.recipeId;
+  const data = payload.data ?? {};
+  const recipeId = data.recipeId;
 
-  self.registration.showNotification(title, {
-    body: payload.notification?.body,
-    icon: 'assets/icons/icon-192x192.png',
-    badge: 'assets/icons/icon-72x72.png',
-    tag: recipeId ? `recipe-${recipeId}` : 'recipe-reminder',
-    data: {
-      url: recipeId ? `/recipes?open=${recipeId}` : '/recipes',
-    },
-  });
+  return self.registration.showNotification(
+    data.title ?? payload.notification?.title ?? 'Recipe reminder',
+    {
+      body: data.body ?? payload.notification?.body,
+      icon: 'assets/icons/icon-192x192.png',
+      badge: 'assets/icons/icon-72x72.png',
+      // Same tag for the same recipe: a repeat replaces, never stacks
+      tag: recipeId ? `recipe-${recipeId}` : 'recipe-reminder',
+      data: {
+        url: data.url ?? (recipeId ? `/recipes?open=${recipeId}` : '/recipes'),
+      },
+    }
+  );
 });
 
 // Tapping the notification should land on that exact recipe, reusing an
