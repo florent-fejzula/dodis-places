@@ -11,7 +11,8 @@
  * Firestore rule - owner-only read/write on `users/{uid}/**` - already
  * covers it; nothing new to open up):
  *   users/{uid}/reminderSettings/{categorySlug}
- *     { category, frequencyDays, lastSentAt?, lastRecipeId?, createdAt }
+ *     { category, frequencyDays, lastSentAt?, lastRecipeId?, createdAt,
+ *       nextDueAt?, nextDueForDays? }   <- the last two are server-only
  *   users/{uid}/fcmTokens/{tokenId}
  *     { token, createdAt }
  */
@@ -37,6 +38,10 @@ interface ReminderSettings {
   lastSentAt?: Timestamp;
   lastRecipeId?: string;
   createdAt?: Timestamp;
+  /** When the next reminder goes out - rolled with jitter, see rollNextDue. */
+  nextDueAt?: Timestamp;
+  /** The frequencyDays nextDueAt was rolled for; a mismatch means re-roll. */
+  nextDueForDays?: number;
 }
 
 interface Recipe {
@@ -46,14 +51,33 @@ interface Recipe {
   ownerId: string;
 }
 
-function isDue(settings: ReminderSettings, now: Timestamp): boolean {
-  if (!settings.frequencyDays) return false;
-  // A freshly-enabled reminder waits out one full interval before its first
-  // ping, rather than firing the moment someone finishes setting it up.
-  const baseline = settings.lastSentAt ?? settings.createdAt;
-  if (!baseline) return false;
-  const dueAt = baseline.toMillis() + settings.frequencyDays * 24 * 60 * 60 * 1000;
-  return now.toMillis() >= dueAt;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+// "Every 2 weeks" should feel like "about every 2 weeks", not clockwork:
+// each gap is a whole number of days, uniformly random within +/-15% of the
+// setting. 7 -> 6..8, 14 -> 12..16, 30 -> 26..35, 60 -> 51..69, 90 -> 77..103.
+const JITTER = 0.15;
+
+function jitteredDays(frequencyDays: number): number {
+  const min = Math.max(1, Math.round(frequencyDays * (1 - JITTER)));
+  const max = Math.max(min, Math.round(frequencyDays * (1 + JITTER)));
+  return min + Math.floor(Math.random() * (max - min + 1));
+}
+
+function rollNextDue(from: Timestamp, frequencyDays: number) {
+  return {
+    nextDueAt: Timestamp.fromMillis(from.toMillis() + jitteredDays(frequencyDays) * DAY_MS),
+    nextDueForDays: frequencyDays,
+  };
+}
+
+// The job runs at 18:00 and lastSentAt lands a few seconds after it, so
+// "exactly N days later" would sit just past the next run and slip a whole
+// day. A couple of hours of slack keeps the day count honest.
+const DUE_SLACK_MS = 2 * 60 * 60 * 1000;
+
+function isDue(nextDueAt: Timestamp, now: Timestamp): boolean {
+  return now.toMillis() >= nextDueAt.toMillis() - DUE_SLACK_MS;
 }
 
 function pickRecipe(recipes: Recipe[], avoidId?: string): Recipe | null {
@@ -155,6 +179,7 @@ async function processDueReminder(
   await settingsRef.update({
     lastSentAt: FieldValue.serverTimestamp(),
     lastRecipeId: recipe.id,
+    ...rollNextDue(now, settings.frequencyDays!),
   });
   logger.info(`Reminded ${uid} about "${settings.category}" -> ${recipe.name}`);
 }
@@ -167,7 +192,33 @@ export const sendRecipeReminders = onSchedule(
 
     for (const doc of snap.docs) {
       const settings = doc.data() as ReminderSettings;
-      if (isDue(settings, now)) {
+      const frequencyDays = settings.frequencyDays;
+
+      if (!frequencyDays) {
+        // Turned off: forget the rolled date, so turning it back on later
+        // rolls a fresh one instead of firing on a stale one.
+        if (settings.nextDueAt) {
+          await doc.ref.update({
+            nextDueAt: FieldValue.delete(),
+            nextDueForDays: FieldValue.delete(),
+          });
+        }
+        continue;
+      }
+
+      let nextDueAt = settings.nextDueAt;
+      if (!nextDueAt || settings.nextDueForDays !== frequencyDays) {
+        // New reminder, or the frequency was changed on the Settings page:
+        // roll from the last send (or from when it was set up, so a new
+        // reminder waits about one interval before its first ping).
+        const baseline = settings.lastSentAt ?? settings.createdAt;
+        if (!baseline) continue;
+        const rolled = rollNextDue(baseline, frequencyDays);
+        await doc.ref.update(rolled);
+        nextDueAt = rolled.nextDueAt;
+      }
+
+      if (isDue(nextDueAt, now)) {
         await processDueReminder(doc.ref, settings, now);
       }
     }
