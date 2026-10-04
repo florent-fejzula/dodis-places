@@ -1,8 +1,9 @@
 /**
  * Recipe reminders.
  *
- * Runs once a day, and for every (user, category) pair with a reminder
- * frequency set, checks whether enough time has passed since the last one.
+ * Runs every 15 minutes from 11:00 to 14:45, and for every (user, category)
+ * pair with a reminder frequency set, checks whether its randomly rolled
+ * next date (about every N days, at a random time 11:00-14:00) has come.
  * When it has: picks a random recipe from that category (not the same one
  * as last time, if there's a choice), and pushes "Long time no <category>!"
  * to every device that user has registered.
@@ -64,20 +65,63 @@ function jitteredDays(frequencyDays: number): number {
   return min + Math.floor(Math.random() * (max - min + 1));
 }
 
-function rollNextDue(from: Timestamp, frequencyDays: number) {
+// The time of day is random too: somewhere between 11:00 and 14:00 local.
+// The schedule below only runs inside this window, so keep them in sync.
+const TIME_ZONE = 'Europe/Skopje';
+const WINDOW_START_MIN = 11 * 60;
+const WINDOW_END_MIN = 14 * 60;
+
+/** Calendar date and minutes-past-midnight of `ms`, as seen in TIME_ZONE. */
+function localParts(ms: number) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: TIME_ZONE,
+    hourCycle: 'h23',
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+  }).formatToParts(new Date(ms));
+  const get = (type: string) => Number(parts.find((p) => p.type === type)!.value);
   return {
-    nextDueAt: Timestamp.fromMillis(from.toMillis() + jitteredDays(frequencyDays) * DAY_MS),
+    year: get('year'),
+    month: get('month'),
+    day: get('day'),
+    minutes: get('hour') * 60 + get('minute'),
+  };
+}
+
+/** The instant that is `minutes` past local midnight on `ms`'s local date. */
+function atLocalTime(ms: number, minutes: number): number {
+  const { year, month, day } = localParts(ms);
+  const asIfUtc = Date.UTC(year, month - 1, day) + minutes * 60 * 1000;
+  // Shift by the zone's offset at that moment (+1h winter, +2h summer).
+  const seen = localParts(asIfUtc);
+  const seenAsUtc =
+    Date.UTC(seen.year, seen.month - 1, seen.day) + seen.minutes * 60 * 1000;
+  return asIfUtc - (seenAsUtc - asIfUtc);
+}
+
+function rollNextDue(from: Timestamp, frequencyDays: number) {
+  const dueDay = from.toMillis() + jitteredDays(frequencyDays) * DAY_MS;
+  const minutes =
+    WINDOW_START_MIN +
+    Math.floor(Math.random() * (WINDOW_END_MIN - WINDOW_START_MIN + 1));
+  return {
+    nextDueAt: Timestamp.fromMillis(atLocalTime(dueDay, minutes)),
     nextDueForDays: frequencyDays,
   };
 }
 
-// The job runs at 18:00 and lastSentAt lands a few seconds after it, so
-// "exactly N days later" would sit just past the next run and slip a whole
-// day. A couple of hours of slack keeps the day count honest.
-const DUE_SLACK_MS = 2 * 60 * 60 * 1000;
+/** Dates rolled before the time window existed (any time of day) get re-rolled. */
+function inWindow(at: Timestamp): boolean {
+  const { minutes } = localParts(at.toMillis());
+  return minutes >= WINDOW_START_MIN && minutes <= WINDOW_END_MIN;
+}
 
 function isDue(nextDueAt: Timestamp, now: Timestamp): boolean {
-  return now.toMillis() >= nextDueAt.toMillis() - DUE_SLACK_MS;
+  // A minute of slack in case a run starts a hair before the quarter-hour.
+  return now.toMillis() >= nextDueAt.toMillis() - 60 * 1000;
 }
 
 function pickRecipe(recipes: Recipe[], avoidId?: string): Recipe | null {
@@ -185,7 +229,10 @@ async function processDueReminder(
 }
 
 export const sendRecipeReminders = onSchedule(
-  { schedule: 'every day 18:00', timeZone: 'Europe/Skopje' },
+  // Every 15 minutes from 11:00 to 14:45 - a reminder goes out on the first
+  // run at or after its rolled time, so 11:00-14:00 in quarter-hour steps.
+  // (The 14:15-14:45 runs only matter if a send failed and is retrying.)
+  { schedule: '*/15 11-14 * * *', timeZone: TIME_ZONE },
   async () => {
     const now = Timestamp.now();
     const snap = await db.collectionGroup('reminderSettings').get();
@@ -207,7 +254,11 @@ export const sendRecipeReminders = onSchedule(
       }
 
       let nextDueAt = settings.nextDueAt;
-      if (!nextDueAt || settings.nextDueForDays !== frequencyDays) {
+      if (
+        !nextDueAt ||
+        settings.nextDueForDays !== frequencyDays ||
+        !inWindow(nextDueAt)
+      ) {
         // New reminder, or the frequency was changed on the Settings page:
         // roll from the last send (or from when it was set up, so a new
         // reminder waits about one interval before its first ping).
