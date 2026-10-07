@@ -224,6 +224,8 @@ export class RecipesComponent implements OnInit, OnDestroy {
   imageChangedEvent: Event | null = null;
   private pendingRawFileName = 'recipe-image';
   private croppedBlob: Blob | null = null;
+  uploadingPhoto = signal(false);
+  photoError = signal('');
 
   ngOnInit() {
     this.remindersSvc.listenForForegroundPushes();
@@ -720,7 +722,7 @@ export class RecipesComponent implements OnInit, OnDestroy {
   }
 
   async applyCroppedImage() {
-    if (!this.croppedBlob) return;
+    if (!this.croppedBlob || this.uploadingPhoto()) return;
 
     const file = this.blobToFile(
       this.croppedBlob,
@@ -728,13 +730,24 @@ export class RecipesComponent implements OnInit, OnDestroy {
       'image/webp',
     );
 
-    const url = await this.recipesSvc.uploadRecipeImage(file);
-    this.newRecipe.image = url;
-
-    this.closeCropper();
+    this.photoError.set('');
+    this.uploadingPhoto.set(true);
+    try {
+      this.newRecipe.image = await this.recipesSvc.uploadRecipeImage(file);
+      this.uploadingPhoto.set(false);
+      this.closeCropper();
+    } catch (err) {
+      console.error('Photo upload failed', err);
+      // Stay on the cropper so the crop isn't lost - just try again
+      this.photoError.set("Couldn't upload the photo. Try again.");
+      this.uploadingPhoto.set(false);
+    }
   }
 
   closeCropper() {
+    // Leaving mid-upload would drop the photo without the user noticing
+    if (this.uploadingPhoto()) return;
+    this.photoError.set('');
     this.showCropper.set(false);
     this.cropFile = null;
     this.croppedBlob = null;

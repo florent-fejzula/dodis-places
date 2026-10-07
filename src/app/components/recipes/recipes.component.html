@@ -413,12 +413,28 @@
         (imageCropped)="onImageCropped($event)"
       ></image-cropper>
 
+      <p class="crop-error" *ngIf="photoError()" role="alert">
+        {{ photoError() }}
+      </p>
+
       <div class="crop-actions">
-        <button type="button" class="ghost" (click)="closeCropper()">
+        <button
+          type="button"
+          class="ghost"
+          [disabled]="uploadingPhoto()"
+          (click)="closeCropper()"
+        >
           Cancel
         </button>
-        <button type="button" class="save" (click)="applyCroppedImage()">
-          Use photo
+        <button
+          type="button"
+          class="save"
+          [disabled]="uploadingPhoto()"
+          [attr.aria-busy]="uploadingPhoto()"
+          (click)="applyCroppedImage()"
+        >
+          <span class="btn-spinner" *ngIf="uploadingPhoto()"></span>
+          {{ uploadingPhoto() ? 'Uploading…' : 'Use photo' }}
         </button>
       </div>
     </div>
