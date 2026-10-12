@@ -277,6 +277,10 @@
           ></textarea>
         </label>
 
+        <ng-container
+          *ngTemplateOutlet="notePhotosEditor; context: { list: notePhotos }"
+        ></ng-container>
+
         <label>
           Source URL (YouTube / blog)
           <input [(ngModel)]="newRecipe.sourceUrl" name="sourceUrl" />
@@ -286,7 +290,9 @@
           <button type="button" class="ghost" (click)="showAddForm.set(false)">
             Cancel
           </button>
-          <button type="submit" class="save">Save</button>
+          <button type="submit" class="save" [disabled]="uploadingNotePhotos() > 0">
+            Save
+          </button>
         </div>
       </form>
     </div>
@@ -333,9 +339,29 @@
         </button>
       </div>
 
-      <div class="detail-notes" *ngIf="detailRecipe()?.notes">
+      <div
+        class="detail-notes"
+        *ngIf="detailRecipe()?.notes || detailRecipe()?.notesImages?.length"
+      >
         <div class="detail-notes-label">Notes</div>
-        <p>{{ detailRecipe()?.notes }}</p>
+        <p *ngIf="detailRecipe()?.notes">{{ detailRecipe()?.notes }}</p>
+
+        <ng-container *ngIf="detailRecipe()?.notesImages as photos">
+          <div class="note-photo-grid view" *ngIf="photos.length">
+            <button
+              type="button"
+              class="note-photo-tile"
+              *ngFor="let url of photos; let i = index"
+              (click)="openLightbox(photos, i)"
+              [attr.aria-label]="'Open photo ' + (i + 1) + ' full screen'"
+            >
+              <img [src]="url" alt="" loading="lazy" />
+            </button>
+          </div>
+          <div class="note-photo-hint" *ngIf="photos.length">
+            Tap a photo to read it full screen
+          </div>
+        </ng-container>
       </div>
 
       <a
@@ -381,9 +407,18 @@
         Notes
         <textarea class="detail-edit-textarea" [(ngModel)]="editNotesText" rows="6"></textarea>
       </label>
+      <ng-container
+        *ngTemplateOutlet="notePhotosEditor; context: { list: editNotePhotos }"
+      ></ng-container>
       <div class="detail-edit-actions">
         <button class="detail-edit-cancel" (click)="cancelEdit()">Cancel</button>
-        <button class="detail-edit-save" (click)="saveEdit()">Save</button>
+        <button
+          class="detail-edit-save"
+          [disabled]="uploadingNotePhotos() > 0"
+          (click)="saveEdit()"
+        >
+          Save
+        </button>
       </div>
     </ng-container>
   </div>
@@ -439,4 +474,82 @@
       </div>
     </div>
   </div>
+</div>
+
+<!-- Photos of the written instructions: shared by the add form and edit mode -->
+<ng-template #notePhotosEditor let-list="list">
+  <div class="note-photos">
+    <div class="note-photos-label">Instruction photos (optional)</div>
+
+    <div class="note-photo-grid">
+      <div class="note-photo-tile" *ngFor="let url of list(); let i = index">
+        <img [src]="url" alt="" (click)="openLightbox(list(), i)" />
+        <button
+          type="button"
+          class="note-photo-remove"
+          (click)="removeNotePhoto(list, i)"
+          aria-label="Remove photo"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="note-photo-tile busy" *ngFor="let slot of uploadingSlots()">
+        <span class="btn-spinner dark"></span>
+      </div>
+
+      <button type="button" class="note-photo-add" (click)="notePhotoInput.click()">
+        <span class="plus">+</span>
+        Add photos
+      </button>
+    </div>
+
+    <p class="crop-error left" *ngIf="notePhotoError()" role="alert">
+      {{ notePhotoError() }}
+    </p>
+
+    <input
+      #notePhotoInput
+      type="file"
+      accept="image/*"
+      multiple
+      hidden
+      (change)="addNotePhotos($event, list)"
+    />
+  </div>
+</ng-template>
+
+<!-- Full-screen photo viewer -->
+<div class="lightbox" *ngIf="lightbox() as lb" (click)="closeLightbox()">
+  <button type="button" class="lightbox-close" (click)="closeLightbox()" aria-label="Close">
+    ×
+  </button>
+
+  <div class="lightbox-stage" [class.zoomed]="lightboxZoom()">
+    <img
+      [src]="lb.images[lb.index]"
+      alt=""
+      (click)="toggleLightboxZoom($event)"
+    />
+  </div>
+
+  <ng-container *ngIf="lb.images.length > 1">
+    <button
+      type="button"
+      class="lightbox-nav prev"
+      (click)="stepLightbox(-1, $event)"
+      aria-label="Previous photo"
+    >
+      ‹
+    </button>
+    <button
+      type="button"
+      class="lightbox-nav next"
+      (click)="stepLightbox(1, $event)"
+      aria-label="Next photo"
+    >
+      ›
+    </button>
+    <div class="lightbox-count">{{ lb.index + 1 }} / {{ lb.images.length }}</div>
+  </ng-container>
 </div>

@@ -6,6 +6,7 @@ import {
   effect,
   signal,
   computed,
+  WritableSignal,
   HostListener,
   ViewChild,
   ElementRef,
@@ -26,6 +27,7 @@ import {
   MobileNavService,
 } from 'src/app/services/mobile-nav.service';
 import { RemindersService } from 'src/app/services/reminders.service';
+import { downscaleImage } from 'src/app/utils/image.util';
 
 @Component({
   selector: 'app-recipes',
@@ -80,6 +82,7 @@ export class RecipesComponent implements OnInit, OnDestroy {
   detailRecipe = signal<Recipe | null>(null);
   editMode = signal(false);
   editNotesText = '';
+  editNotePhotos = signal<string[]>([]);
   editTimeText = '';
   editCuisineChoice = '';
   editNewCuisine = '';
@@ -122,9 +125,13 @@ export class RecipesComponent implements OnInit, OnDestroy {
   cropFile: File | null = null;
   lockAspectRatio = true;
 
-  /** Detail view, add form and cropper all count as "a modal is open". */
+  /** Detail view, add form, cropper and photo viewer all count as "a modal is open". */
   anyModalOpen = computed(
-    () => this.showDetail() || this.showAddForm() || this.showCropper()
+    () =>
+      this.showDetail() ||
+      this.showAddForm() ||
+      this.showCropper() ||
+      this.lightbox() !== null
   );
 
   /** Nothing behind a modal should scroll — phones especially. */
@@ -498,6 +505,10 @@ export class RecipesComponent implements OnInit, OnDestroy {
   /** Esc closes the topmost thing that is open, one layer at a time. */
   @HostListener('document:keydown.escape')
   onEscape() {
+    if (this.lightbox()) {
+      this.closeLightbox();
+      return;
+    }
     if (this.showCropper()) {
       this.closeCropper();
       return;
@@ -528,6 +539,7 @@ export class RecipesComponent implements OnInit, OnDestroy {
   startEdit() {
     const r = this.detailRecipe();
     this.editNotesText = r?.notes ?? '';
+    this.editNotePhotos.set([...(r?.notesImages ?? [])]);
     this.editTimeText = r?.time ?? '';
 
     const cuisine = (r?.cuisine ?? '').trim();
@@ -551,8 +563,10 @@ export class RecipesComponent implements OnInit, OnDestroy {
   async saveEdit() {
     const recipe = this.detailRecipe();
     if (!recipe?.id) return;
+    if (this.uploadingNotePhotos() > 0) return;
     const updates: Partial<Recipe> = {
       notes: this.editNotesText,
+      notesImages: this.editNotePhotos(),
       time: this.editTimeText,
       cuisine: this.resolvedEditCuisine(),
     };
@@ -657,6 +671,92 @@ export class RecipesComponent implements OnInit, OnDestroy {
   onCuisineChange(val: string) {
     this.cuisineChoice = val;
     this.newRecipe.cuisine = val === this.NEW_OPT ? '' : val;
+  }
+
+  // ---- Photos of the written instructions (Notes section)
+  // No cropper here: these are pages of text, so they go up whole (just
+  // shrunk), several at a time, and keep the order they were picked in.
+  notePhotos = signal<string[]>([]);
+  uploadingNotePhotos = signal(0);
+  uploadingSlots = computed(() => Array.from({ length: this.uploadingNotePhotos() }));
+  notePhotoError = signal('');
+
+  async addNotePhotos(event: Event, list: WritableSignal<string[]>) {
+    const input = event.target as HTMLInputElement;
+    const files = Array.from(input.files ?? []).filter((f) =>
+      f.type.startsWith('image/')
+    );
+    input.value = '';
+    if (!files.length) return;
+
+    this.notePhotoError.set('');
+    this.uploadingNotePhotos.update((n) => n + files.length);
+
+    // Upload in parallel, but append in pick order so page 1 stays page 1
+    const urls = await Promise.all(
+      files.map(async (f) => {
+        try {
+          return await this.recipesSvc.uploadRecipeImage(await downscaleImage(f));
+        } catch (err) {
+          console.error('Note photo upload failed', err);
+          return null;
+        } finally {
+          this.uploadingNotePhotos.update((n) => n - 1);
+        }
+      })
+    );
+
+    const ok = urls.filter((u): u is string => !!u);
+    if (ok.length) list.update((l) => [...l, ...ok]);
+    if (ok.length < files.length) {
+      this.notePhotoError.set(
+        ok.length
+          ? "Some photos couldn't be uploaded. Add them again."
+          : "Couldn't upload the photo. Try again."
+      );
+    }
+  }
+
+  removeNotePhoto(list: WritableSignal<string[]>, index: number) {
+    list.update((l) => l.filter((_, i) => i !== index));
+  }
+
+  // ---- Full-screen photo viewer
+  lightbox = signal<{ images: string[]; index: number } | null>(null);
+  lightboxZoom = signal(false);
+
+  openLightbox(images: string[], index: number) {
+    this.lightboxZoom.set(false);
+    this.lightbox.set({ images, index });
+  }
+
+  closeLightbox() {
+    this.lightbox.set(null);
+  }
+
+  stepLightbox(delta: number, ev?: Event) {
+    ev?.stopPropagation();
+    const lb = this.lightbox();
+    if (!lb) return;
+    const n = lb.images.length;
+    this.lightboxZoom.set(false);
+    this.lightbox.set({ ...lb, index: (lb.index + delta + n) % n });
+  }
+
+  /** Tap the photo to blow it up for small print; tap again to fit. */
+  toggleLightboxZoom(ev: Event) {
+    ev.stopPropagation();
+    this.lightboxZoom.update((z) => !z);
+  }
+
+  @HostListener('document:keydown.arrowright')
+  onArrowRight() {
+    if (this.lightbox()) this.stepLightbox(1);
+  }
+
+  @HostListener('document:keydown.arrowleft')
+  onArrowLeft() {
+    if (this.lightbox()) this.stepLightbox(-1);
   }
 
   // ---- Image from clipboard (kept simple: direct upload, no crop)
@@ -771,7 +871,9 @@ export class RecipesComponent implements OnInit, OnDestroy {
 
     const uid = this.auth.user()?.uid;
     if (!uid) return;
+    if (this.uploadingNotePhotos() > 0) return;
 
+    this.newRecipe.notesImages = this.notePhotos();
     await this.recipesSvc.addRecipe(this.newRecipe, uid);
 
     // reset form
@@ -784,6 +886,7 @@ export class RecipesComponent implements OnInit, OnDestroy {
       notes: '',
       sourceUrl: '',
     };
+    this.notePhotos.set([]);
     this.categoryChoice = '';
     this.newCategory = '';
     this.cuisineChoice = '';

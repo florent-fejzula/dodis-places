@@ -120,6 +120,7 @@ export class RecipesService {
       cuisine: recipe.cuisine?.trim() || '',
       time: recipe.time?.trim() || '',
       notes: recipe.notes?.trim() || '',
+      notesImages: recipe.notesImages ?? [],
       sourceUrl: recipe.sourceUrl?.trim() || '',
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
@@ -164,7 +165,8 @@ export class RecipesService {
   // ---- Storage upload for images
   async uploadRecipeImage(file: File): Promise<string> {
     const safeName = file.name?.replace(/[^\w.-]+/g, '_') || 'pasted.png';
-    const path = `recipes/${Date.now()}_${safeName}`;
+    // Random part: several photos can be picked at once with the same name
+    const path = `recipes/${Date.now()}_${Math.random().toString(36).slice(2, 8)}_${safeName}`;
     const ref = storageRef(this.storage, path);
 
     const metadata = {

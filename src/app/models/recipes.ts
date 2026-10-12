@@ -7,6 +7,7 @@ export interface Recipe {
   time?: string;          // Cook/prep time, e.g. "25 mins"
   cuisine?: string;       // Italian, Turkish, Mexican... shown as a colored pill
   notes?: string;         // Free text (tips, ingredients, small write-up)
+  notesImages?: string[]; // Photos of the written instructions, in page order
   sourceUrl?: string;     // Optional external link (YouTube/blog)
   madeCount?: number;     // How many times it has been cooked
   lastMadeAt?: any;       // serverTimestamp of the last +1
