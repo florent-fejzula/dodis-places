@@ -8,8 +8,6 @@ import {
   computed,
   WritableSignal,
   HostListener,
-  ViewChild,
-  ElementRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { toObservable } from '@angular/core/rxjs-interop';
@@ -19,7 +17,7 @@ import { FormsModule } from '@angular/forms';
 import { ImageCropperComponent, ImageCroppedEvent } from 'ngx-image-cropper';
 
 import { RecipesService } from 'src/app/services/recipes.service';
-import { Recipe } from 'src/app/models/recipes';
+import { Recipe, recipePhotos } from 'src/app/models/recipes';
 import { AdminService } from 'src/app/services/admin.service';
 import { AuthService } from 'src/app/auth/auth.service';
 import {
@@ -83,6 +81,14 @@ export class RecipesComponent implements OnInit, OnDestroy {
   editMode = signal(false);
   editNotesText = '';
   editNotePhotos = signal<string[]>([]);
+  editPhotos = signal<string[]>([]);
+
+  // Detail view photos: the big one plus thumbnails to switch between them
+  detailPhotos = computed(() => recipePhotos(this.detailRecipe()));
+  heroIndex = signal(0);
+  heroPhoto = computed(
+    () => this.detailPhotos()[this.heroIndex()] ?? this.detailPhotos()[0]
+  );
   editTimeText = '';
   editCuisineChoice = '';
   editNewCuisine = '';
@@ -223,8 +229,9 @@ export class RecipesComponent implements OnInit, OnDestroy {
   newCuisine = '';
   readonly NEW_OPT = '__new__';
 
-  // file input reference
-  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+  // ---- Recipe photos (cover first) in the add form
+  newPhotos = signal<string[]>([]);
+  newPhotoUrl = '';
 
   // ---- Cropper state (upload-before-save)
   showCropper = signal(false);
@@ -233,6 +240,11 @@ export class RecipesComponent implements OnInit, OnDestroy {
   private croppedBlob: Blob | null = null;
   uploadingPhoto = signal(false);
   photoError = signal('');
+  /** The photo list a finished crop is added to (add form or edit mode). */
+  private cropTarget: WritableSignal<string[]> | null = null;
+  /** Picking several photos crops them one after another. */
+  private cropQueue: File[] = [];
+  cropRemaining = signal(0);
 
   ngOnInit() {
     this.remindersSvc.listenForForegroundPushes();
@@ -526,6 +538,7 @@ export class RecipesComponent implements OnInit, OnDestroy {
 
   // details
   openDetails(r: Recipe) {
+    this.heroIndex.set(0);
     this.detailRecipe.set(r);
     this.showDetail.set(true);
   }
@@ -540,6 +553,7 @@ export class RecipesComponent implements OnInit, OnDestroy {
     const r = this.detailRecipe();
     this.editNotesText = r?.notes ?? '';
     this.editNotePhotos.set([...(r?.notesImages ?? [])]);
+    this.editPhotos.set([...recipePhotos(r)]);
     this.editTimeText = r?.time ?? '';
 
     const cuisine = (r?.cuisine ?? '').trim();
@@ -564,13 +578,19 @@ export class RecipesComponent implements OnInit, OnDestroy {
     const recipe = this.detailRecipe();
     if (!recipe?.id) return;
     if (this.uploadingNotePhotos() > 0) return;
+    // The card needs a cover, so a recipe can't end up with no photo at all
+    const photos = this.editPhotos();
+    if (!photos.length) return;
     const updates: Partial<Recipe> = {
+      image: photos[0],
+      images: photos,
       notes: this.editNotesText,
       notesImages: this.editNotePhotos(),
       time: this.editTimeText,
       cuisine: this.resolvedEditCuisine(),
     };
     await this.recipesSvc.updateRecipe(recipe.id, updates);
+    this.heroIndex.set(0);
     this.detailRecipe.set({ ...recipe, ...updates });
     this.editMode.set(false);
   }
@@ -717,8 +737,22 @@ export class RecipesComponent implements OnInit, OnDestroy {
     }
   }
 
-  removeNotePhoto(list: WritableSignal<string[]>, index: number) {
+  removePhoto(list: WritableSignal<string[]>, index: number) {
     list.update((l) => l.filter((_, i) => i !== index));
+  }
+
+  /** Moves a photo to the front, which is what the recipe card shows. */
+  makeCover(list: WritableSignal<string[]>, index: number) {
+    list.update((l) => [l[index], ...l.filter((_, i) => i !== index)]);
+  }
+
+  /** The add form's URL box: Enter (or leaving the box) adds it as a photo. */
+  addPhotoUrl(ev?: Event) {
+    ev?.preventDefault(); // Enter would otherwise submit the whole form
+    const url = this.newPhotoUrl.trim();
+    if (!url) return;
+    this.newPhotos.update((l) => (l.includes(url) ? l : [...l, url]));
+    this.newPhotoUrl = '';
   }
 
   // ---- Full-screen photo viewer
@@ -779,33 +813,50 @@ export class RecipesComponent implements OnInit, OnDestroy {
       type: blob.type,
     });
 
-    this.pendingRawFileName = 'pasted-recipe';
-    this.cropFile = file;
-    this.croppedBlob = null;
-    this.showCropper.set(true);
+    // Paste only exists on the add form
+    this.cropTarget = this.newPhotos;
+    this.cropQueue = [];
+    this.startCrop(file);
 
     // Optional: prevent the pasted image from also being inserted into inputs
     e.preventDefault();
   }
 
-  // ---- Upload from device (now opens cropper first)
-  triggerFilePicker() {
-    this.fileInput?.nativeElement.click();
+  // ---- Upload from device: every picked photo goes through the cropper
+  onPhotosPicked(event: Event, list: WritableSignal<string[]>) {
+    const input = event.target as HTMLInputElement;
+    const files = Array.from(input.files ?? []).filter((f) =>
+      f.type.startsWith('image/')
+    );
+    input.value = '';
+    if (!files.length) return;
+
+    this.cropTarget = list;
+    this.cropQueue = files.slice(1);
+    this.startCrop(files[0]);
   }
 
-  onFileSelected(event: Event) {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-
+  private startCrop(file: File) {
     this.pendingRawFileName =
       file.name?.replace(/\.[^/.]+$/, '') || 'recipe-image';
-
-    this.cropFile = file; // ✅ pass file directly
+    this.cropFile = file;
     this.croppedBlob = null;
+    this.photoError.set('');
+    this.cropRemaining.set(this.cropQueue.length);
     this.showCropper.set(true);
+  }
 
-    input.value = ''; // ✅ safe now
+  /** On to the next picked photo, or done. */
+  private nextCrop() {
+    const next = this.cropQueue.shift();
+    if (next) this.startCrop(next);
+    else this.closeCropper();
+  }
+
+  /** "Skip" when several were picked: leave this one out, keep going. */
+  skipCrop() {
+    if (this.uploadingPhoto()) return;
+    this.nextCrop();
   }
 
   onImageCropped(event: ImageCroppedEvent) {
@@ -833,9 +884,10 @@ export class RecipesComponent implements OnInit, OnDestroy {
     this.photoError.set('');
     this.uploadingPhoto.set(true);
     try {
-      this.newRecipe.image = await this.recipesSvc.uploadRecipeImage(file);
+      const url = await this.recipesSvc.uploadRecipeImage(file);
+      this.cropTarget?.update((l) => [...l, url]);
       this.uploadingPhoto.set(false);
-      this.closeCropper();
+      this.nextCrop();
     } catch (err) {
       console.error('Photo upload failed', err);
       // Stay on the cropper so the crop isn't lost - just try again
@@ -851,6 +903,8 @@ export class RecipesComponent implements OnInit, OnDestroy {
     this.showCropper.set(false);
     this.cropFile = null;
     this.croppedBlob = null;
+    this.cropQueue = [];
+    this.cropRemaining.set(0);
   }
 
   async addRecipe() {
@@ -866,13 +920,17 @@ export class RecipesComponent implements OnInit, OnDestroy {
         : this.cuisineChoice || this.newRecipe.cuisine || ''
     ).trim();
 
-    const { name, image, category: cat } = this.newRecipe;
-    if (!name || !image || !cat) return;
+    this.addPhotoUrl(); // a URL typed but not yet added still counts
+    const photos = this.newPhotos();
+    const { name, category: cat } = this.newRecipe;
+    if (!name || !photos.length || !cat) return;
 
     const uid = this.auth.user()?.uid;
     if (!uid) return;
     if (this.uploadingNotePhotos() > 0) return;
 
+    this.newRecipe.image = photos[0];
+    this.newRecipe.images = photos;
     this.newRecipe.notesImages = this.notePhotos();
     await this.recipesSvc.addRecipe(this.newRecipe, uid);
 
@@ -887,6 +945,7 @@ export class RecipesComponent implements OnInit, OnDestroy {
       sourceUrl: '',
     };
     this.notePhotos.set([]);
+    this.newPhotos.set([]);
     this.categoryChoice = '';
     this.newCategory = '';
     this.cuisineChoice = '';

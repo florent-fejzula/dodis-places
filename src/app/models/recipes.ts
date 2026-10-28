@@ -2,7 +2,8 @@ export interface Recipe {
   id?: string;            // Firestore doc id
   ownerId?: string;       // uid of whoever added it; each cook sees only their own
   name: string;           // Card title
-  image: string;          // Image URL (storage or external)
+  image: string;          // Cover image URL (storage or external) - what the card shows
+  images?: string[];      // Every photo, cover first; older recipes only have `image`
   category: string;       // Breakfast, Sides, etc.
   time?: string;          // Cook/prep time, e.g. "25 mins"
   cuisine?: string;       // Italian, Turkish, Mexican... shown as a colored pill
@@ -13,6 +14,12 @@ export interface Recipe {
   lastMadeAt?: any;       // serverTimestamp of the last +1
   createdAt?: any;        // serverTimestamp
   updatedAt?: any;        // serverTimestamp
+}
+
+/** A recipe's photos, cover first - also for recipes saved before `images` existed. */
+export function recipePhotos(r: Partial<Recipe> | null | undefined): string[] {
+  if (r?.images?.length) return r.images;
+  return r?.image ? [r.image] : [];
 }
 
 

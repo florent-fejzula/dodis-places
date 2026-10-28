@@ -24,7 +24,7 @@ import {
   updateMetadata,
 } from '@angular/fire/storage';
 import { Observable, concat, of, shareReplay, tap } from 'rxjs';
-import { Recipe } from '../models/recipes';
+import { Recipe, recipePhotos } from '../models/recipes';
 
 @Injectable({ providedIn: 'root' })
 export class RecipesService {
@@ -112,10 +112,12 @@ export class RecipesService {
 
   async addRecipe(recipe: Partial<Recipe>, ownerId: string) {
     const ref = collection(this.firestore, 'recipes');
+    const images = recipePhotos(recipe).map((u) => u.trim()).filter(Boolean);
     const payload: Partial<Recipe> = {
       ownerId,
       name: recipe.name?.trim() || 'Untitled',
-      image: recipe.image?.trim() || '',
+      image: images[0] || '',
+      images,
       category: recipe.category?.trim() || 'Other',
       cuisine: recipe.cuisine?.trim() || '',
       time: recipe.time?.trim() || '',

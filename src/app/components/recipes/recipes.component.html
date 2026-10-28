@@ -189,39 +189,19 @@
           <input [(ngModel)]="newRecipe.name" name="name" required />
         </label>
 
-        <!-- Image block -->
-        <div class="img-row" (paste)="onPasteImage($event)">
-          <div class="grow">
-            <label for="imageUrl">Image (paste Ctrl+V, upload or URL)</label>
-            <div class="img-controls">
-              <button
-                type="button"
-                class="button"
-                (click)="triggerFilePicker()"
-              >
-                Upload image
-              </button>
-
-              <input
-                #fileInput
-                type="file"
-                accept="image/*"
-                (change)="onFileSelected($event)"
-                hidden
-              />
-
-              <input
-                id="imageUrl"
-                [(ngModel)]="newRecipe.image"
-                name="imageUrl"
-                placeholder="Or paste image URL"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div class="preview" *ngIf="newRecipe.image">
-          <img [src]="newRecipe.image" alt="Preview" />
+        <!-- Photos (cover first); pasting an image anywhere in the form adds one too -->
+        <div class="photos-block">
+          <ng-container
+            *ngTemplateOutlet="photosEditor; context: { list: newPhotos }"
+          ></ng-container>
+          <input
+            id="imageUrl"
+            [(ngModel)]="newPhotoUrl"
+            name="imageUrl"
+            placeholder="Or paste an image URL and press Enter"
+            (keydown.enter)="addPhotoUrl($event)"
+            (blur)="addPhotoUrl()"
+          />
         </div>
 
         <!-- Category dropdown -->
@@ -322,7 +302,22 @@
   </div>
 
   <div class="detail-pg-image">
-    <img [src]="detailRecipe()?.image" [alt]="detailRecipe()?.name" />
+    <img
+      [src]="heroPhoto()"
+      [alt]="detailRecipe()?.name"
+      (click)="openLightbox(detailPhotos(), heroIndex())"
+    />
+    <div class="hero-thumbs" *ngIf="detailPhotos().length > 1">
+      <button
+        type="button"
+        *ngFor="let url of detailPhotos(); let i = index"
+        [class.active]="i === heroIndex()"
+        (click)="heroIndex.set(i)"
+        [attr.aria-label]="'Show photo ' + (i + 1)"
+      >
+        <img [src]="url" alt="" loading="lazy" />
+      </button>
+    </div>
   </div>
 
   <div class="detail-pg-content">
@@ -378,6 +373,12 @@
 
     <!-- edit mode (admin) -->
     <ng-container *ngIf="editMode()">
+      <ng-container
+        *ngTemplateOutlet="photosEditor; context: { list: editPhotos }"
+      ></ng-container>
+      <p class="crop-error left" *ngIf="!editPhotos().length">
+        Add at least one photo - the recipe card needs a cover.
+      </p>
       <label class="detail-edit-label">
         Time
         <input class="detail-edit-input" [(ngModel)]="editTimeText" placeholder="e.g. 30 mins, 1 hr" />
@@ -414,7 +415,7 @@
         <button class="detail-edit-cancel" (click)="cancelEdit()">Cancel</button>
         <button
           class="detail-edit-save"
-          [disabled]="uploadingNotePhotos() > 0"
+          [disabled]="uploadingNotePhotos() > 0 || !editPhotos().length"
           (click)="saveEdit()"
         >
           Save
@@ -430,7 +431,12 @@
     <button class="close" (click)="closeCropper()" aria-label="Close">×</button>
 
     <div class="modal-content">
-      <h3>Crop image</h3>
+      <h3>
+        Crop image
+        <span class="crop-more" *ngIf="cropRemaining()">
+          · {{ cropRemaining() }} more after this
+        </span>
+      </h3>
 
       <div class="crop-controls">
         <label class="ratio-toggle">
@@ -457,9 +463,9 @@
           type="button"
           class="ghost"
           [disabled]="uploadingPhoto()"
-          (click)="closeCropper()"
+          (click)="cropRemaining() ? skipCrop() : closeCropper()"
         >
-          Cancel
+          {{ cropRemaining() ? 'Skip' : 'Cancel' }}
         </button>
         <button
           type="button"
@@ -476,6 +482,56 @@
   </div>
 </div>
 
+<!-- The recipe's own photos (cover first): shared by the add form and edit mode.
+     Each picked photo goes through the cropper; several are cropped in turn. -->
+<ng-template #photosEditor let-list="list">
+  <div class="note-photos">
+    <div class="note-photos-label">
+      Photos <span class="muted">· the first one is the card cover</span>
+    </div>
+
+    <div class="note-photo-grid wide">
+      <div
+        class="note-photo-tile"
+        *ngFor="let url of list(); let i = index; let first = first"
+      >
+        <img [src]="url" alt="" (click)="openLightbox(list(), i)" />
+        <span class="cover-badge" *ngIf="first">Cover</span>
+        <button
+          type="button"
+          class="make-cover"
+          *ngIf="!first"
+          (click)="makeCover(list, i)"
+        >
+          Make cover
+        </button>
+        <button
+          type="button"
+          class="note-photo-remove"
+          (click)="removePhoto(list, i)"
+          aria-label="Remove photo"
+        >
+          ×
+        </button>
+      </div>
+
+      <button type="button" class="note-photo-add" (click)="photoInput.click()">
+        <span class="plus">+</span>
+        {{ list().length ? 'Add photos' : 'Add a photo' }}
+      </button>
+    </div>
+
+    <input
+      #photoInput
+      type="file"
+      accept="image/*"
+      multiple
+      hidden
+      (change)="onPhotosPicked($event, list)"
+    />
+  </div>
+</ng-template>
+
 <!-- Photos of the written instructions: shared by the add form and edit mode -->
 <ng-template #notePhotosEditor let-list="list">
   <div class="note-photos">
@@ -487,7 +543,7 @@
         <button
           type="button"
           class="note-photo-remove"
-          (click)="removeNotePhoto(list, i)"
+          (click)="removePhoto(list, i)"
           aria-label="Remove photo"
         >
           ×
