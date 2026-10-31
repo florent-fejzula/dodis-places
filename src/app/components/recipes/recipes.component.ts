@@ -26,11 +26,12 @@ import {
 import { RemindersService } from 'src/app/services/reminders.service';
 import { downscaleImage } from 'src/app/utils/image.util';
 import { cookMinutes } from 'src/app/utils/time.util';
+import { DragScrollDirective } from 'src/app/directives/drag-scroll.directive';
 
 @Component({
   selector: 'app-recipes',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ImageCropperComponent],
+  imports: [CommonModule, FormsModule, RouterLink, ImageCropperComponent, DragScrollDirective],
   templateUrl: './recipes.component.html',
   styleUrls: ['./recipes.component.scss'],
 })
@@ -635,6 +636,17 @@ export class RecipesComponent implements OnInit, OnDestroy {
   clearTimes() {
     this.selectedTimes.set(new Set());
   }
+
+  /** Desktop only: the time filter stays folded behind its clock button. */
+  timeOpen = signal(false);
+
+  /** What the folded time button shows while a time filter is on. */
+  timeSummary = computed(() => {
+    const picked = this.selectedTimes();
+    return RecipesComponent.TIME_BUCKETS.filter((b) => picked.has(b.label))
+      .map((b) => b.label)
+      .join(' · ');
+  });
 
   onCategoryChange(val: string) {
     this.categoryChoice = val;
