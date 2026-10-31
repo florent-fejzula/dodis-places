@@ -22,7 +22,7 @@ export interface Recipe {
  * follows after these, A-Z.
  */
 export const RECIPE_CATEGORY_ORDER = [
-  'Breakfast', 'Soups', 'Appetizers', 'Dips', 'Salads', 'Baked Dishes',
+  'Breakfast', 'Soups', 'Appetizers', 'Dips', 'Salads', 'Breads & Grains',
   'Sandwich', 'Sandwiches', 'Pastas', 'Pasta', 'Mains', 'Sides', 'Snacks',
   'Desserts', 'Drinks',
 ];
