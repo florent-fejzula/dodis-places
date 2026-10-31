@@ -1,32 +1,3 @@
-/* =========================================================
-   🛠️ Admin Banner
-   ========================================================= */
-.admin-banner {
-  background-color: #b3421f; /* brand tone */
-  color: #fff;
-  padding: 0.5rem 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.95rem;
-  border-radius: 0 0 8px 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  animation: fadeIn 0.3s ease-in;
-
-  .exit-btn {
-    background: #fff;
-    color: #b3421f;
-    border: none;
-    border-radius: 6px;
-    padding: 0.25rem 0.75rem;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    &:hover {
-      background: #ffe8e1;
-    }
-  }
-}
 
 /* =========================================================
    🌐 Top Navigation
@@ -100,10 +71,6 @@
 
 /* --- Right Side (Auth info) --- */
 .nav-right {
-  .user-email {
-    font-size: 0.9rem;
-    color: #555;
-  }
 
   .user-display {
     font-weight: 600;
@@ -154,9 +121,6 @@
     border-radius: 9px;
   }
 
-  .nav-right .user-email {
-    display: none; /* cleaner mobile header */
-  }
 }
 
 /* =========================================================

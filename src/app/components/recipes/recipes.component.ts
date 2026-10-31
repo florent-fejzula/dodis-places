@@ -18,7 +18,6 @@ import { ImageCropperComponent, ImageCroppedEvent } from 'ngx-image-cropper';
 
 import { RecipesService } from 'src/app/services/recipes.service';
 import { Recipe, compareCategories, recipePhotos } from 'src/app/models/recipes';
-import { AdminService } from 'src/app/services/admin.service';
 import { AuthService } from 'src/app/auth/auth.service';
 import {
   MobileNavAction,
@@ -74,7 +73,6 @@ export class RecipesComponent implements OnInit, OnDestroy {
     return RecipesComponent.TIME_BUCKETS.find((b) => minutes <= b.upTo)!.label;
   }
   private recipesSvc = inject(RecipesService);
-  private adminSvc = inject(AdminService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   auth = inject(AuthService);
@@ -105,9 +103,6 @@ export class RecipesComponent implements OnInit, OnDestroy {
   // data
   recipes = signal<Recipe[]>([]);
 
-  // admin flag (Places tools; recipes are owned per user, see canEdit)
-  isAdmin = this.adminSvc.isAdmin;
-
   /** Every recipe on screen belongs to the signed-in user, so signed in = can edit. */
   canEdit = computed(() => !!this.auth.user());
   signedOut = computed(() => !this.auth.loading() && !this.auth.user());
@@ -121,7 +116,6 @@ export class RecipesComponent implements OnInit, OnDestroy {
   );
   private recipesSub?: Subscription;
   private queryParamSub?: Subscription;
-  private claimedLegacy = false;
   recipesLoaded = signal(false);
 
   /** "/recipes?open=<id>" - how a tapped reminder notification lands here. */
@@ -237,7 +231,6 @@ export class RecipesComponent implements OnInit, OnDestroy {
 
   // ---- Cropper state (upload-before-save)
   showCropper = signal(false);
-  imageChangedEvent: Event | null = null;
   private pendingRawFileName = 'recipe-image';
   private croppedBlob: Blob | null = null;
   uploadingPhoto = signal(false);
@@ -265,21 +258,7 @@ export class RecipesComponent implements OnInit, OnDestroy {
       .subscribe((list) => {
         this.recipes.set(list || []);
         this.recipesLoaded.set(true);
-        this.claimLegacyIfEmpty(list ?? []);
       });
-  }
-
-  /**
-   * Recipes added before ownership existed have no ownerId, so they match
-   * nobody's query. Only worth a round trip when the original owner actually
-   * sees an empty page - never on a normal load.
-   */
-  private claimLegacyIfEmpty(list: Recipe[]) {
-    const user = this.auth.user();
-    if (!user || !this.isAdmin() || this.claimedLegacy || list.length) return;
-
-    this.claimedLegacy = true;
-    this.recipesSvc.claimUnownedRecipes(user.uid).catch(() => 0);
   }
 
   goToLogin() {

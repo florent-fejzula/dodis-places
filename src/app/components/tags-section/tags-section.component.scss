@@ -197,8 +197,7 @@
 /* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .tag-list,
-  .tag,
-  .cards .card {
+  .tag {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;

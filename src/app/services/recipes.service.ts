@@ -3,17 +3,13 @@ import {
   Firestore,
   doc,
   collection,
-  docData,
   collectionData,
-  setDoc,
   addDoc,
   updateDoc,
   deleteDoc,
   serverTimestamp,
   query,
   where,
-  getDocs,
-  writeBatch,
   increment,
 } from '@angular/fire/firestore';
 import {
@@ -68,28 +64,6 @@ export class RecipesService {
     const cached = this.loadCached(ownerId);
     this._recipes$ = cached ? concat(of(cached), live$).pipe(shareReplay(1)) : live$;
     return this._recipes$;
-  }
-
-  /**
-   * One-off migration: recipes added before ownership existed have no ownerId,
-   * so they belong to nobody and nobody would see them. Stamps them with the
-   * original owner's uid. Safe to call repeatedly - it no-ops once they are
-   * all claimed.
-   */
-  async claimUnownedRecipes(ownerId: string): Promise<number> {
-    const snap = await this.inCtx(() =>
-      getDocs(collection(this.firestore, 'recipes'))
-    );
-    const orphans = snap.docs.filter((d) => !d.data()['ownerId']);
-    if (!orphans.length) return 0;
-
-    const batch = writeBatch(this.firestore);
-    for (const d of orphans) {
-      batch.update(d.ref, { ownerId, updatedAt: serverTimestamp() });
-    }
-    await batch.commit();
-    this.bustCache(ownerId);
-    return orphans.length;
   }
 
   private loadCached(ownerId: string): Recipe[] | null {

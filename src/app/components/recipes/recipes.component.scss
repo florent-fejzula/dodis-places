@@ -555,13 +555,6 @@
   }
 }
 
-.modal-card .hero {
-  width: 100%;
-  height: min(420px, 42vh);
-  object-fit: cover;
-  display: block;
-}
-
 .modal-card .modal-content {
   padding: 16px 18px 18px;
   overflow: auto;
@@ -579,62 +572,6 @@
   color: #1f1f1f;
   line-height: 1.15;
   padding-right: 40px; /* leave room for close button */
-}
-
-.modal-card .meta {
-  margin-top: 8px;
-}
-
-.modal-card .pill {
-  display: inline-block;
-  background: #f1eee9;
-  color: #333;
-  font-size: 0.85rem;
-  padding: 0.3rem 0.7rem;
-  border-radius: 999px;
-  border: 1px solid #e7e2d9;
-}
-
-.modal-card .notes {
-  margin-top: 10px;
-}
-
-.modal-card .notes h4 {
-  margin: 0 0 6px;
-  font-size: 0.95rem;
-  font-weight: 900;
-  color: #2a2a2a;
-  letter-spacing: 0.2px;
-}
-
-.modal-card .notes p {
-  margin: 0;
-  color: #2e2e2e;
-  line-height: 1.55;
-  font-size: 0.98rem;
-  white-space: pre-wrap;
-}
-
-.modal-card .source {
-  display: inline-block;
-  margin-top: 14px;
-  padding: 10px 12px;
-  border-radius: 10px;
-
-  background: #f7f3ec;
-  border: 1px solid #e0d8cc;
-  color: #333;
-  font-weight: 800;
-  text-decoration: none;
-
-  transition:
-    background 0.15s ease,
-    transform 0.15s ease;
-
-  &:hover {
-    background: #efe6db;
-    transform: translateY(-1px);
-  }
 }
 
 /* ── Detail full-screen page ── */
@@ -1065,7 +1002,6 @@
     max-width: 100%;
   }
 
-  .modal-card .hero { height: 240px; }
   .modal-card .modal-content { padding: 14px 16px 24px; }
   .modal-card h3 { font-size: 1.2rem; }
 

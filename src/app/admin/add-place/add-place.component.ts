@@ -36,8 +36,6 @@ export class AddPlaceComponent {
   error = '';
   busy = false;
 
-  isSaving = false;
-
   // ----- photo queue
   photos: PhotoDraft[] = [];
   selectedCoverIdx: number | null = null; // which uploaded photo becomes cover

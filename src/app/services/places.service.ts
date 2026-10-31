@@ -9,8 +9,6 @@ import {
   updateDoc,
   deleteDoc,
   serverTimestamp,
-  query,
-  where,
   CollectionReference,
   DocumentData,
   arrayUnion,
@@ -29,12 +27,10 @@ import { Observable, concat, of, shareReplay, tap } from 'rxjs';
 import { Place } from '../models/places';
 
 type ImageMeta = { url: string; tags: string[]; weight?: number };
-type TagDoc = { name: string; color?: string | null; createdAt: any };
 
 @Injectable({ providedIn: 'root' })
 export class PlacesService {
   private placesRef!: CollectionReference<DocumentData>;
-  private tagsRef!: CollectionReference<DocumentData>;
 
   private _places$: Observable<Place[]> | null = null;
   private readonly LS_KEY = 'dodi_places_v1';
@@ -48,7 +44,6 @@ export class PlacesService {
     private injector: Injector
   ) {
     this.placesRef = collection(this.db, 'places');
-    this.tagsRef = collection(this.db, 'tags');
   }
 
   /** Helper to ensure calls happen inside Angular injection context */
@@ -92,17 +87,6 @@ export class PlacesService {
     } catch {
       return null;
     }
-  }
-
-  getPlacesByTags(tags: string[]): Observable<Place[]> {
-    if (!tags?.length || tags.length > 10) return this.getPlaces();
-    return this.inCtx(() => {
-      const qRef = query(
-        this.placesRef,
-        where('tags', 'array-contains-any', tags)
-      );
-      return collectionData(qRef, { idField: 'id' }) as Observable<Place[]>;
-    });
   }
 
   private bustCache() {
@@ -162,13 +146,6 @@ export class PlacesService {
     this.bustCache();
   }
 
-  async bulkAdd(places: Place[]): Promise<void> {
-    for (const p of places) {
-      if (!p?.name || !p?.gmapsUrl || p.lat == null || p.lng == null) continue;
-      await this.addPlace(p);
-    }
-  }
-
   // ==============
   // Images (Storage)
   // ==============
@@ -204,38 +181,6 @@ export class PlacesService {
         updatedAt: serverTimestamp() as any,
       } as any)
     );
-  }
-
-  async setPrimaryImage(placeId: string, url: string): Promise<void> {
-    const ref = doc(this.db, 'places', placeId);
-    await this.inCtx(() =>
-      updateDoc(ref, {
-        imagePrimaryUrl: url,
-        updatedAt: serverTimestamp() as any,
-      } as any)
-    );
-  }
-
-  // ==========
-  // Tags (CRUD)
-  // ==========
-
-  getTags(): Observable<(TagDoc & { id: string })[]> {
-    return this.inCtx(
-      () =>
-        collectionData(this.tagsRef, { idField: 'id' }) as Observable<
-          (TagDoc & { id: string })[]
-        >
-    );
-  }
-
-  async createTag(name: string, color?: string) {
-    const payload: TagDoc = {
-      name: name.trim(),
-      color: color ?? null,
-      createdAt: serverTimestamp(),
-    };
-    await this.inCtx(() => addDoc(this.tagsRef, payload));
   }
 
   // ===================

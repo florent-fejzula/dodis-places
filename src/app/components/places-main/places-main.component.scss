@@ -60,32 +60,6 @@
   animation: fadeUp 0.4s ease-out 0.2s forwards;
 }
 
-.empty {
-  margin: 16px 0 24px;
-  .empty-inner {
-    background: var(--surface);
-    color: var(--ink);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
-    text-align: center;
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.04);
-    opacity: 0;
-    animation: fadeUp 0.45s ease-out 0.15s forwards;
-
-    h3 { margin: 0 0 6px; font-size: 1.1rem; }
-    p { margin: 0; color: var(--muted); }
-    .linklike {
-      border: 0;
-      background: none;
-      color: var(--link);
-      font-weight: 600;
-      cursor: pointer;
-      padding: 0;
-    }
-  }
-}
-
 /* Map */
 .map-wrap {
   margin: 10px 0 16px;

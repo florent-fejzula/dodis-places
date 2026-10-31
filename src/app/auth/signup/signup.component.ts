@@ -41,7 +41,7 @@ export class SignupComponent {
 
     this.loading = true;
     try {
-      const userCred = await this.auth.signUpWithEmail(
+      await this.auth.signUpWithEmail(
         this.email,
         this.password,
         this.username
