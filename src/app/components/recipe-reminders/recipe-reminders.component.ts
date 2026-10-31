@@ -9,7 +9,7 @@ import { RecipesService } from 'src/app/services/recipes.service';
 import { RemindersService } from 'src/app/services/reminders.service';
 import { MobileNavService } from 'src/app/services/mobile-nav.service';
 import { ReminderSettings, REMINDER_FREQUENCIES } from 'src/app/models/reminders';
-import { Recipe } from 'src/app/models/recipes';
+import { Recipe, compareCategories } from 'src/app/models/recipes';
 import { slugify } from 'src/app/utils/general.util';
 
 interface CategoryRow {
@@ -59,7 +59,7 @@ export class RecipeRemindersComponent implements OnInit, OnDestroy {
     const settingsBySlug = new Map(this.settings().map((s) => [slugify(s.category), s]));
 
     return [...byCategory.entries()]
-      .sort((a, b) => a[0].localeCompare(b[0]))
+      .sort((a, b) => compareCategories(a[0], b[0]))
       .map(([category, recipeCount]) => ({
         category,
         recipeCount,

@@ -17,7 +17,7 @@ import { FormsModule } from '@angular/forms';
 import { ImageCropperComponent, ImageCroppedEvent } from 'ngx-image-cropper';
 
 import { RecipesService } from 'src/app/services/recipes.service';
-import { Recipe, recipePhotos } from 'src/app/models/recipes';
+import { Recipe, compareCategories, recipePhotos } from 'src/app/models/recipes';
 import { AdminService } from 'src/app/services/admin.service';
 import { AuthService } from 'src/app/auth/auth.service';
 import {
@@ -35,11 +35,6 @@ import { downscaleImage } from 'src/app/utils/image.util';
   styleUrls: ['./recipes.component.scss'],
 })
 export class RecipesComponent implements OnInit, OnDestroy {
-  private static readonly CATEGORY_ORDER = [
-    'Breakfast', 'Soups', 'Appetizers', 'Dips', 'Salads', 'Sides',
-    'Sandwich', 'Sandwiches', 'Pastas', 'Pasta', 'Mains', 'Snacks', 'Desserts',
-  ];
-
   /**
    * One colour per cuisine, picked deterministically from the name, so a new
    * cuisine gets its own colour without anyone choosing one. Tuned to read
@@ -196,12 +191,7 @@ export class RecipesComponent implements OnInit, OnDestroy {
       map.get(cat)!.push(r);
     }
 
-    const order = RecipesComponent.CATEGORY_ORDER;
-    const cats = Array.from(map.keys());
-    const ordered = [
-      ...order.filter((c) => map.has(c)),
-      ...cats.filter((c) => !order.includes(c)).sort((a, b) => a.localeCompare(b)),
-    ];
+    const ordered = Array.from(map.keys()).sort(compareCategories);
 
     return ordered.map((category) => ({
       category,
@@ -598,10 +588,7 @@ export class RecipesComponent implements OnInit, OnDestroy {
   // categories for chip bar and add-form dropdown — memoized
   categories = computed(() => {
     const set = new Set<string>(this.recipes().map((r) => r.category).filter(Boolean));
-    const order = RecipesComponent.CATEGORY_ORDER;
-    const found = order.filter((c) => set.has(c));
-    const rest = [...set].filter((c) => !order.includes(c)).sort();
-    return found.concat(rest);
+    return [...set].sort(compareCategories);
   });
 
   // every cuisine already in use, for the dropdowns
