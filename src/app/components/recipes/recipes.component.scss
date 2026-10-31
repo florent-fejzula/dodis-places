@@ -193,6 +193,97 @@
   }
 }
 
+.time-icon { display: none; }
+
+/* ── Desktop: a slim title/actions row, then ONE filter row - categories on
+   the left, time as a compact segmented control pinned on the right.
+   (Mobile keeps its two chip rows; see the mobile block further down.) ── */
+@media (min-width: 769px) {
+  .page-header {
+    padding: 12px 24px 8px;
+
+    .page-title { font-size: 1.45rem; }
+
+    .copy-btn,
+    .add-btn {
+      height: 34px;
+      padding: 0 14px;
+    }
+
+    .settings-btn {
+      width: 34px;
+      height: 34px;
+    }
+  }
+
+  .filter-bar {
+    display: flex;
+    align-items: stretch;
+    border-bottom: 1px solid #eee2d5;
+  }
+
+  .cat-bar-wrap {
+    flex: 1;
+    min-width: 0;
+    border-bottom: none;
+  }
+
+  .cat-bar {
+    gap: 6px;
+    padding: 9px 48px 10px 24px;
+  }
+
+  .cat-chip {
+    padding: 6px 15px;
+    font-size: 0.86rem;
+  }
+
+  .time-bar-wrap {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    padding: 0 24px 0 16px;
+    border-bottom: none;
+    border-left: 1px solid #eee2d5;
+
+    &::after { display: none; }
+  }
+
+  .time-bar {
+    align-items: center;
+    gap: 2px;
+    padding: 3px;
+    overflow: visible;
+    background: #fff;
+    border: 1.5px solid #e8dfd0;
+    border-radius: 999px;
+  }
+
+  .time-icon {
+    display: block;
+    width: 15px;
+    height: 15px;
+    margin: 0 3px 0 6px;
+    color: #b8925f;
+  }
+
+  .time-chip {
+    border: none;
+    background: transparent;
+    padding: 4px 11px;
+
+    &.active {
+      background: #c98a3e;
+      color: #fff;
+    }
+
+    &:hover:not(.active) { background: #f5ede0; }
+  }
+
+  /* .recipes-page prefix: the base .recipes-container rule comes later in this file */
+  .recipes-page .recipes-container { padding: 16px 24px 22px; }
+}
+
 /* Add Recipe form (now lives inside a modal) */
 .add-form {
   display: flex;

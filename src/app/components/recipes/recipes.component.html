@@ -67,37 +67,43 @@
     </button>
   </div>
 
-  <!-- Horizontal category filter bar -->
-  <div class="cat-bar-wrap" *ngIf="recipes().length">
-    <div class="cat-bar">
-      <button
-        class="cat-chip"
-        [class.active]="!selectedCategory()"
-        (click)="selectCategory('')"
-      >All</button>
-      <button
-        class="cat-chip"
-        *ngFor="let c of categories()"
-        [class.active]="selectedCategory() === c"
-        (click)="selectCategory(c)"
-      >{{ c }}</button>
+  <!-- Filters: categories, then time. One row on desktop, two on mobile. -->
+  <div class="filter-bar" *ngIf="recipes().length">
+    <div class="cat-bar-wrap">
+      <div class="cat-bar">
+        <button
+          class="cat-chip"
+          [class.active]="!selectedCategory()"
+          (click)="selectCategory('')"
+        >All</button>
+        <button
+          class="cat-chip"
+          *ngFor="let c of categories()"
+          [class.active]="selectedCategory() === c"
+          (click)="selectCategory(c)"
+        >{{ c }}</button>
+      </div>
     </div>
-  </div>
 
-  <!-- Time filter bar -->
-  <div class="time-bar-wrap" *ngIf="recipes().length && timeBuckets().length > 0">
-    <div class="time-bar">
-      <button
-        class="time-chip"
-        [class.active]="selectedTimes().size === 0"
-        (click)="clearTimes()"
-      >Any time</button>
-      <button
-        class="time-chip"
-        *ngFor="let b of timeBuckets()"
-        [class.active]="selectedTimes().has(b.maxMinutes)"
-        (click)="toggleTime(b.maxMinutes)"
-      >{{ b.label }}</button>
+    <div class="time-bar-wrap" *ngIf="timeBuckets().length > 0">
+      <div class="time-bar" role="group" aria-label="Filter by time">
+        <svg class="time-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 7v5l3 2" />
+        </svg>
+        <button
+          class="time-chip"
+          [class.active]="selectedTimes().size === 0"
+          (click)="clearTimes()"
+        >Any time</button>
+        <button
+          class="time-chip"
+          *ngFor="let b of timeBuckets()"
+          [class.active]="selectedTimes().has(b.maxMinutes)"
+          (click)="toggleTime(b.maxMinutes)"
+        >{{ b.label }}</button>
+      </div>
     </div>
   </div>
 
