@@ -100,8 +100,8 @@
         <button
           class="time-chip"
           *ngFor="let b of timeBuckets()"
-          [class.active]="selectedTimes().has(b.maxMinutes)"
-          (click)="toggleTime(b.maxMinutes)"
+          [class.active]="selectedTimes().has(b.label)"
+          (click)="toggleTime(b.label)"
         >{{ b.label }}</button>
       </div>
     </div>

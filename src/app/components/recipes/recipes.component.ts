@@ -26,6 +26,7 @@ import {
 } from 'src/app/services/mobile-nav.service';
 import { RemindersService } from 'src/app/services/reminders.service';
 import { downscaleImage } from 'src/app/utils/image.util';
+import { cookMinutes } from 'src/app/utils/time.util';
 
 @Component({
   selector: 'app-recipes',
@@ -53,12 +54,25 @@ export class RecipesComponent implements OnInit, OnDestroy {
     '#d4b483', // sand
   ];
 
+  /**
+   * Each recipe lands in the bucket whose label its time is closest to, so
+   * 35 mins is "30 mins", not "1 hr". "Closest" is by ratio rather than by
+   * difference (10 extra minutes matter more on a quick dish than on a slow
+   * one), so the cut-offs sit near the geometric middle of two labels:
+   * sqrt(15*30) ~ 21, sqrt(30*60) ~ 42, sqrt(60*90) ~ 74.
+   */
   private static readonly TIME_BUCKETS = [
-    { label: '15 mins', minMinutes: 1,   maxMinutes: 15  },
-    { label: '30 mins', minMinutes: 16,  maxMinutes: 30  },
-    { label: '1 hr',    minMinutes: 31,  maxMinutes: 60  },
-    { label: '2 hrs',   minMinutes: 61,  maxMinutes: 120 },
+    { label: '15 mins', upTo: 21 },
+    { label: '30 mins', upTo: 42 },
+    { label: '1 hr', upTo: 75 },
+    { label: '1½ hrs+', upTo: Infinity },
   ];
+
+  private static timeBucketOf(time: string | undefined): string | null {
+    const minutes = cookMinutes(time ?? '');
+    if (minutes === null) return null;
+    return RecipesComponent.TIME_BUCKETS.find((b) => minutes <= b.upTo)!.label;
+  }
   private recipesSvc = inject(RecipesService);
   private adminSvc = inject(AdminService);
   private router = inject(Router);
@@ -69,7 +83,7 @@ export class RecipesComponent implements OnInit, OnDestroy {
 
   // UI state
   selectedCategory = signal<string>('');
-  selectedTimes = signal<ReadonlySet<number>>(new Set());
+  selectedTimes = signal<ReadonlySet<string>>(new Set());
   showAddForm = signal<boolean>(false);
   showDetail = signal<boolean>(false);
   detailRecipe = signal<Recipe | null>(null);
@@ -176,11 +190,9 @@ export class RecipesComponent implements OnInit, OnDestroy {
     const list = this.recipes();
     let visible = !catFilter ? list : list.filter((r) => r.category === catFilter);
     if (timeFilter.size > 0) {
-      const buckets = RecipesComponent.TIME_BUCKETS.filter((b) => timeFilter.has(b.maxMinutes));
       visible = visible.filter((r) => {
-        const parsed = this.parseTimeMinutes(r.time ?? '');
-        if (!parsed) return false;
-        return buckets.some((b) => parsed.min <= b.maxMinutes && parsed.max >= b.minMinutes);
+        const bucket = RecipesComponent.timeBucketOf(r.time);
+        return bucket !== null && timeFilter.has(bucket);
       });
     }
 
@@ -627,43 +639,22 @@ export class RecipesComponent implements OnInit, OnDestroy {
     return `#${darker}`;
   }
 
+  /** Only the time buttons that would show at least one recipe. */
   timeBuckets = computed(() => {
-    const recipes = this.recipes();
-    return RecipesComponent.TIME_BUCKETS.filter((bucket) =>
-      recipes.some((r) => {
-        const parsed = this.parseTimeMinutes(r.time ?? '');
-        return parsed !== null && parsed.min <= bucket.maxMinutes && parsed.max >= bucket.minMinutes;
-      }),
+    const used = new Set(
+      this.recipes().map((r) => RecipesComponent.timeBucketOf(r.time))
     );
+    return RecipesComponent.TIME_BUCKETS.filter((b) => used.has(b.label));
   });
 
-  toggleTime(maxMinutes: number) {
+  toggleTime(label: string) {
     const next = new Set(this.selectedTimes());
-    if (next.has(maxMinutes)) { next.delete(maxMinutes); } else { next.add(maxMinutes); }
+    if (next.has(label)) { next.delete(label); } else { next.add(label); }
     this.selectedTimes.set(next);
   }
 
   clearTimes() {
     this.selectedTimes.set(new Set());
-  }
-
-  private parseTimeMinutes(timeStr: string): { min: number; max: number } | null {
-    if (!timeStr) return null;
-    const s = timeStr.toLowerCase().trim();
-
-    const rangeMatch = s.match(/(\d+(?:\.\d+)?)\s*[-–]\s*(\d+(?:\.\d+)?)\s*(min|hr|hour)/);
-    if (rangeMatch) {
-      const mult = rangeMatch[3].startsWith('h') ? 60 : 1;
-      return { min: parseFloat(rangeMatch[1]) * mult, max: parseFloat(rangeMatch[2]) * mult };
-    }
-
-    const singleMatch = s.match(/(\d+(?:\.\d+)?)\s*(min|hr|hour)/);
-    if (singleMatch) {
-      const mins = parseFloat(singleMatch[1]) * (singleMatch[2].startsWith('h') ? 60 : 1);
-      return { min: mins, max: mins };
-    }
-
-    return null;
   }
 
   onCategoryChange(val: string) {
