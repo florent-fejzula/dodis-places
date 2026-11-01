@@ -1,40 +1,105 @@
-<div class="recipes-page" [class.modal-open]="anyModalOpen()">
-  <!-- Page header -->
-  <div class="page-header">
-    <h1 class="page-title">Recipes</h1>
+<div class="recipes-page">
+  <!-- Title row + filters stay pinned to the top while the page scrolls -->
+  <div class="sticky-top">
+    <!-- Page header -->
+    <div class="page-header">
+      <h1 class="page-title">Recipes</h1>
 
-    <div class="header-actions">
-      <button
-        class="copy-btn"
-        *ngIf="recipes().length"
-        (click)="copyRecipes()"
-        title="Copy the recipes shown, with their notes"
+      <div class="header-actions">
+        <button
+          class="copy-btn"
+          *ngIf="recipes().length"
+          (click)="copyRecipes()"
+          title="Copy the recipes shown, with their notes"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="9" y="9" width="12" height="12" rx="2" />
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+          </svg>
+          Copy
+        </button>
+
+        <button
+          class="settings-btn"
+          *ngIf="canEdit()"
+          routerLink="/recipes/settings"
+          title="Recipe reminders"
+          aria-label="Recipe reminders"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
+        </button>
+
+        <button *ngIf="canEdit()" class="add-btn" (click)="showAddForm.set(true)">
+          + Add Recipe
+        </button>
+      </div>
+    </div>
+
+    <!-- Filters: categories, then time. One row on desktop, two on mobile. -->
+    <div class="filter-bar" *ngIf="recipes().length">
+      <div class="cat-bar-wrap">
+        <!-- Drag sideways with the mouse (or use the wheel) to reach the rest -->
+        <div class="cat-bar" appDragScroll>
+          <button
+            class="cat-chip"
+            [class.active]="!selectedCategory()"
+            (click)="selectCategory('')"
+          >All</button>
+          <button
+            class="cat-chip"
+            *ngFor="let c of categories()"
+            [class.active]="selectedCategory() === c"
+            (click)="selectCategory(c)"
+          >{{ c }}</button>
+        </div>
+      </div>
+
+      <!-- Desktop: collapsed to the clock until clicked. Mobile: always a chip row. -->
+      <div
+        class="time-bar-wrap"
+        *ngIf="timeBuckets().length > 0"
+        [class.open]="timeOpen()"
+        [class.filtering]="selectedTimes().size > 0"
       >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <rect x="9" y="9" width="12" height="12" rx="2" />
-          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-        </svg>
-        Copy
-      </button>
+        <div class="time-bar" role="group" aria-label="Filter by time">
+          <button
+            type="button"
+            class="time-toggle"
+            (click)="timeOpen.set(!timeOpen())"
+            [attr.aria-expanded]="timeOpen()"
+            [title]="timeOpen() ? 'Hide time filter' : 'Filter by time'"
+          >
+            <svg class="time-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 7v5l3 2" />
+            </svg>
+            <!-- While collapsed, still say which time filter is on -->
+            <span class="time-summary" *ngIf="!timeOpen() && timeSummary()">
+              {{ timeSummary() }}
+            </span>
+          </button>
 
-      <button
-        class="settings-btn"
-        *ngIf="canEdit()"
-        routerLink="/recipes/settings"
-        title="Recipe reminders"
-        aria-label="Recipe reminders"
-      >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="12" cy="12" r="3" />
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-        </svg>
-      </button>
-
-      <button *ngIf="canEdit()" class="add-btn" (click)="showAddForm.set(true)">
-        + Add Recipe
-      </button>
+          <div class="time-options">
+            <button
+              class="time-chip"
+              [class.active]="selectedTimes().size === 0"
+              (click)="clearTimes()"
+            >Any time</button>
+            <button
+              class="time-chip"
+              *ngFor="let b of timeBuckets()"
+              [class.active]="selectedTimes().has(b.label)"
+              (click)="toggleTime(b.label)"
+            >{{ b.label }}</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -65,68 +130,6 @@
     <button class="account-action" *ngIf="canEdit()" (click)="showAddForm.set(true)">
       + Add Recipe
     </button>
-  </div>
-
-  <!-- Filters: categories, then time. One row on desktop, two on mobile. -->
-  <div class="filter-bar" *ngIf="recipes().length">
-    <div class="cat-bar-wrap">
-      <!-- Drag sideways with the mouse (or use the wheel) to reach the rest -->
-      <div class="cat-bar" appDragScroll>
-        <button
-          class="cat-chip"
-          [class.active]="!selectedCategory()"
-          (click)="selectCategory('')"
-        >All</button>
-        <button
-          class="cat-chip"
-          *ngFor="let c of categories()"
-          [class.active]="selectedCategory() === c"
-          (click)="selectCategory(c)"
-        >{{ c }}</button>
-      </div>
-    </div>
-
-    <!-- Desktop: collapsed to the clock until clicked. Mobile: always a chip row. -->
-    <div
-      class="time-bar-wrap"
-      *ngIf="timeBuckets().length > 0"
-      [class.open]="timeOpen()"
-      [class.filtering]="selectedTimes().size > 0"
-    >
-      <div class="time-bar" role="group" aria-label="Filter by time">
-        <button
-          type="button"
-          class="time-toggle"
-          (click)="timeOpen.set(!timeOpen())"
-          [attr.aria-expanded]="timeOpen()"
-          [title]="timeOpen() ? 'Hide time filter' : 'Filter by time'"
-        >
-          <svg class="time-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="9" />
-            <path d="M12 7v5l3 2" />
-          </svg>
-          <!-- While collapsed, still say which time filter is on -->
-          <span class="time-summary" *ngIf="!timeOpen() && timeSummary()">
-            {{ timeSummary() }}
-          </span>
-        </button>
-
-        <div class="time-options">
-          <button
-            class="time-chip"
-            [class.active]="selectedTimes().size === 0"
-            (click)="clearTimes()"
-          >Any time</button>
-          <button
-            class="time-chip"
-            *ngFor="let b of timeBuckets()"
-            [class.active]="selectedTimes().has(b.label)"
-            (click)="toggleTime(b.label)"
-          >{{ b.label }}</button>
-        </div>
-      </div>
-    </div>
   </div>
 
   <!-- Cards grid -->

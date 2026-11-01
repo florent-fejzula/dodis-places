@@ -8,6 +8,7 @@ import {
   computed,
   WritableSignal,
   HostListener,
+  ElementRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { toObservable } from '@angular/core/rxjs-interop';
@@ -146,7 +147,9 @@ export class RecipesComponent implements OnInit, OnDestroy {
 
   /** Nothing behind a modal should scroll — phones especially. */
   private scrollLock = effect(() => {
-    document.body.style.overflow = this.anyModalOpen() ? 'hidden' : '';
+    // On <html>, not <body>: html { overflow-y: scroll } makes html the
+    // window's scroller, so a lock on body wouldn't hold
+    document.documentElement.style.overflow = this.anyModalOpen() ? 'hidden' : '';
   });
 
   toast = signal<{ message: string; actionLabel?: string; action?: () => void } | null>(
@@ -269,7 +272,7 @@ export class RecipesComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.recipesSub?.unsubscribe();
     this.queryParamSub?.unsubscribe();
-    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
     this.mobileNav.clear();
     if (this.toastTimer) clearTimeout(this.toastTimer);
     if (this.suppressClickTimer) clearTimeout(this.suppressClickTimer);
@@ -494,6 +497,19 @@ export class RecipesComponent implements OnInit, OnDestroy {
 
   selectCategory(cat: string) {
     this.selectedCategory.set(cat);
+    this.backToListTop();
+  }
+
+  private host: HTMLElement = inject(ElementRef).nativeElement;
+
+  /**
+   * A filter change swaps out the whole list; if the page was scrolled
+   * down, bring the new list's start up under the pinned filters. The top
+   * menu stays scrolled away, and nothing moves if we're already above that.
+   */
+  private backToListTop() {
+    const pageTop = this.host.getBoundingClientRect().top + window.scrollY;
+    if (window.scrollY > pageTop) window.scrollTo({ top: pageTop });
   }
 
   /** Esc closes the topmost thing that is open, one layer at a time. */
@@ -631,10 +647,12 @@ export class RecipesComponent implements OnInit, OnDestroy {
     const next = new Set(this.selectedTimes());
     if (next.has(label)) { next.delete(label); } else { next.add(label); }
     this.selectedTimes.set(next);
+    this.backToListTop();
   }
 
   clearTimes() {
     this.selectedTimes.set(new Set());
+    this.backToListTop();
   }
 
   /** Desktop only: the time filter stays folded behind its clock button. */

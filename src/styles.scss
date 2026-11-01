@@ -26,6 +26,16 @@
 
 html {
   overflow-y: scroll;
+  /* Keep the scrollbar's space while a modal locks scrolling, so the page
+     doesn't jump sideways when one opens */
+  scrollbar-gutter: stable;
+}
+
+/* The recipe pages fill the window with their own cream, also below
+   content that is shorter than the screen */
+body:has(.recipes-page),
+body:has(.reminders-page) {
+  background: #fbfaf7;
 }
 
 html,

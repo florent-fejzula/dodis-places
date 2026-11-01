@@ -77,13 +77,14 @@ export class AppComponent {
 
   openMenu() {
     this.menuOpen.set(true);
-    document.body.style.overflow = 'hidden';
+    // <html>, not <body>: html { overflow-y: scroll } makes html the scroller
+    document.documentElement.style.overflow = 'hidden';
   }
 
   closeMenu() {
     if (!this.menuOpen()) return;
     this.menuOpen.set(false);
-    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
   }
 
   runAction(action: MobileNavAction) {

@@ -1,9 +1,14 @@
-/* ── Page shell ── */
+/* ── Page shell ──
+   The page scrolls like any other (one scrollbar, at the window edge);
+   the title row and filters stay pinned to the top via .sticky-top. */
 .recipes-page {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
+  background: #fbfaf7;
+}
+
+.sticky-top {
+  position: sticky;
+  top: 0;
+  z-index: 50; /* over the cards' badges, under modals (999) */
   background: #fbfaf7;
 }
 
@@ -442,11 +447,8 @@
 
 /* Grid */
 .recipes-container {
-  flex: 1;
   min-width: 0; /* prevent overflow when content too wide */
   padding: 22px 24px;
-
-  overflow-y: auto;
   background: #fbfaf7;
 }
 
@@ -1016,10 +1018,6 @@
 
 /* ── Mobile ── */
 @media (max-width: 768px) {
-  .recipes-page {
-    height: 100dvh;
-  }
-
   /* Title moves to the top bar, "+ Add Recipe" moves into the side menu */
   .page-header {
     display: none;
@@ -1049,7 +1047,6 @@
 
   .recipes-container {
     padding: 12px 12px;
-    -webkit-overflow-scrolling: touch;
   }
 
   .recipes-section {
@@ -1198,11 +1195,6 @@
   border: 1.5px solid currentColor;
   background: rgba(0, 0, 0, 0.04);
   white-space: nowrap;
-}
-
-/* Nothing behind an open modal scrolls */
-.recipes-page.modal-open .recipes-container {
-  overflow: hidden;
 }
 
 /* +1, revealed on hover so the card stays uncluttered */
