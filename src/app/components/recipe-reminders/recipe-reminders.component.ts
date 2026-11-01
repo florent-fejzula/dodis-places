@@ -9,7 +9,7 @@ import { RecipesService } from 'src/app/services/recipes.service';
 import { RemindersService } from 'src/app/services/reminders.service';
 import { MobileNavService } from 'src/app/services/mobile-nav.service';
 import { ReminderSettings, REMINDER_FREQUENCIES } from 'src/app/models/reminders';
-import { Recipe, compareCategories } from 'src/app/models/recipes';
+import { Recipe, RecipeShare, compareCategories } from 'src/app/models/recipes';
 import { slugify } from 'src/app/utils/general.util';
 
 interface CategoryRow {
@@ -46,6 +46,19 @@ export class RecipeRemindersComponent implements OnInit, OnDestroy {
   testingCategory = signal<string | null>(null);
   toast = signal<string>('');
 
+  // ---- Sharing
+  share = signal<RecipeShare | null>(null);
+  shareLoaded = signal(false);
+  sharingBusy = signal(false);
+  /** The name visitors see ("<name>'s Recipes"); also becomes the link. */
+  shareName = '';
+  readonly canNativeShare = typeof navigator !== 'undefined' && !!navigator.share;
+
+  shareUrl = computed(() => {
+    const s = this.share();
+    return s ? `${location.origin}/recipes/${s.handle}` : '';
+  });
+
   private subs = new Subscription();
   private toastTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -69,10 +82,17 @@ export class RecipeRemindersComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.remindersSvc.listenForForegroundPushes();
-    this.mobileNav.setPage('Reminders');
+    this.mobileNav.setPage('Settings');
 
     const uid = this.auth.user()?.uid;
     if (!uid) return;
+
+    this.shareName = this.guessName();
+    this.recipesSvc
+      .getMyShare(uid)
+      .then((s) => this.share.set(s))
+      .catch(() => {})
+      .finally(() => this.shareLoaded.set(true));
 
     this.subs.add(
       this.recipesSvc.getRecipes(uid).subscribe((list) => {
@@ -98,6 +118,65 @@ export class RecipeRemindersComponent implements OnInit, OnDestroy {
 
   back() {
     this.router.navigate(['/recipes']);
+  }
+
+  /** A first guess at the name to show visitors; editable before sharing. */
+  private guessName(): string {
+    const username = this.auth.userData()?.username as string | undefined;
+    const user = this.auth.user();
+    const raw = username || user?.displayName || user?.email?.split('@')[0] || '';
+    // "jane.doe_99" -> "Jane Doe"
+    return raw
+      .split(/[._\-\d]+/)
+      .filter(Boolean)
+      .map((w) => w[0].toUpperCase() + w.slice(1))
+      .join(' ');
+  }
+
+  async toggleSharing() {
+    const uid = this.auth.user()?.uid;
+    if (!uid || this.sharingBusy()) return;
+
+    this.sharingBusy.set(true);
+    try {
+      if (this.share()) {
+        await this.recipesSvc.stopSharing(uid);
+        this.share.set(null);
+        this.showToast('Sharing is off - the link no longer works');
+      } else {
+        const name = this.shareName.trim();
+        if (!name) {
+          this.showToast('Add a name first');
+          return;
+        }
+        this.share.set(await this.recipesSvc.startSharing(uid, name));
+        this.showToast('Sharing is on');
+      }
+    } catch (err) {
+      console.error('Sharing toggle failed', err);
+      this.showToast("Couldn't change sharing - try again", 5000);
+    } finally {
+      this.sharingBusy.set(false);
+    }
+  }
+
+  async copyShareLink() {
+    try {
+      await navigator.clipboard.writeText(this.shareUrl());
+      this.showToast('Link copied');
+    } catch {
+      this.showToast("Couldn't copy - select the link and copy it instead");
+    }
+  }
+
+  async nativeShare() {
+    const s = this.share();
+    if (!s) return;
+    try {
+      await navigator.share({ title: `${s.name}'s Recipes`, url: this.shareUrl() });
+    } catch {
+      // closing the share sheet rejects too - nothing to report
+    }
   }
 
   async onFrequencyChange(category: string, value: string) {

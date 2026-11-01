@@ -10,10 +10,24 @@ export interface Recipe {
   notes?: string;         // Free text (tips, ingredients, small write-up)
   notesImages?: string[]; // Photos of the written instructions, in page order
   sourceUrl?: string;     // Optional external link (YouTube/blog)
+  shared?: boolean;       // Owner shares their recipes - readable by anyone (see RecipeShare)
   madeCount?: number;     // How many times it has been cooked
   lastMadeAt?: any;       // serverTimestamp of the last +1
   createdAt?: any;        // serverTimestamp
   updatedAt?: any;        // serverTimestamp
+}
+
+/**
+ * A cook's public, read-only link: /recipes/{handle}.
+ * Stored at recipeShares/{handle}; anyone can read it. While it exists,
+ * every recipe of that owner carries `shared: true`, which is what the
+ * Firestore rule actually checks - deleting it alone doesn't unshare.
+ */
+export interface RecipeShare {
+  handle: string;  // the doc id, and the last part of the link
+  ownerId: string;
+  name: string;    // shown to visitors: "<name>'s Recipes"
+  createdAt?: any;
 }
 
 /**

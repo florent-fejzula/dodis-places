@@ -3,7 +3,7 @@
   <div class="sticky-top">
     <!-- Page header -->
     <div class="page-header">
-      <h1 class="page-title">Recipes</h1>
+      <h1 class="page-title">{{ pageTitle() }}</h1>
 
       <div class="header-actions">
         <button
@@ -24,8 +24,8 @@
           class="settings-btn"
           *ngIf="canEdit()"
           routerLink="/recipes/settings"
-          title="Recipe reminders"
-          aria-label="Recipe reminders"
+          title="Sharing &amp; reminders"
+          aria-label="Sharing and reminders"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -103,6 +103,11 @@
     </div>
   </div>
 
+  <div class="own-share-note" *ngIf="isOwnShare()">
+    This is what people with your link see.
+    <a routerLink="/recipes">Back to your recipes</a>
+  </div>
+
   <!-- Loading: auth restoring, or the first fetch is in flight -->
   <div class="recipes-container" *ngIf="!signedOut() && !recipesLoaded()">
     <div class="skeleton-grid">
@@ -120,13 +125,20 @@
     <button class="account-action" (click)="goToLogin()">Log in</button>
   </div>
 
-  <!-- Signed in, nothing added yet -->
+  <!-- Visiting a share link that doesn't exist (or was switched off) -->
+  <div class="account-state" *ngIf="viewing && recipesLoaded() && shareMissing()">
+    <h2>Nothing to see here</h2>
+    <p>This recipe link isn't active. It may have been switched off, or the address is mistyped.</p>
+  </div>
+
+  <!-- Signed in, nothing added yet (or a shared collection that's still empty) -->
   <div
     class="account-state"
-    *ngIf="!signedOut() && recipesLoaded() && !recipes().length"
+    *ngIf="!signedOut() && recipesLoaded() && !recipes().length && !shareMissing()"
   >
     <h2>No recipes yet</h2>
-    <p>Add your first one and it will show up here, grouped by category.</p>
+    <p *ngIf="!viewing">Add your first one and it will show up here, grouped by category.</p>
+    <p *ngIf="viewing">Nothing has been added here yet - check back later.</p>
     <button class="account-action" *ngIf="canEdit()" (click)="showAddForm.set(true)">
       + Add Recipe
     </button>
@@ -149,7 +161,7 @@
           (pointerleave)="onCardPointerUp()"
           (contextmenu)="onCardContextMenu($event)"
           [style.backgroundImage]="'url(' + recipe.image + ')'"
-          title="Click for details — hold to count a cook"
+          [title]="canEdit() ? 'Click for details — hold to count a cook' : 'Click for details'"
         >
           <button
             class="delete-x"
@@ -354,7 +366,7 @@
   <div class="detail-pg-content">
     <!-- view mode -->
     <ng-container *ngIf="!editMode()">
-      <div class="detail-made">
+      <div class="detail-made" *ngIf="!viewing">
         <span class="detail-made-count">{{ madeLabel(detailRecipe()) }}</span>
         <button
           class="detail-made-btn"

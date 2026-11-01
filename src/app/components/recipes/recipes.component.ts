@@ -18,7 +18,7 @@ import { FormsModule } from '@angular/forms';
 import { ImageCropperComponent, ImageCroppedEvent } from 'ngx-image-cropper';
 
 import { RecipesService } from 'src/app/services/recipes.service';
-import { Recipe, compareCategories, recipePhotos } from 'src/app/models/recipes';
+import { Recipe, RecipeShare, compareCategories, recipePhotos } from 'src/app/models/recipes';
 import { AuthService } from 'src/app/auth/auth.service';
 import {
   MobileNavAction,
@@ -105,9 +105,30 @@ export class RecipesComponent implements OnInit, OnDestroy {
   // data
   recipes = signal<Recipe[]>([]);
 
-  /** Every recipe on screen belongs to the signed-in user, so signed in = can edit. */
-  canEdit = computed(() => !!this.auth.user());
-  signedOut = computed(() => !this.auth.loading() && !this.auth.user());
+  /**
+   * /recipes/{handle}: someone's shared collection, read-only - no login,
+   * no editing, no "made" counts. Plain /recipes is the signed-in cook's own.
+   */
+  readonly viewHandle = this.route.snapshot.paramMap.get('handle');
+  readonly viewing = !!this.viewHandle;
+  share = signal<RecipeShare | null>(null);
+  /** The link doesn't exist, or sharing was turned off. */
+  shareMissing = signal(false);
+  /** The owner opened their own share link - show them it's the visitor view. */
+  isOwnShare = computed(
+    () => !!this.share() && this.share()!.ownerId === this.auth.user()?.uid
+  );
+
+  pageTitle = computed(() => {
+    const name = this.share()?.name;
+    return this.viewing && name ? `${name}'s Recipes` : 'Recipes';
+  });
+
+  /** Own page: every recipe on screen belongs to the signed-in user, so signed in = can edit. */
+  canEdit = computed(() => !this.viewing && !!this.auth.user());
+  signedOut = computed(
+    () => !this.viewing && !this.auth.loading() && !this.auth.user()
+  );
 
   /**
    * Emits undefined until Firebase has restored the session, so we never
@@ -171,7 +192,7 @@ export class RecipesComponent implements OnInit, OnDestroy {
     ];
     if (this.canEdit()) {
       actions.push({
-        label: 'Reminders',
+        label: 'Sharing & reminders',
         run: () => this.router.navigate(['/recipes/settings']),
       });
       actions.unshift({
@@ -179,7 +200,7 @@ export class RecipesComponent implements OnInit, OnDestroy {
         run: () => this.showAddForm.set(true),
       });
     }
-    this.mobileNav.setPage('Recipes', actions);
+    this.mobileNav.setPage(this.pageTitle(), actions);
   });
 
   groupedRecipes = computed(() => {
@@ -246,11 +267,29 @@ export class RecipesComponent implements OnInit, OnDestroy {
   cropRemaining = signal(0);
 
   ngOnInit() {
-    this.remindersSvc.listenForForegroundPushes();
-
     this.queryParamSub = this.route.queryParamMap.subscribe((params) => {
       this.pendingOpenId.set(params.get('open'));
     });
+
+    if (this.viewHandle) {
+      this.recipesSub = this.recipesSvc.getSharedRecipes(this.viewHandle).subscribe({
+        next: ({ share, recipes }) => {
+          this.share.set(share);
+          this.shareMissing.set(!share);
+          this.recipes.set(share ? recipes : []);
+          this.recipesLoaded.set(true);
+        },
+        // e.g. sharing was switched off while the page was open
+        error: () => {
+          this.shareMissing.set(true);
+          this.recipes.set([]);
+          this.recipesLoaded.set(true);
+        },
+      });
+      return;
+    }
+
+    this.remindersSvc.listenForForegroundPushes();
 
     this.recipesSub = this.user$
       .pipe(
@@ -262,7 +301,18 @@ export class RecipesComponent implements OnInit, OnDestroy {
       .subscribe((list) => {
         this.recipes.set(list || []);
         this.recipesLoaded.set(true);
+        this.syncSharedFlagsOnce(list || []);
       });
+  }
+
+  private flagsSynced = false;
+
+  /** Once per visit: recipes added from an older tab may lack the shared flag. */
+  private syncSharedFlagsOnce(list: Recipe[]) {
+    const uid = this.auth.user()?.uid;
+    if (this.flagsSynced || !uid || !list.length) return;
+    this.flagsSynced = true;
+    this.recipesSvc.syncSharedFlags(uid, list).catch(() => {});
   }
 
   goToLogin() {

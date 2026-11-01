@@ -1,8 +1,66 @@
 <div class="reminders-page">
   <div class="page-header">
     <button class="back-btn" (click)="back()">← Back</button>
-    <h1 class="page-title">Recipe Reminders</h1>
+    <h1 class="page-title">Recipe Settings</h1>
   </div>
+
+  <!-- Sharing: a public, read-only link to all of this cook's recipes -->
+  <h2 class="section-title">Sharing</h2>
+  <div class="device-card share-card" *ngIf="shareLoaded(); else shareLoading">
+    <!-- Off: pick the name, then switch it on -->
+    <ng-container *ngIf="!share()">
+      <p class="share-intro">
+        Get a link anyone can open to look through your recipes - no account
+        needed. They can't change anything, and your "made" counts stay private.
+      </p>
+      <label class="share-name">
+        Your name on the page
+        <input
+          [(ngModel)]="shareName"
+          maxlength="40"
+          placeholder="e.g. Dodi"
+          (keydown.enter)="toggleSharing()"
+        />
+      </label>
+      <p class="device-hint" *ngIf="shareName.trim()">
+        Visitors see "{{ shareName.trim() }}'s Recipes".
+      </p>
+      <button class="enable-btn" [disabled]="sharingBusy()" (click)="toggleSharing()">
+        {{ sharingBusy() ? 'Turning on…' : 'Share my recipes' }}
+      </button>
+    </ng-container>
+
+    <!-- On: the link, ways to send it, and the off switch -->
+    <ng-container *ngIf="share() as s">
+      <div class="device-status granted">
+        <span class="dot"></span> Your recipes are shared as "{{ s.name }}'s Recipes"
+      </div>
+      <div class="share-link">
+        <input
+          class="share-url"
+          readonly
+          [value]="shareUrl()"
+          (focus)="$any($event.target).select()"
+          aria-label="Your share link"
+        />
+        <button class="link-btn primary" (click)="copyShareLink()">Copy link</button>
+        <button class="link-btn" *ngIf="canNativeShare" (click)="nativeShare()">Share…</button>
+        <a class="link-btn" [href]="shareUrl()" target="_blank" rel="noopener">Preview</a>
+      </div>
+      <p class="device-hint">
+        New recipes are included automatically. Turning sharing off stops the
+        link working straight away.
+      </p>
+      <button class="stop-btn" [disabled]="sharingBusy()" (click)="toggleSharing()">
+        {{ sharingBusy() ? 'Turning off…' : 'Stop sharing' }}
+      </button>
+    </ng-container>
+  </div>
+  <ng-template #shareLoading>
+    <div class="device-card"><div class="row skeleton"></div></div>
+  </ng-template>
+
+  <h2 class="section-title">Reminders</h2>
 
   <!-- Device notification state -->
   <div class="device-card">

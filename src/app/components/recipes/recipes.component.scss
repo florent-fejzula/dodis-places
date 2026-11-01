@@ -1577,3 +1577,24 @@ button.note-photo-tile { cursor: zoom-in; }
     display: block;
   }
 }
+
+/* Owner opened their own share link */
+.own-share-note {
+  margin: 12px 24px 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #eef6f1;
+  border: 1px solid #cfe3d6;
+  color: #2e6e48;
+  font-size: 0.88rem;
+  font-weight: 600;
+
+  a {
+    margin-left: 6px;
+    color: #2e6e48;
+  }
+}
+
+@media (max-width: 768px) {
+  .own-share-note { margin: 10px 12px 0; }
+}

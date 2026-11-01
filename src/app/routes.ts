@@ -61,6 +61,16 @@ export const routes: Routes = [
       ),
   },
 
+  // Someone's shared recipes, read-only, no login needed. After
+  // 'recipes/settings' so that one wins; "settings" is a reserved link name.
+  {
+    path: 'recipes/:handle',
+    loadComponent: () =>
+      import('./components/recipes/recipes.component').then(
+        (m) => m.RecipesComponent
+      ),
+  },
+
   // Admin
   {
     path: 'add-place',
