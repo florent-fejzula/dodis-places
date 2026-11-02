@@ -28,6 +28,10 @@ import { getMessaging } from 'firebase-admin/messaging';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import { logger } from 'firebase-functions';
+import { onDocumentWritten } from 'firebase-functions/v2/firestore';
+import { getStorage, getDownloadURL } from 'firebase-admin/storage';
+import { createHash } from 'node:crypto';
+import sharp = require('sharp');
 
 initializeApp();
 const db = getFirestore();
@@ -304,3 +308,66 @@ export const sendTestReminder = onCall(async (request) => {
 
   return { recipeName: recipe.name };
 });
+
+/**
+ * Card thumbnails.
+ *
+ * The recipe grid shows dozens of covers at ~280px wide, but covers are
+ * uploaded at up to 1400px (and older ones larger) - 23 MB for 80 recipes.
+ * Whenever a recipe's cover (`image`) is new or changed, this makes a
+ * 720px-wide webp copy (enough for a 2x screen), stores it under
+ * recipes/cards/, and records it as `cardImage` plus `cardImageFor` (the
+ * cover it was made from). The app only uses cardImage while cardImageFor
+ * still matches the cover, so a just-changed cover shows the full photo
+ * until its new thumbnail lands a few seconds later.
+ *
+ * Our own update re-triggers this function; cardImageFor === image then
+ * ends it straight away, as does every other edit that leaves the cover
+ * alone (like +1 made).
+ */
+const CARD_WIDTH = 720;
+
+export const makeCardImage = onDocumentWritten(
+  { document: 'recipes/{recipeId}', memory: '512MiB', timeoutSeconds: 60 },
+  async (event) => {
+    const after = event.data?.after;
+    if (!after?.exists) return; // deleted
+
+    const recipe = after.data() as { image?: string; cardImageFor?: string };
+    const cover = recipe.image?.trim();
+    if (!cover || recipe.cardImageFor === cover) return;
+
+    try {
+      const res = await fetch(cover);
+      if (!res.ok) throw new Error(`HTTP ${res.status} fetching cover`);
+      const original = Buffer.from(await res.arrayBuffer());
+
+      const card = await sharp(original)
+        .rotate() // respect EXIF orientation
+        .resize({ width: CARD_WIDTH, withoutEnlargement: true })
+        .webp({ quality: 78 })
+        .toBuffer();
+
+      // Named after the cover, so a cover change never reuses a stale file
+      const tag = createHash('sha1').update(cover).digest('hex').slice(0, 12);
+      const file = getStorage()
+        .bucket()
+        .file(`recipes/cards/${event.params.recipeId}_${tag}.webp`);
+      await file.save(card, {
+        contentType: 'image/webp',
+        metadata: { cacheControl: 'public,max-age=31536000,immutable' },
+      });
+
+      await after.ref.update({
+        cardImage: await getDownloadURL(file),
+        cardImageFor: cover,
+      });
+      logger.info(
+        `Card image for ${event.params.recipeId}: ${Math.round(original.length / 1024)} KB -> ${Math.round(card.length / 1024)} KB`
+      );
+    } catch (err) {
+      // Not fatal: the card keeps showing the full cover
+      logger.warn(`No card image for ${event.params.recipeId}`, err);
+    }
+  }
+);

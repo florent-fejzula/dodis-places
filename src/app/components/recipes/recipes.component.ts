@@ -18,7 +18,7 @@ import { FormsModule } from '@angular/forms';
 import { ImageCropperComponent, ImageCroppedEvent } from 'ngx-image-cropper';
 
 import { RecipesService } from 'src/app/services/recipes.service';
-import { Recipe, RecipeShare, compareCategories, recipePhotos } from 'src/app/models/recipes';
+import { Recipe, RecipeShare, cardPhoto, compareCategories, recipePhotos } from 'src/app/models/recipes';
 import { AuthService } from 'src/app/auth/auth.service';
 import {
   MobileNavAction,
@@ -291,6 +291,15 @@ export class RecipesComponent implements OnInit, OnDestroy {
 
     this.remindersSvc.listenForForegroundPushes();
 
+    // Draw the last list this device saw right away - before Firebase has
+    // even restored the login - as long as it belongs to whoever is (or is
+    // about to be) signed in. The live data below replaces it a moment later.
+    const last = this.recipesSvc.peekLastOwnerRecipes();
+    if (last && (this.auth.loading() || this.auth.user()?.uid === last.ownerId)) {
+      this.recipes.set(last.recipes);
+      this.recipesLoaded.set(true);
+    }
+
     this.recipesSub = this.user$
       .pipe(
         filter((user) => user !== undefined),
@@ -426,6 +435,10 @@ export class RecipesComponent implements OnInit, OnDestroy {
   }
 
   // ---------- Cooked counter ----------
+
+  cardSrc(recipe: Recipe): string {
+    return cardPhoto(recipe);
+  }
 
   madeCount(recipe: Recipe | null | undefined): number {
     return Math.max(0, recipe?.madeCount ?? 0);

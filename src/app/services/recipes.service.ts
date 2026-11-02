@@ -27,6 +27,7 @@ import {
 import { Observable, concat, from, map, of, shareReplay, switchMap, tap } from 'rxjs';
 import { Recipe, RecipeShare, recipePhotos } from '../models/recipes';
 import { slugify } from '../utils/general.util';
+import { RECIPE_CACHE_PREFIX } from '../utils/recipe-cache';
 
 @Injectable({ providedIn: 'root' })
 export class RecipesService {
@@ -40,12 +41,33 @@ export class RecipesService {
 
   private _recipes$: Observable<Recipe[]> | null = null;
   private _ownerId: string | null = null;
-  private readonly LS_PREFIX = 'dodi_recipes_v1';
-  private readonly LS_TTL = 10 * 60 * 1000;
+  /**
+   * The last list each cook saw, kept on this device with no expiry: the
+   * page shows it instantly and the live Firestore listener replaces it a
+   * moment later. Recipes change rarely, so it's almost always already right.
+   * Cleared on logout (see AuthService.logout).
+   */
+  private static readonly LS_LAST_OWNER = `${RECIPE_CACHE_PREFIX}__last_owner`;
 
   private lsKey(ownerId: string) {
-    return `${this.LS_PREFIX}_${ownerId}`;
+    return `${RECIPE_CACHE_PREFIX}_${ownerId}`;
   }
+
+  /**
+   * The recipes of whoever was signed in last on this device - readable
+   * before Firebase has even restored the session, so the page can draw
+   * straight away instead of waiting on login + network.
+   */
+  peekLastOwnerRecipes(): { ownerId: string; recipes: Recipe[] } | null {
+    try {
+      const ownerId = localStorage.getItem(RecipesService.LS_LAST_OWNER);
+      const recipes = ownerId ? this.loadCached(ownerId) : null;
+      return ownerId && recipes ? { ownerId, recipes } : null;
+    } catch {
+      return null;
+    }
+  }
+
 
   // ---- Recipes collection (one cook's own recipes)
   getRecipes(ownerId: string): Observable<Recipe[]> {
@@ -62,6 +84,7 @@ export class RecipesService {
       tap(recipes => {
         try {
           localStorage.setItem(this.lsKey(ownerId), JSON.stringify({ t: Date.now(), data: recipes }));
+          localStorage.setItem(RecipesService.LS_LAST_OWNER, ownerId);
         } catch {}
       }),
       shareReplay(1),
@@ -76,9 +99,8 @@ export class RecipesService {
     try {
       const raw = localStorage.getItem(this.lsKey(ownerId));
       if (!raw) return null;
-      const { t, data } = JSON.parse(raw);
-      if (!Array.isArray(data) || Date.now() - t > this.LS_TTL) return null;
-      return data;
+      const { data } = JSON.parse(raw);
+      return Array.isArray(data) ? data : null;
     } catch {
       return null;
     }

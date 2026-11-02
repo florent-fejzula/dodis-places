@@ -20,6 +20,7 @@ import {
   serverTimestamp,
 } from '@angular/fire/firestore';
 import { Router } from '@angular/router';
+import { clearRecipeCaches } from '../utils/recipe-cache';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -149,6 +150,7 @@ export class AuthService {
     try {
       await signOut(this.auth);
       this.userData.set(null);
+      clearRecipeCaches();
       await this.router.navigate(['/login']);
     } catch (err) {
       console.error('Logout error:', err);

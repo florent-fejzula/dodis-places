@@ -160,9 +160,18 @@
           (pointercancel)="onCardPointerUp()"
           (pointerleave)="onCardPointerUp()"
           (contextmenu)="onCardContextMenu($event)"
-          [style.backgroundImage]="'url(' + recipe.image + ')'"
           [title]="canEdit() ? 'Click for details — hold to count a cook' : 'Click for details'"
         >
+          <!-- Small card-sized copy of the cover; loads as it nears the screen, fades in once decoded -->
+          <img
+            class="card-photo"
+            [src]="cardSrc(recipe)"
+            alt=""
+            loading="lazy"
+            decoding="async"
+            draggable="false"
+            (load)="$any($event.target).classList.add('loaded')"
+          />
           <button
             class="delete-x"
             *ngIf="canEdit()"

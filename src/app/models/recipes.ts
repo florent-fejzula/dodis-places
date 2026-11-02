@@ -11,6 +11,8 @@ export interface Recipe {
   notesImages?: string[]; // Photos of the written instructions, in page order
   sourceUrl?: string;     // Optional external link (YouTube/blog)
   shared?: boolean;       // Owner shares their recipes - readable by anyone (see RecipeShare)
+  cardImage?: string;     // Small (720px) copy of the cover for cards - made by a Cloud Function
+  cardImageFor?: string;  // The cover URL cardImage was made from; differs = cover changed, not ready yet
   madeCount?: number;     // How many times it has been cooked
   lastMadeAt?: any;       // serverTimestamp of the last +1
   createdAt?: any;        // serverTimestamp
@@ -49,6 +51,11 @@ function categoryRank(category: string): number {
 /** Sort comparator for category names, following RECIPE_CATEGORY_ORDER. */
 export function compareCategories(a: string, b: string): number {
   return categoryRank(a) - categoryRank(b) || a.localeCompare(b);
+}
+
+/** What a card shows: the small copy when it matches the current cover, else the cover itself. */
+export function cardPhoto(r: Partial<Recipe>): string {
+  return r.cardImage && r.cardImageFor === r.image ? r.cardImage : r.image ?? '';
 }
 
 /** A recipe's photos, cover first - also for recipes saved before `images` existed. */
