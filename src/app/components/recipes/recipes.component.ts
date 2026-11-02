@@ -150,21 +150,75 @@ export class RecipesComponent implements OnInit, OnDestroy {
     if (!match) return; // recipes may not have loaded yet - reruns when they do
 
     this.pendingOpenId.set(null);
-    this.openDetails(match);
-    this.router.navigate([], { relativeTo: this.route, queryParams: {}, replaceUrl: true });
+    // Clear ?open= first and only then open: the overlay's history entry
+    // must sit on top of a clean URL, or Back would land on ?open=<id> and
+    // open the recipe all over again
+    this.router
+      .navigate([], { relativeTo: this.route, queryParams: {}, replaceUrl: true })
+      .then(() => this.openDetails(match));
   });
 
   cropFile: File | null = null;
   lockAspectRatio = true;
 
   /** Detail view, add form, cropper and photo viewer all count as "a modal is open". */
-  anyModalOpen = computed(
+  anyModalOpen = computed(() => this.openOverlayCount() > 0);
+
+  /** How many layers are stacked: e.g. recipe page + photo viewer = 2. */
+  private openOverlayCount = computed(
     () =>
-      this.showDetail() ||
-      this.showAddForm() ||
-      this.showCropper() ||
-      this.lightbox() !== null
+      [
+        this.showDetail(),
+        this.showAddForm(),
+        this.showCropper(),
+        this.lightbox() !== null,
+      ].filter(Boolean).length
   );
+
+  /*
+   * The phone's Back button (and the browser's) should close the top
+   * overlay - recipe page, photo viewer, add form, cropper - not leave the
+   * app. They aren't routes, so each open layer gets a history entry of its
+   * own (same URL). Back pops one and we close the top layer, exactly like
+   * Esc. Closing a layer with its own button/Esc drops its entry again, so
+   * history and what's on screen never drift apart.
+   */
+  private historyDepth = 0; // entries we've pushed and not yet popped
+  private ignorePops = 0; // popstates caused by our own history.go(-n)
+
+  private historySync = effect(() => {
+    this.openOverlayCount();
+    this.syncHistory();
+  });
+
+  private syncHistory() {
+    const open = this.openOverlayCount();
+    while (this.historyDepth < open) {
+      history.pushState({ recipesOverlay: true }, '');
+      this.historyDepth++;
+    }
+    if (this.historyDepth > open) {
+      const extra = this.historyDepth - open;
+      this.historyDepth = open;
+      this.ignorePops++;
+      history.go(-extra);
+    }
+  }
+
+  @HostListener('window:popstate')
+  onPopState() {
+    if (this.ignorePops > 0) {
+      this.ignorePops--;
+      return;
+    }
+    if (this.historyDepth === 0) return; // a real navigation, not one of ours
+
+    this.historyDepth--;
+    this.onEscape(); // close (or step out of) the top layer
+    // If nothing closed - e.g. editing just ended, or a photo is mid-upload -
+    // the layer is still open, so give it its entry back
+    this.syncHistory();
+  }
 
   /** Nothing behind a modal should scroll — phones especially. */
   private scrollLock = effect(() => {
