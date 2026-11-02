@@ -436,6 +436,15 @@ export class RecipesComponent implements OnInit, OnDestroy {
 
   // ---------- Cooked counter ----------
 
+  /**
+   * The list arrives several times on open (this device's copy, then live
+   * data) as brand-new objects. Matching cards by id keeps the existing
+   * cards and their already-shown photos, instead of rebuilding every card
+   * and replaying each photo's fade-in - the "blink" on load.
+   */
+  trackSection = (_: number, section: { category: string }) => section.category;
+  trackRecipe = (_: number, recipe: Recipe) => recipe.id ?? recipe.name;
+
   cardSrc(recipe: Recipe): string {
     return cardPhoto(recipe);
   }
